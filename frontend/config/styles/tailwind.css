@@ -1,0 +1,9 @@
+@import "./tailwind/layout.css";
+@import "./tailwind/animation.css";
+@import "./tailwind/menu.css";
+@import "./tailwind/scroll.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+

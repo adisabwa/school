@@ -1,0 +1,20 @@
+#File vendor
+vendor
+
+#vue.js export
+public/assets/vue
+
+writable/uploads/*
+writable/session/*
+writable/logs/*
+writable/debugbar/*
+writable/cache/*
+
+.env
+.env.production
+
+node_modules
+stats.html
+
+package-lock.json
+composer-lock.json

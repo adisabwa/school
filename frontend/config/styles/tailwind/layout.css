@@ -1,0 +1,11 @@
+@layer base {
+	.el-collapse-item__header {
+        @apply 
+            h-fit
+        !important;
+    }
+    body {
+        @apply font-sans;
+    }
+}
+

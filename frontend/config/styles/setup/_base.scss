@@ -1,0 +1,62 @@
+@use './variables' as v;
+
+body {
+  background-color: v.$colorBackground;
+  font-family: v.$fontDefault;
+  font-weight: v.$fontWeightDefault;
+  line-height: 1.5;
+  min-height: 100vh;
+  margin: 0px;
+}
+.pointer {
+  cursor: pointer;
+}
+.text-danger {
+  color: v.$colorDanger !important;
+}
+.text-success {
+  color: v.$colorSuccess !important;
+}
+.text-warning {
+  color: v.$colorWarning !important;
+}
+.text-primary {
+  color: v.$colorPrimary !important;
+}
+.text-muted {
+  color: v.$colorGray !important;
+}
+.text-tip {
+  color: #606266 !important;
+}
+.bg-danger {
+  background-color: v.$colorDanger !important;
+  color: #fff;
+}
+.bg-success {
+  background-color: v.$colorSuccess !important;
+  color: #fff;
+}
+.bg-warning {
+  background-color: v.$colorWarning !important;
+}
+.bg-primary {
+  background-color: v.$colorPrimary !important;
+  color: #fff;
+}
+.bg-info {
+  background-color: v.$colorInfo !important;
+  color: #fff;
+}
+.bg-muted {
+  background-color: v.$colorGray !important;
+}
+.darker {
+  filter: brightness(0.9);
+}
+img, svg, video, canvas, audio, iframe, embed, object {
+  display: inline-block;
+}
+a {
+  text-decoration: none;
+}

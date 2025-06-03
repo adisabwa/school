@@ -1,0 +1,24 @@
+.doc-upload-wrap {
+  font-size: 15px;
+  .el-upload {
+    display: block;
+    .el-upload-dragger {
+      width: 100%;
+    }
+  }
+}
+.el-upload-dragger {
+  min-height: 115px !important;
+  padding: 5px !important;
+}
+.el-upload-list__item {
+  background: #F5F7FA;
+  margin-top: 0px !important;
+  &:hover {
+    background: #EFEFEF;
+  }
+}
+
+.el-dialog {
+  margin-bottom: 100px !important;
+}

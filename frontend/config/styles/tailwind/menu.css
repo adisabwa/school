@@ -1,0 +1,40 @@
+@layer base {
+    .menu-item{
+		@apply 
+            flex items-center duration-500
+            h-full px-3
+            bg-gradient-to-r from-yellow-50 from-50% to-teal-700 to-50%
+            bg-[length:200%_200%] bg-left-bottom 
+            text-[13px] [&_*]:text-teal-700
+            hover:bg-right-top
+            [&_*]:hover:text-white
+		!important;
+	}
+    .menu-item.reverse{
+			@apply 
+            bg-gradient-to-l bg-right-bottom 
+            hover:bg-left-top
+			!important;
+	}
+      .el-menu--horizontal>.el-sub-menu .el-sub-menu__title:hover {
+            @apply
+                 bg-transparent
+            !important;
+      }
+      .el-menu.el-menu--popup.el-menu--popup-bottom-start {
+            @apply
+              bg-transparent p-0
+            !important;
+      }
+      .el-menu--popup {
+            @apply 
+                  p-0 text-[13px] font-montserrat [&_*]:font-montserrat
+            !important;
+      }
+      
+      .el-sub-menu__title {
+        @apply 
+          hover:bg-transparent
+      	!important;
+      }
+}

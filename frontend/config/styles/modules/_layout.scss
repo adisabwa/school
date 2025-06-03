@@ -1,0 +1,27 @@
+Icon {
+  font-size: 2em;
+  margin-right: 10px;
+}
+
+.overflow-y-auto, .overflow-y-scroll {
+  &::-webkit-scrollbar {
+    width: 4px;
+    background-color:   white;
+  }
+  &::-webkit-scrollbar-thumb {
+    height: 1px;
+    background-color: #c6dbdb;
+    border-radius: 5px;
+  }
+}
+.overflow-x-auto, .overflow-x-scroll {
+  &::-webkit-scrollbar {
+    height: 4px;
+    background-color:   white;
+  }
+  &::-webkit-scrollbar-thumb {
+    width: 100px;
+    background-color: #c6dbdb;
+    border-radius: 5px;
+  }
+}
