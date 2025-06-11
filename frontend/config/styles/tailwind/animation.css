@@ -100,7 +100,6 @@
 		0% {clip-path:var(--from-clip)}
 		100% {clip-path:var(--to-clip)}
 	}
-
 	.fly-out-top {
 		@apply translate-y-[-120vh] duration-[1s] !important;
 	}
