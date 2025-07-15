@@ -47,26 +47,26 @@ import API from '@/config/api'
 app.config.globalProperties.$http = API
 
 
-import AddToHomescreen from '@owliehq/vue-addtohomescreen';
-app.use(AddToHomescreen, {
-  buttonColor: 'blue',
-});
+// import AddToHomescreen from '@owliehq/vue-addtohomescreen';
+// app.use(AddToHomescreen, {
+//   buttonColor: 'blue',
+// });
 
-if ('serviceWorker' in navigator) {
-// Wait until the page is loaded
-    window.addEventListener('load', () => {
-        // Register the service worker
-        navigator.serviceWorker
-        .register(baseUrl + 'assets/vue/sw.js')  // This path should point to your service worker
-        .then((registration) => {
-            console.log('Service Worker registered with scope: ', registration.scope);
-        })
-        .catch((error) => {
-            console.log('Service Worker registration failed: ', error);
-        });
-    });
-} else {
-    console.warn('Service workers are not supported in this browser');
-  }
+// if ('serviceWorker' in navigator) {
+// // Wait until the page is loaded
+//     window.addEventListener('load', () => {
+//         // Register the service worker
+//         navigator.serviceWorker
+//         .register(baseUrl + 'assets/vue/sw.js')  // This path should point to your service worker
+//         .then((registration) => {
+//             console.log('Service Worker registered with scope: ', registration.scope);
+//         })
+//         .catch((error) => {
+//             console.log('Service Worker registration failed: ', error);
+//         });
+//     });
+// } else {
+//     console.warn('Service workers are not supported in this browser');
+//   }
 
 app.mount('#app')

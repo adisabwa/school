@@ -92,10 +92,10 @@
         </table-data>
       </el-card>
     </div>
-  </template>
+</template>
   
   <script>
-  import { mapGetters } from 'vuex';
+   import { mapState } from 'pinia';
   import { setStatusText, setStatusType } from '@/helpers/psb'
   import Form from '@/components/Form.vue'
   import TableData from '@/components/TableData.vue'
@@ -165,17 +165,17 @@
     },
     watch: {
       'filter.nama': function(val) {
-        this.$store.dispatch('saveFilter', {ref:'nama', data: val})
+        useDataStore().saveFilter({key:nama, val:val})
       },
       'filter.nomor': function(val) {
-        this.$store.dispatch('saveFilter', {ref:'nomor', data: val})
+        useDataStore().saveFilter({key:nomor, val:val})
       },
       'paging.currentPage': function(val) {
         this.paging.offset = val * this.paging.perPage - this.paging.perPage;
       },
     },  
     computed: {
-      ...mapGetters({
+      ...mapState(useAuthStore, {
         user: 'loggedUser',
       }),
       labelPosition(){
@@ -198,7 +198,7 @@
         var index = obj.index;
         if (action == 'edit') {
           this.$router.push({name:'psb-view'})
-          this.$store.dispatch('saveFilter', {ref:'keyword', data: nisn})
+          useDataStore().saveFilter({key:'keyword', val:nisn})
         } else if (action == 'pay') {
           this.statusPsb(id, status);
         } else  if (action == 'pay-many') {
@@ -299,9 +299,9 @@
       },
     },
     created: function() {
-      let filter = this.$store.getters.filter
-      this.filter.nama = this.isEmpty(filter.nama) ? '' : filter.nama
-      this.filter.nomor = this.isEmpty(filter.nomor) ? '' : filter.nomor
+      let filter = useDataStore().filter
+      this.filter.nama = filter?.nama ?? ''
+      this.filter.nomor = filter?.nomor ?? ''
       // console.log(this.$router);
     },
     mounted: function() {

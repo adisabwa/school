@@ -17,6 +17,8 @@ class AuthFilter implements FilterInterface
 
         if (empty($userdata)) {
             return redirect()->to(site_url('auth/unauthorized'));
+        } if ($userdata->role == 'super-admin') {
+            
         } else if (!empty($roles) && !in_array($userdata->role, $roles)) {
             return redirect()->to(site_url('auth/forbidden'));
         }

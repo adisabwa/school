@@ -183,7 +183,7 @@
       }
     },  
     computed: {
-      ...mapState({
+      ...mapState(useAuthStore, {
         user: 'loggedUser',
         anggotas:'data/anggotas'
       }),

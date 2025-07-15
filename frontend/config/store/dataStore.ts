@@ -9,6 +9,7 @@ export const useDataStore = defineStore('data', {
   state: () => ({
     anggota: {},
     anggotas: [],
+    filters:{},
   }),
   getters: {
     
@@ -84,5 +85,8 @@ export const useDataStore = defineStore('data', {
             });
       }); 
     },
+    setFilter({ key, val}){
+      this.filter[key] = val
+    }
   },
 })

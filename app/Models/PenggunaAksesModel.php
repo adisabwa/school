@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class PenggunaAksesModel extends Model
 {
-    protected $table         = 'mu_pengguna_akses';
+    protected $table         = 'sch_pengguna_akses';
     protected $primaryKey = 'id';
 
     protected $useAutoIncrement = true;

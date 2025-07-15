@@ -44,13 +44,11 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import Form from '@/components/Form.vue'
+ import { mapState } from 'pinia';
 
 export default {
   name: "psb",
   components: {
-    'form-comp' : Form,
   },
   data: function() {
     return {
@@ -61,7 +59,7 @@ export default {
     
   },  
   computed: {
-    ...mapGetters({
+    ...mapState(useAuthStore, {
       user: 'loggedUser',
     }),
   },

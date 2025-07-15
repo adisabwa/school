@@ -74,10 +74,10 @@
         </div>
       </el-card>
     </div>
-  </template>
+</template>
   
-  <script>
-  import { mapGetters } from 'vuex';
+ <script>
+   import { mapState } from 'pinia';
   import Form from '@/components/Form.vue'
   
   export default {
@@ -111,7 +111,8 @@
       }
     },  
     computed: {
-      ...mapGetters({
+      
+      ...mapState(useAuthStore, {
         user: 'loggedUser',
       }),
       labelPosition(){
@@ -121,7 +122,7 @@
     methods: {
       getInitial: async function() {
         this.loading = true;
-        await this.$http.get('/kolom/preparation?table=da_psb')
+        await this.$http.get('/kolom/preparation?table=sch_psb')
           .then(result => {
             var res = result.data;
             this.groups = Object.values(res)

@@ -1,3 +1,8 @@
+<style lang="postcss" scoped>
+:deep(.required) {
+  @apply after:content-['*'] after:text-red-600 after:ml-1 after:text-[120%]
+}
+</style>
 <template>
 	<div class="">
     <el-form :label-width="labelWidth" :label-position="labelPosition" v-loading="saving" :inline="inline"

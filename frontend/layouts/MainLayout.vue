@@ -15,7 +15,7 @@
           }"
           :active-menu="activeMenu" :menus="menus" @action="handleActionClick" @toggle="toggleMenu"/>
       </transition>
-      <el-button v-if="$route.name != 'dashboard' "
+      <el-button v-if="$route.name != 'default' "
         class="fixed z-[200] top-6 left-4
         rounded-full
         w-[40px] h-[40px] p-3
@@ -107,7 +107,7 @@ import VerticalMenu from './components/VerticalMenu.vue';
 import HorizontalMenu from './components/HorizontalMenu.vue';
 
 export default {
-  name: 'dashboard-layout',
+  name: 'default-layout',
   data: function() {
     return {
       activeMenu: '',
@@ -116,8 +116,8 @@ export default {
       scrollPosition:0,
       menus:[],
       mainMenus:{
-        dashboard:{
-          route:'dashboard',
+        default:{
+          route:'default',
           function:'',
           icon:'mdi:home',
           label:'Beranda',
@@ -187,9 +187,9 @@ export default {
       
       this.activeMenu = index
     },
-    async getMenus(){
+    async getMenus(app = 'admin'){
       // let index = vm.coalesce([vm.$route.meta.app, 'default'])
-      await import(`@/helpers/menus/admin.js`)
+      await import(`@/helpers/menus/${app}.js`)
         .then(res => {
           // console.log(res.default)
           this.menus = res.default
@@ -241,7 +241,7 @@ export default {
     }
   },
   created: async function() {
-    this.getMenus()
+    this.getMenus(this.$route?.meta?.app ?? 'admin')
     this.scrollPosition = window.scrollY;
     this.mainMenus.logout.function = this.doLogout
     this.isVertical = this.getDataFormStorage('vertical-menu') ?? '1';

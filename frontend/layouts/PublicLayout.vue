@@ -66,7 +66,7 @@
 import { mapState } from 'pinia';
 
 export default {
-  name: 'dashboard-layout',
+  name: 'default-layout',
   components:{
   },
   data: function() {

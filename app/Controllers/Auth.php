@@ -4,31 +4,20 @@ namespace App\Controllers;
 
 class Auth extends BaseController
 {
-    protected $penggunaModel;
-
     public function __construct()
     {
         
-        $this->penggunaModel = model('AnggotaModel');
+        $this->penggunaModel = model('PenggunaModel');
         // helper('auth');
     }
 
-    public function login($no_hp = NULL, $password = null)
+    public function login($username = NULL, $password = null)
     {
-        $data = $no_hp ?? $this->request->getPost('no_hp');
+        $username = $username ?? $this->request->getPost('username');
         $password = $password ?? $this->request->getPost('password');
 
-        $message = '';
-       
-        $email = $data;
-        $hp = toPhoneNumber($data);
+        $user = $this->penggunaModel->login($username, md5($password));
         
-        if ($message) {
-            return $this->respond([
-                'message' => $message,
-            ], 401);
-        }
-        $user = $this->penggunaModel->login($email, $hp, md5($password));
         if ($user) {
             // Getting user positions
             set_userdata($user);
@@ -44,20 +33,9 @@ class Auth extends BaseController
     public function user()
     {
         if (empty(userdata())) {
-            return $this->check_cookie();
-        }
-        return $this->respondCreated(userdata());
-    }
-
-    public function check_cookie()
-    {
-        $cookie = $this->request->getCookie('userData');
-        // var_dump($cookie);
-        if (empty($cookie)) {
             return $this->unauthorized();
         }
-        $cookie = json_decode($cookie);
-        return $this->login($cookie->no_hp, $cookie->password);
+        return $this->respondCreated(userdata());
     }
 
     public function forbidden()
@@ -78,28 +56,14 @@ class Auth extends BaseController
     }
 
     
-    public function change_role()
-    {
-        $role = $this->request->getGetPost('role');
-        
-        $userdata = userdata();
-        $userdata->role = $role;
-
-        set_userdata($userdata);
-
-        return $this->respondCreated($userdata);
-    }
-
-
-    
     public function reset()
     {
         $user = userdata();
-        $user = $this->penggunaModel->login($user->email, $user->no_hp, $user->password);
+        clear_userdata();
+        $user = $this->penggunaModel->login($user->username, $user->password);
         
         if ($user) {
             // Getting user positions
-            clear_userdata();
             set_userdata($user);
             return $this->respondCreated($user);
         } else {

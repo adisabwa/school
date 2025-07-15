@@ -11,7 +11,7 @@ const baseUrlFull = process.env.NODE_ENV === 'production'
 
 const siteUrl = baseUrl + 'index.php/';
 const siteUrlFull = baseUrlFull + 'index.php/';
-const defaultRoute = 'dashboard'
+const defaultRoute = 'default'
 
 export { baseUrl };
 export { baseUrlFull };

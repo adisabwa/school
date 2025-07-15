@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class PsbModel extends Model
 {
-    protected $table      = 'mu_psb';
+    protected $table      = 'sch_psb';
     protected $primaryKey = 'id';
 
     protected $useAutoIncrement = true;
@@ -28,7 +28,7 @@ class PsbModel extends Model
     {
         $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
         $whereOr = empty($whereOr) ? '1=1' : $whereOr;
-        $data = $this->db->table('mu_psb p')
+        $data = $this->db->table('sch_psb p')
                     ->select("p.*,
                     pe1.label ayah_peng_label, pe1.dari ayah_peng_dari, pe1.hingga ayah_peng_hingga,
                     pe2.label ibu_peng_label, pe2.dari ibu_peng_dari, pe2.hingga ibu_peng_hingga,
@@ -58,7 +58,7 @@ class PsbModel extends Model
         $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
         $whereOr = empty($whereOr) ? '1=1' : $whereOr;
 
-        $data = $this->db->table('mu_psb p')
+        $data = $this->db->table('sch_psb p')
                     ->select("p.*,
                     pe1.label ayah_peng_label, pe1.dari ayah_peng_dari, pe1.hingga ayah_peng_hingga,
                     pe2.label ibu_peng_label, pe2.dari ibu_peng_dari, pe2.hingga ibu_peng_hingga,
@@ -79,7 +79,7 @@ class PsbModel extends Model
 
     public function getSummary()
     {
-        return $this->db->table('mu_psb')
+        return $this->db->table('sch_psb')
                         ->select("status, count(id) jumlah")
                         ->groupBy('status')
                         ->get()

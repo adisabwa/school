@@ -2,14 +2,14 @@
 import { baseUrl } from "@/config/url";
 
 let topMenu = {
-  quranBaca: {
-    url:'quran/baca',
-    label:"Baca Qur'an",
-    route:'quran-baca',
+  psb: {
+    url:'psb/admin',
+    label:"Data PPDB",
+    route:'admin-psb',
     color:'bg-lime-200',
     shadowColor:'shadow-lime-600',
     textColor:'text-orange-500',
-    image:baseUrl + 'assets/images/icons/quran.png',
+    image:baseUrl + 'assets/images/icons/psb.png',
   },
   quranHafal: {
     url:'quran/hafal',

@@ -61,8 +61,8 @@ routes.beforeEach(async (to, from, next) => {
     
     // If login, dont enter login and default=
     // console.log(to)
-    if (loggedUser.role != '' && ['login','default'].includes(to.name)) {
-      next({name:'dashboard'})
+    if (loggedUser.role != '' && ['login'].includes(to.name)) {
+      next({name:'default'})
     } else if (to.matched.some(record => record.meta.requiresAuth)) {
       if (loggedUser.role == '') {
         // window.alert('Silahkan login terlebih dahulu')
@@ -71,8 +71,11 @@ routes.beforeEach(async (to, from, next) => {
           query: { nextUrl: to.fullPath }
         })
       } else { if (to.meta.allowedRoles) {
-          // console.log(to.meta.allowedRoles, loggedUser.role, !to.meta.allowedRoles.includes(loggedUser.role));
-          if (!to.meta.allowedRoles.includes(loggedUser.role)) {
+          console.log(to.meta.allowedRoles, loggedUser.role, !to.meta.allowedRoles.includes(loggedUser.role));
+          if (loggedUser.role == 'super-admin') {
+            next()
+          }
+          else if (!to.meta.allowedRoles?.includes(loggedUser.role)) {
             let name = 'unauthorized'
             // console.log(name)
             if (to.meta.redirect)

@@ -46,7 +46,7 @@
   </template>
   
   <script>
-  import { mapGetters } from 'vuex';
+   import { mapState } from 'pinia';
   import Form from '@/components/Form.vue'
   
   export default {
@@ -63,7 +63,8 @@
       
     },  
     computed: {
-      ...mapGetters({
+      
+      ...mapState(useAuthStore, {
         user: 'loggedUser',
       }),
     },

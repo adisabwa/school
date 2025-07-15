@@ -114,7 +114,7 @@
   </template>
   
   <script>
-  import { mapGetters } from 'vuex';
+   import { mapState } from 'pinia';
   import ViewTable from '@/components/ViewTable.vue'
   
   export default {
@@ -147,7 +147,8 @@
       }
     },  
     computed: {
-      ...mapGetters({
+      
+      ...mapState(useAuthStore, {
         user: 'loggedUser',
       }),
       labelPosition(){
@@ -189,12 +190,12 @@
       window.addEventListener('resize', () => {
         vm.sizeWindow = window.innerWidth
       });
-      let filter = this.$store.getters.filter
+      let filter = useDataStore().filter
       this.inputKeyword = this.isEmpty(filter.keyword) ? '' : filter.keyword
     },
     beforeRouteLeave(){
       console.log('leave')
-      this.$store.dispatch('saveFilter', {ref:'keyword', data: ''})
+      useDataStore().saveFilter({key:'keyword', val:''})
     }
   }
   </script>

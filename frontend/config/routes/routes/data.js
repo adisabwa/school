@@ -4,8 +4,13 @@ import { siteUrl } from '@/config/url'
 
 let routes = [
   {
+    component: MainLayout,
     meta:{
-      app: 'data'
+      enterFromClass : "scale-y-0 opacity-50",
+      enterToClass : "opacity-100",
+      leaveFromClass : "opacity-100",
+      leaveToClass : "scale-y-0 opacity-50",
+      requiresAuth: true,
     },
     children: [
       {
@@ -13,14 +18,6 @@ let routes = [
         children: [
           {
             path: 'pengguna',
-            component: MainLayout,
-            meta: {
-                requiresAuth: true,
-                enterFromClass : "scale-y-0 opacity-50",
-                enterToClass : "opacity-100",
-                leaveFromClass : "opacity-100",
-                leaveToClass : "scale-y-0 opacity-50",
-            },
             children: [ 
               {
                 path: '',
@@ -36,18 +33,25 @@ let routes = [
           },
           {
             path: 'unit',
-            component: MainLayout,
-            meta: {
-                requiresAuth: true,
-                enterFromClass : "scale-y-0 opacity-50",
-                enterToClass : "opacity-100",
-                leaveFromClass : "opacity-100",
-                leaveToClass : "scale-y-0 opacity-50",
-            },
             children: [ 
               {
                 path: '',
                 name: 'unit-list', 
+                component: () => import('@/pages/data/UnitList.vue'),
+                meta: {
+                    pageTitle: "<b>Daftar Unit</b>",
+                    allowedRoles: ['super-admin','admin-bidang'],
+                    redirect:'dashboard',
+                }
+              },
+            ]
+          },
+          {
+            path: 'penghasilan',
+            children: [ 
+              {
+                path: '',
+                name: 'penghasilan-list', 
                 component: () => import('@/pages/data/UnitList.vue'),
                 meta: {
                     pageTitle: "<b>Daftar Unit</b>",

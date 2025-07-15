@@ -24,11 +24,11 @@
             <el-input 
               size="large" 
               class="w-full"
-              v-model="form.no_hp" 
-              placeholder="Nomor HP / Email"
+              v-model="form.username" 
+              placeholder="Username"
               @keypress.enter.native="onEnter">
               <template #prefix>
-                <icons icon="mdi:phone" />
+                <icons icon="mdi:user" />
               </template>
             </el-input>
             <el-input 
@@ -79,7 +79,7 @@ export default {
       nextUrl: null,
       prodiOptions: [],
       form: {
-        no_hp: '',
+        username: '',
         password: '',
       },
       saveAuth:true,
@@ -89,7 +89,7 @@ export default {
   methods: {
     onEnter(event) {
       console.log(event, this.form);
-      if (!this.isEmpty(this.form.no_hp) && !this.isEmpty(this.form.password)) {
+      if (!this.isEmpty(this.form.username) && !this.isEmpty(this.form.password)) {
         this.doLogin();
       }
     },
