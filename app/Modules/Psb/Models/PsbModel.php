@@ -33,9 +33,9 @@ class PsbModel extends Model
                     pe1.label ayah_peng_label, pe1.dari ayah_peng_dari, pe1.hingga ayah_peng_hingga,
                     pe2.label ibu_peng_label, pe2.dari ibu_peng_dari, pe2.hingga ibu_peng_hingga,
                     pe3.label wali_peng_label, pe3.dari wali_peng_dari, pe3.hingga wali_peng_hingga")
-                    ->join('mu_penghasilan pe1','pe1.id=p.ayah_penghasilan','left')
-                    ->join('mu_penghasilan pe2','pe2.id=p.ibu_penghasilan','left')
-                    ->join('mu_penghasilan pe3','pe3.id=p.wali_penghasilan','left')
+                    ->join('sch__penghasilan pe1','pe1.id=p.ayah_penghasilan','left')
+                    ->join('sch__penghasilan pe2','pe2.id=p.ibu_penghasilan','left')
+                    ->join('sch__penghasilan pe3','pe3.id=p.wali_penghasilan','left')
                     ->where($whereAnd)
                     ->groupStart()
                         ->orWhere($whereOr)
@@ -63,9 +63,9 @@ class PsbModel extends Model
                     pe1.label ayah_peng_label, pe1.dari ayah_peng_dari, pe1.hingga ayah_peng_hingga,
                     pe2.label ibu_peng_label, pe2.dari ibu_peng_dari, pe2.hingga ibu_peng_hingga,
                     pe3.label wali_peng_label, pe3.dari wali_peng_dari, pe3.hingga wali_peng_hingga")
-                    ->join('mu_penghasilan pe1','pe1.id=p.ayah_penghasilan','left')
-                    ->join('mu_penghasilan pe2','pe2.id=p.ibu_penghasilan','left')
-                    ->join('mu_penghasilan pe3','pe3.id=p.wali_penghasilan','left')
+                    ->join('sch__penghasilan pe1','pe1.id=p.ayah_penghasilan','left')
+                    ->join('sch__penghasilan pe2','pe2.id=p.ibu_penghasilan','left')
+                    ->join('sch__penghasilan pe3','pe3.id=p.wali_penghasilan','left')
                     ->where($whereAnd)
                     ->groupStart()
                         ->orWhere($whereOr)

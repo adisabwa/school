@@ -47,7 +47,7 @@
         </router-view>
       </el-main>
       <el-footer height="auto" class="h-[20px] px-0 z-[99999] relative">
-        <div class="overflow-hidden h-[45px] w-screen
+        <div class="overflow-hidden h-[60px] w-screen
           absolute bottom-0 left-1/2 -translate-x-1/2 -translate-y-[20px]">
           <div id="bottom" class="bg-cover bg-top bg-repeat 
             h-full min-w-[600px] w-full"

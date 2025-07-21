@@ -1,30 +1,18 @@
 import { createRouter, createWebHistory , createWebHashHistory} from 'vue-router'
-import groupRoute from './routes/group'
-import quranRoute from './routes/quran'
-import authRoute from './routes/auth'
-import infaqRoute from './routes/infaq'
 import defaultRoute from './routes/default'
-import sholatRoute from './routes/sholat'
-import persyarikatanRoute from './routes/persyarikatan'
-import kajianRoute from './routes/kajian'
+import authRoute from './routes/auth'
 import dataRoute from './routes/data'
-import facilityRoute from './routes/facility'
 import psbRoute from './routes/psb'
+import savingRoute from './routes/saving'
 // Vue router
 const routes = new createRouter({
   history: createWebHistory(),
   routes: [
-    ...groupRoute,
-    ...defaultRoute,
-    ...infaqRoute,
-    ...authRoute,
-    ...quranRoute,
-    ...dataRoute,
-    ...kajianRoute,
-    ...persyarikatanRoute,
+    ...savingRoute,
     ...psbRoute,
-    ...facilityRoute,
-    ...sholatRoute,
+    ...dataRoute,
+    ...authRoute,
+    ...defaultRoute,
 	],
   scrollBehavior: function(to, from, savedPosition) {
     // console.log(savedPosition)

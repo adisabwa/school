@@ -2,29 +2,35 @@
   <div class="">
     <div class="z-[99] h-[40px]">
       <div class="absolute sm:fixed z-[10] top-0 overflow-visible w-full max-w-[100vw] h-[30px]"> 
-        <div class="relative overflow-hidden h-[100px]">
+        <div class="relative">
           <el-header class="bg-orange-300 h-[40px] w-full relative"></el-header>
           <div id="top" class="add-play bg-cover bg-bottom
             h-[70px] w-[1400px] absolute z-[51] top-[1px]
-            translate-x-[calc(50vw-50%)] sm:-translate-x-[calc(575px)]"
+            translate-x-[calc(50vw-50%)] sm:-translate-x-[calc(590px)]"
               :style="`background-image:url('${$baseUrl}assets/images/top.png')`"></div>
         </div>
-        <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'" height="90px" 
+        <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'" height="80px" 
           @click="$router.push({name:defaultRoute})"
           class="pointer animate hover:scale-[0.8]
-          absolute z-[53] top-[0px]
+          absolute z-[53] top-[5px]
           mt-2
           translate-x-[calc(50vw-50%)]
-          sm:-translate-x-[calc(50%-125px)]"/>
+          sm:-translate-x-[calc(50%-110px)]"/>
       </div>
     </div>
-    <div id="menu-vertical" class="h-screen w-[--width-menu] bg-white
+    <div id="menu-vertical" class="h-screen w-[--width-menu]
       animate
       -translate-x-full sm:translate-x-0
       fixed left-0 top-0
       z-[50] sm:z-[1]
-      flex flex-col justify-between">
-      <div class="mt-[100px] mb-6 mx-5 text-white z-[2]
+      flex flex-col justify-between
+      bg-teal-700">
+      <div class="absolute w-full h-full z-[-1]
+        bg-cover opacity-20"
+        :style="{
+          backgroundImage:`url('${$baseUrl}/assets/images/menu.png')`,
+        }"></div>
+      <div class="mt-[110px] mx-5 text-white z-[2]
         flex flex-col items-center">
         <div class="w-full px-6 mt-0 z-[1]
           text-white leading-[1.3]">
@@ -68,16 +74,11 @@
           </teleport>
         </div>
       </div>
-      <div class="absolute w-full h-[285px] left-0 top-[0px] z-[0]
-        bg-[length:345px] bg-repeat bg-bottom"
-        :style="{
-          backgroundImage:`url('${$baseUrl}/assets/images/dashboard.png')`,
-        }"/>
       <el-menu :default-active="activeMenu"
         @select="handleSelect"
         class="el-menu-vertical-demo bg-transparent
           w-full h-full
-          pt-11 ">
+          pt-4 ">
         <template v-for="menu in menus">
           <template v-if="menu.type == 'submenu' && (isEmpty(menu.roles) || menu?.roles?.includes(user.role))">
             <el-sub-menu :index="menu.index" class="pl-5 [&>*]:p-0 text-left menu-item-custom title">
@@ -86,7 +87,7 @@
                 <span class="">{{ menu.label }}</span>
               </template>
               <template v-for="child in menu.children">
-                <el-menu-item @click="$router.push({name:child.route})"
+                <el-menu-item @click="$router.push({name:child.route, params: child.params})"
                   v-if="(isEmpty(child.roles) || child?.roles?.includes(user.role))"
                   :index="child.index" class="pl-6 menu-item-custom title">
                   <icons v-if="!isEmpty(child.icon)" class="mr-2" :icon="child.icon" />
@@ -111,13 +112,13 @@
           <span class="">Keluar</span>
         </el-menu-item>
       </el-menu>
-      <div class="text-teal-700
+      <div class="text-white
         text-center px-2 pb-10">
         <div class="mb-2 text-[12px]">Ubah Menu</div>
         <div class="flex items-center justify-center
           w-[150px] py-1 px-1 mx-auto
-          text-teal-700 bg-teal-50 pointer text-[13px]
-          border border-teal-700 border-solid
+          text-white bg-transparent pointer text-[13px]
+          border border-white border-solid
           transitian-all duration-300 hover:scale-90"
           @click="$emit('toggle', '0')">
           <icons icon="tdesign:menu-filled"/>
@@ -183,10 +184,13 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
+  :deep(.el-menu) {
+    @apply bg-transparent !important;
+  }
   :deep(.menu-item-custom) {
 		@apply 
       transition-all ease-in-out duration-300
-      bg-gradient-to-l from-transparent from-50% to-teal-700 to-50%
+      bg-gradient-to-l from-transparent from-50% to-teal-100 to-50%
       bg-[length:200%_200%] bg-right-bottom 
       text-[15px]
       leading-[0]
@@ -197,28 +201,34 @@ export default {
 		!important;
 	}
   :deep(.menu-item-custom.is-active) {
+    * {
+      @apply text-teal-700 !important;
+    }
     @apply
-      bg-teal-100
+      bg-teal-50
     !important;
   }
   :deep(.menu-item-custom) {
     li, span, div {
       @apply 
-        text-teal-700
-      !important;
-    }
-    svg {
-      @apply fill-current text-teal-700 !important;
-    }
-  }
-  :deep(.menu-item-custom):hover {
-    > li, > span, > div * {
-      @apply 
         text-white
       !important;
     }
+    svg {
+      @apply fill-current text-white !important;
+    }
+  }
+  :deep(.menu-item-custom):hover {
+    .el-menu {
+      @apply text-slate-500 bg-teal-700 !important;
+    }
+    > li, > span, > div * {
+      @apply 
+        text-teal-700
+      !important;
+    }
     > svg {
-      @apply fill-white text-white !important;
+      @apply fill-teal-700 text-teal-700 !important;
     }
   }
 </style>

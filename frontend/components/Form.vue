@@ -72,8 +72,8 @@
                 :class="['w-full',inputClass]" 
                 :size="size"
                 @change="changedValue(field.nama_kolom)"
-                :style="{width:(field.width_input.split('-')[1] ?? '') + ' !important'}"  
-                :type="field.input.split('-')[0]"
+                :style="{width:((field.width_input ?? '').split('-')[1] ?? '') + ' !important'}"  
+                :type="(field.input ?? '').split?.('-')[0]"
                 :options="field.options"
                 :prefix="field.prepend">
                 <template v-if="field.allow_add" #footer>
@@ -110,8 +110,8 @@
                 @change="form[field.nama_kolom] = null; changedValue(field.nama_kolom)"
                 :size="size"
                 :options="field.options"
-                :type="field.input.split('/')[1]?.split('-')[0]"
-                :style="{width:(field.width_input.split('-')[0] ?? '') + ' !important'}"
+                :type="(field.input ?? '').split('/')[1]?.split('-')[0]"
+                :style="{width:((field.width_input ?? '').split('-')[0] ?? '') + ' !important'}"
                 :prefix="field.prepend1">
               </floating-select>
               <floating-select v-model:value="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Pilih ${field.label2}`" 
@@ -119,8 +119,8 @@
                 :class="['w-full',inputClass]" 
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
-                :type="field.input.split('/')[1]?.split('-')[1]"
-                :style="{width:(field.width_input.split('-')[1] ?? '') + ' !important'}"  
+                :type="(field.input ?? '').split('/')[1]?.split('-')[1]"
+                :style="{width:((field.width_input ?? '').split('-')[1] ?? '') + ' !important'}"  
                 :options="field.options[field.parentSelect]?.options"
                 :prefix="field.prepend2">
                 <template v-if="field.allow_add" #footer>

@@ -2,9 +2,16 @@
   <div class="">
     <div class="z-[99] h-[40px]">
       <div class="absolute sm:fixed z-[10] top-0 overflow-visible w-full max-w-[100vw] h-[30px]"> 
-        <div class="relative overflow-hidden h-[100px]">
-          <el-header class="bg-white h-[40px] w-full relative
-            flex justify-end
+        <div class="relative bg-teal-700">
+          <div class="absolute w-[100px] h-[100vw] z-[0] -rotate-90
+            translate-y-[50px]
+            top-0 left-0 origin-top-left
+            bg-cover opacity-20"
+            :style="{
+              backgroundImage:`url('${$baseUrl}/assets/images/menu.png')`,
+            }"></div>
+          <el-header class=" h-[40px] w-full relative
+            flex justify-end 
             shadow-md">
             <el-menu :default-active="activeMenu"
               @select="handleSelect"
@@ -14,16 +21,17 @@
                 h-full
                 justify-end
                 w-full
+                border-0
                 max-w-[calc(100vw-500px)]">
               <template v-for="menu in menus">
                 <template v-if="menu.type == 'submenu' && (isEmpty(menu.roles) || menu?.roles?.includes(user.role))">
-                  <el-sub-menu :index="menu.index" class="pl-5 [&>*]:p-0 text-left menu-item-custom title">
+                  <el-sub-menu :index="menu.index" class="menu-item-custom title">
                     <template #title>
                       <icons v-if="!isEmpty(menu.icon)" class="mr-2" :icon="menu.icon" />
                       <span class="">{{ menu.label }}</span>
                     </template>
                     <template v-for="child in menu.children">
-                      <el-menu-item @click="$router.push({name:child.route})"
+                      <el-menu-item @click="$router.push({name:menu.route, params: menu.params})"
                         v-if="(isEmpty(child.roles) || child?.roles?.includes(user.role))"
                         :index="child.index" class="pl-6 menu-item-custom title">
                         <icons v-if="!isEmpty(child.icon)" class="mr-2" :icon="child.icon" />
@@ -36,7 +44,7 @@
                   <el-menu-item @click="isEmpty(menu.route) ?
                     $emit('function', menu.function) :
                     $router.push({name:menu.route, params: menu.params})"
-                    :index="menu.index" class="pl-5 text-left menu-item-custom title">
+                    :index="menu.index" class="menu-item-custom title">
                     <icons v-if="!isEmpty(menu.icon)" class="mr-2" :icon="menu.icon" />
                     <span class="">{{ menu.label }}</span>
                   </el-menu-item>
@@ -46,15 +54,16 @@
             <div class="menu-item-custom title p-2">
               <el-popover placement="bottom-end" :visible="showAccount"
                 :show-arrow="false"
-                popper-class="text-white w-[250px] h-fit rounded-lg overflow-hidden">
+                popper-class="text-white w-[250px] h-fit rounded-lg overflow-hidden bg-teal-700">
                 <template #reference>
                   <icons id="icon-account" icon="mdi:user-circle" class="mr-0 text-2xl text-teal-700 cursor-pointer"
                     @click="showAccount = true"/>
                 </template>
-                <div class="absolute w-[103%] h-[270px] left-[-3px] -top-[120px] z-[0]
-                  bg-[length:340px] bg-repeat bg-bottom"
+                <div class="absolute w-full h-full z-[0] top-0 left-0
+                  bg-[length:340px] bg-repeat bg-bottom
+                  opacity-20"
                   :style="{
-                    backgroundImage:`url('${$baseUrl}/assets/images/dashboard.png')`,
+                    backgroundImage:`url('${$baseUrl}/assets/images/menu.png')`,
                   }"/>
                 <div class="mt-2 mb-1 mx-3 z-[2]
                   flex flex-col items-center"
@@ -62,17 +71,17 @@
                   <div class="h-[90px] w-[90px] mx-auto z-[2] mb-3
                     rounded-full overflow-hidden relative
                     flex items-center justify-center
-                    border-3 border-solid border-teal-700"
+                    border-3 border-solid border-white"
                     @click="showEdit = true;showColumns=['photo']">
                     <div v-if="!isEmpty(user.photo)"
                       class="w-full h-full bg-cover bg-top"
                       :style="`background-image:url('${user.photo}')`"
                       />
                     <icons v-else 
-                      icon="mdi:user" class="mr-0 text-teal-700 text-[100px]"/>
+                      icon="mdi:user" class="mr-0  text-[100px]"/>
                   </div>
                   <div class="w-full px-0 mt-0 z-[1]
-                    text-teal-700 leading-[1.3]">
+                     leading-[1.3]">
                     Assalamu'alaikum,<br/>
                     <div class="text-xl font-semibold truncate">{{ user.nama }}</div>
                     <div class="text-md font-semibold truncate">{{ user.unit_kerja }}</div>
@@ -144,18 +153,18 @@
             </div>
           </el-header>
           <div id="top" class="add-play bg-cover bg-bottom
-            h-[90px] w-[1400px] absolute z-[51] top-[0px]
-            scale-x-[0.4]
-            translate-x-[calc(50vw-50%)] sm:-translate-x-[calc(575px)]"
-              :style="`background-image:url('${$baseUrl}assets/images/top.png')`"></div>
+            h-[80px] w-[600px] absolute z-[51] top-[-10px]
+            scale-x-[1]
+            translate-x-[calc(50vw-50%)] sm:-translate-x-[calc(200px)]"
+              :style="`background-image:url('${$baseUrl}assets/images/top-3.png')`"></div>
         </div>
-        <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'" height="90px" 
+        <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'" height="75px" 
           @click="$router.push({name:defaultRoute})"
           class="pointer animate hover:scale-[0.8]
           absolute z-[53] top-[0px]
           mt-2
           translate-x-[calc(50vw-50%)]
-          sm:-translate-x-[calc(50%-125px)]"/>
+          sm:-translate-x-[calc(50%-100px)]"/>
       </div>
     </div>
   </div>
@@ -222,10 +231,14 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
-  :deep(.menu-item-custom) {
+  :deep(.el-menu) {
+    @apply bg-transparent !important;
+  }
+  :deep(.menu-item-custom), .menu-item-custom {
 		@apply 
+      bg-teal-700
       transition-all ease-in-out duration-300
-      bg-gradient-to-l from-transparent from-[51%] to-teal-700 to-[51%]
+      bg-gradient-to-l from-transparent from-50% to-teal-100 to-50%
       bg-[length:200%_200%] bg-right-bottom 
       text-[15px]
       leading-[0]
@@ -235,29 +248,35 @@ export default {
       hover:bg-left-top
 		!important;
 	}
-  :deep(.menu-item-custom.is-active) {
+  :deep(.menu-item-custom.is-active), .menu-item-custom.is-active  {
+    * {
+      @apply text-teal-700 !important;
+    }
     @apply
-      bg-teal-100
+      bg-teal-50
     !important;
   }
-  :deep(.menu-item-custom) {
+  :deep(.menu-item-custom), .menu-item-custom  {
     li, span, div {
-      @apply 
-        text-teal-700
-      !important;
-    }
-    svg {
-      @apply fill-current text-teal-700 !important;
-    }
-  }
-  :deep(.menu-item-custom):hover {
-    > li, > span, > div * {
       @apply 
         text-white
       !important;
     }
+    svg {
+      @apply fill-current text-white !important;
+    }
+  }
+  :deep(.menu-item-custom):hover, .menu-item-custom:hover {
+    .el-menu {
+      @apply text-slate-500 bg-teal-700 !important;
+    }
+    > li, > span, > div * {
+      @apply 
+        text-teal-700
+      !important;
+    }
     > svg {
-      @apply fill-white text-white !important;
+      @apply fill-teal-700 text-teal-700 !important;
     }
   }
 </style>

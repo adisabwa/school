@@ -28,7 +28,7 @@
       }
       .el-menu--popup {
             @apply 
-                  p-0 text-[13px] font-montserrat [&_*]:font-montserrat
+                  p-0
             !important;
       }
       

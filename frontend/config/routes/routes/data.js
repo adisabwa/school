@@ -40,7 +40,7 @@ let routes = [
                 component: () => import('@/pages/data/UnitList.vue'),
                 meta: {
                     pageTitle: "<b>Daftar Unit</b>",
-                    allowedRoles: ['super-admin','admin-bidang'],
+                    allowedRoles: ['super-admin','admin-bidang','admin'],
                     redirect:'dashboard',
                 }
               },
@@ -52,10 +52,25 @@ let routes = [
               {
                 path: '',
                 name: 'penghasilan-list', 
-                component: () => import('@/pages/data/UnitList.vue'),
+                component: () => import('@/pages/data/PenghasilanList.vue'),
                 meta: {
                     pageTitle: "<b>Daftar Unit</b>",
-                    allowedRoles: ['super-admin','admin-bidang'],
+                    allowedRoles: ['super-admin','admin-bidang','admin'],
+                    redirect:'dashboard',
+                }
+              },
+            ]
+          },
+          {
+            path: 'santri',
+            children: [ 
+              {
+                path: '',
+                name: 'santri-list', 
+                component: () => import('@/pages/data/SantriList.vue'),
+                meta: {
+                    pageTitle: "<b>Data Santri</b>",
+                    allowedRoles: ['super-admin','admin-bidang','admin'],
                     redirect:'dashboard',
                 }
               },

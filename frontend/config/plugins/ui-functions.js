@@ -146,6 +146,8 @@ const observer = new MutationObserver(function(mutationList, observer) {
   }
 });
 
+import jQuery from 'jquery'
+
 let listFunction = {
   jquery(target){
     let $target;

@@ -4,15 +4,15 @@ namespace Modules\Data\Models;
 
 use CodeIgniter\Model;
 
-class DataBacaanDzikirSholatModel extends Model
+class DataPenghasilanModel extends Model
 {
-    protected $table      = 'mu__dzikir_sholat';
+    protected $table         = 'sch__penghasilan';
     protected $primaryKey = 'id';
 
-    protected $protectFields = false;
     protected $useAutoIncrement = true;
     protected $returnType    = 'object';
 
+    protected $protectFields = false;
     protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
@@ -22,35 +22,16 @@ class DataBacaanDzikirSholatModel extends Model
     {
 
     }
-    
+
     public function getTableName()
     {
         return $this->table;
     }
     
-    
-    public function getAll($whereAnd = [], $whereOr = [], $order = '')
-    {
-        $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
-        $whereOr = empty($whereOr) ? '1=1' : $whereOr;
-
-        $data = $this->db->table('mu__dzikir_sholat i')
-                    ->select("i.*")
-                    ->where($whereAnd)
-                    ->groupStart()
-                        ->orWhere($whereOr)
-                    ->groupEnd()
-                    ->orderBy($order)
-                    ->get()
-                    ->getResultObject();
-
-        return $data;
-    }
-
     public function getOptions($where = [])
     {
       $options = [];
-      $data = $this->db->table($this->table)
+      $data = $this->db->table('sch__penghasilan p')
                     ->select('*')
                     ->where($where)
                     ->get()
@@ -58,7 +39,7 @@ class DataBacaanDzikirSholatModel extends Model
       foreach ($data as $key => $d) {
         $options[] = (object)[
           'value' => "$d->id",
-          'label' => "$d->nama",
+          'label' => "$d->label ( Rp. ".number_format($d->dari, 2, ',', '.')." - Rp. ".number_format($d->hingga, 2, ',', '.')." )"
         ];
       }
       return $options;

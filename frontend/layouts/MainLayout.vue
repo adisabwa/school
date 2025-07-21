@@ -1,6 +1,6 @@
 <template>
   <div id="main-layout" class="bg-white 
-    [--width-menu:250px]">
+    [--width-menu:230px]">
     <div class="z-[20] w-full">
       <transition name="slide-in" mode="out-in"
         enter-active-class="transition-all ease-in-out duration-500"

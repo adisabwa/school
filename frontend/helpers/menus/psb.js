@@ -14,7 +14,7 @@ let psb = [
     children: [
       {
         index:'penghasilan-list',
-        route: 'penghasilan-data',
+        route: 'penghasilan-list',
         label:'Data Penghasilan',
       },
     ]
