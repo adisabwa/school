@@ -18,7 +18,7 @@ $routes->group('psb', static function ($routes) {
 
 //-------------------------------------Admin PSB -----------------------------------------------
 $routes->group('psb/admin', [
-    'filter' => 'api-auth:admin',
+    'filter' => 'api-auth:psb.admin',
 ], static function ($routes) {    
     $routes->add('/', [PsbAdmin::class,'index']);
     $routes->add('dashboard', [PsbAdmin::class,'dashboard']);

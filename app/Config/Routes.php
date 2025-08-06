@@ -35,6 +35,7 @@ $routes->get('/p/(:any)', 'Vue::index');
 $routes->group('auth', static function ($routes) {
     $routes->add('/', 'Auth::login');
     $routes->add('login', 'Auth::login');
+    $routes->add('g_login', 'Auth::g_login');
     // $routes->add('login/(:any)', 'Auth::login/$1');
     $routes->add('logout', 'Auth::logout');
     $routes->add('user', 'Auth::user');

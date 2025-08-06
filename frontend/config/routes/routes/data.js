@@ -17,34 +17,61 @@ let routes = [
         path: siteUrl + 'p/data',
         children: [
           {
-            path: 'pengguna',
+            path:'',
+            meta: {
+              app:'data',
+              allowedRoles: ['admin'],
+            },
             children: [ 
               {
-                path: '',
-                name: 'pengguna-list', 
+                path: 'teacher',
+                name: 'teacher-list', 
+                component: () => import('@/pages/data/GuruList.vue'),
+                meta: {
+                    pageTitle: "<b>Daftar Guru</b>",
+                }
+              },
+              {
+                path: 'santri',
+                name: 'santri-list', 
+                component: () => import('@/pages/data/SantriList.vue'),
+                meta: {
+                    pageTitle: "<b>Data Santri</b>",
+                }
+              },
+              {
+                path: 'pengguna',
+                name: 'user-management', 
                 component: () => import('@/pages/data/PenggunaList.vue'),
                 meta: {
                     pageTitle: "<b>Daftar Pengguna</b>",
-                    allowedRoles: ['admin','super-admin','admin-bidang'],
-                    redirect:'dashboard',
                 }
               },
-            ]
-          },
-          {
-            path: 'unit',
-            children: [ 
               {
-                path: '',
+                path: 'unit',
                 name: 'unit-list', 
                 component: () => import('@/pages/data/UnitList.vue'),
                 meta: {
                     pageTitle: "<b>Daftar Unit</b>",
-                    allowedRoles: ['super-admin','admin-bidang','admin'],
-                    redirect:'dashboard',
                 }
               },
-            ]
+              {
+                path: 'jurusan',
+                name: 'jurusan-list', 
+                component: () => import('@/pages/data/JurusanList.vue'),
+                meta: {
+                    pageTitle: "<b>Daftar Jurusan</b>",
+                }
+              },
+              {
+                path: 'kelas',
+                name: 'kelas-list', 
+                component: () => import('@/pages/data/KelasList.vue'),
+                meta: {
+                    pageTitle: "<b>Daftar Kelas</b>",
+                }
+              },
+            ],
           },
           {
             path: 'penghasilan',
@@ -55,23 +82,7 @@ let routes = [
                 component: () => import('@/pages/data/PenghasilanList.vue'),
                 meta: {
                     pageTitle: "<b>Daftar Unit</b>",
-                    allowedRoles: ['super-admin','admin-bidang','admin'],
-                    redirect:'dashboard',
-                }
-              },
-            ]
-          },
-          {
-            path: 'santri',
-            children: [ 
-              {
-                path: '',
-                name: 'santri-list', 
-                component: () => import('@/pages/data/SantriList.vue'),
-                meta: {
-                    pageTitle: "<b>Data Santri</b>",
-                    allowedRoles: ['super-admin','admin-bidang','admin'],
-                    redirect:'dashboard',
+                    allowedRoles: ['admin'],
                 }
               },
             ]

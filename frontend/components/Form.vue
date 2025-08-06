@@ -30,7 +30,7 @@
                 <template #apppend v-if="!isEmpty(field.apppend)"> {{ field.append }}</template>  
               </el-input>
             </template> 
-            <template v-else-if="field.input == 'password'">
+              <template v-else-if="field.input == 'password'">
               <el-input v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
                 :class="['w-full in-password',inputClass]" 
                 type="password" show-password
@@ -82,26 +82,28 @@
                   </el-button>
                 </template>
               </floating-select>
-              <el-dialog v-model="field.isAdding"
-                :title="'Tambah ' + field.label"
-                class="p-7"
-                :close-on-click-modal="false"
-                width="500px">
-                <Form 
-                  :fields="field.addFields" 
-                  ref="formAdd"
-                  :key="'from'+field.nama_kolom"
-                  size="default"
-                  :show-label="false"
-                  :href="field.addHref"
-                  :href-get="field.addHrefGet"
-                  @saved="field.isAdding = false; resetOptions(ind, field.addReset);"
-                  :show-required-text="false"
-                  :text-submit="'Konfirmasi'"
-                  />
-                <el-button size="default" @click="field.isAdding = !field.isAdding"
-                  class="float-left translate-y-[-25px]">Batal</el-button>
-              </el-dialog>
+              <teleport to="body">
+                <el-dialog v-model="field.isAdding"
+                  :title="'Tambah ' + field.label"
+                  class="p-7"
+                  :close-on-click-modal="false"
+                  width="500px">
+                  <Form 
+                    :fields="field.addFields" 
+                    ref="formAdd"
+                    :key="'from'+field.nama_kolom"
+                    size="default"
+                    :show-label="false"
+                    :href="field.addHref"
+                    :href-get="field.addHrefGet"
+                    @saved="field.isAdding = false; resetOptions(ind, field.addReset);"
+                    :show-required-text="false"
+                    :text-submit="'Konfirmasi'"
+                    />
+                  <el-button size="default" @click="field.isAdding = !field.isAdding"
+                    class="float-left translate-y-[-25px]">Batal</el-button>
+                </el-dialog>
+              </teleport>
             </template>
             <template v-else-if="field.input.includes('select-double')">
               <floating-select v-model:value="field.parentSelect" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Pilih ${field.label1}`" 
@@ -129,26 +131,28 @@
                   </el-button>
                 </template>
               </floating-select>
-              <el-dialog v-model="field.isAdding"
-                :title="'Tambah ' + field.label"
-                class="p-7"
-                :close-on-click-modal="false"
-                width="500px">
-                <form-comp 
-                  :fields="field.addFields" 
-                  ref="formAdd"
-                  :key="'from'+field.nama_kolom"
-                  size="default"
-                  :show-label="false"
-                  :href="field.addHref"
-                  :href-get="field.addHrefGet"
-                  @saved="field.isAdding = false; resetOptions(ind, field.addReset);"
-                  :show-required-text="false"
-                  :text-submit="'Konfirmasi'"
-                  />
-                <el-button size="default" @click="field.isAdding = !field.isAdding"
-                  class="float-left translate-y-[-25px]">Batal</el-button>
-              </el-dialog>
+              <teleport to="body">
+                <el-dialog v-model="field.isAdding"
+                  :title="'Tambah ' + field.label"
+                  class="p-7"
+                  :close-on-click-modal="false"
+                  width="500px">
+                  <form-comp 
+                    :fields="field.addFields" 
+                    ref="formAdd"
+                    :key="'from'+field.nama_kolom"
+                    size="default"
+                    :show-label="false"
+                    :href="field.addHref"
+                    :href-get="field.addHrefGet"
+                    @saved="field.isAdding = false; resetOptions(ind, field.addReset);"
+                    :show-required-text="false"
+                    :text-submit="'Konfirmasi'"
+                    />
+                  <el-button size="default" @click="field.isAdding = !field.isAdding"
+                    class="float-left translate-y-[-25px]">Batal</el-button>
+                </el-dialog>
+              </teleport>
             </template>
             <template v-else-if="field.input=='radio'">
               <el-radio-group v-model="form[field.nama_kolom]"
@@ -214,9 +218,9 @@
               </div>
             </template>
             <template v-else-if="field.input == 'array'">
-              <div>
+              <div class="w-full">
                 <div v-for="(recData, ind) in form[field.nama_kolom]"
-                  class="flex flex-col gap-y-0"
+                  class="flex flex-col gap-y-0 relative"
                   :style="{width:field.width_input + ' !important'}">
                   <form-comp ref="formItem"
                     class="mb-0"
@@ -233,12 +237,12 @@
                     input-class="[&_*]:rounded-[15px]"
                     :show-required-text="false">
                   </form-comp>  
-                  <div class="ml-3 mt-1 mb-2 flex items-baseline">
+                  <div class="ml-3 mt-2 mb-2 flex items-baseline">
                     <el-button text class="text-sky-500
                       p-0 h-auto text-[12px]"
                       @click="() => {
                         let array = form[field.nama_kolom]
-                        console.log(array, ind)
+                        // console.log(array, ind)
                         form[field.nama_kolom].splice(ind, 0, 
                           JSON.parse(JSON.stringify(array[ind]))
                         )
@@ -259,7 +263,7 @@
         </el-form-item>
       </template>
       <slot :errors="errors" :form="form" :fields="fieldsData"></slot>
-      <div class="text-md mt-10" v-if="showRequiredText">
+      <div class="text-md mt-2 col-span-6" v-if="showRequiredText">
         <span class="text-red-500">)*</span> isian harus diisi
       </div>
     </el-form>
@@ -274,7 +278,7 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, Teleport } from 'vue'
 
 export default {
   name: 'Form',
@@ -416,7 +420,7 @@ export default {
     },
     formValue: {
       handler(newVal, oldVal) {
-        console.log('form-value', newVal)
+        // console.log('form-value', newVal)
       },
       deep: false, // Watch nested properties
     },
@@ -505,7 +509,7 @@ export default {
       }   
     },
     async getData(where, changeId){
-      console.log('get-data', this.initial)
+      // console.log('get-data', this.initial)
       await this.settingFields();
       if (this.hrefGet == '') 
         return
@@ -544,7 +548,7 @@ export default {
           // console.log(psb, this.form)
         })
         .catch(err => {
-          console.log(err)
+          // console.log(err)
           this.saving = false;
           var res = err.response;
           var code = res.status;
@@ -604,7 +608,7 @@ export default {
           if (code == '400') {
             // Populating error message
             this.fillAndAddObjectValue(this.errors, res.data.messages);
-            console.log(res.data.messages, this.errors)
+            // console.log(res.data.messages, this.errors)
             if (this.showNotification)
               this.$notify.error({
                 title: 'Gagal',
@@ -635,7 +639,8 @@ export default {
         Object.values(vm.fields).forEach(d => {
           if (d.from_user == '1' || d.from_user == undefined) {
             vm.fieldsData[d.nama_kolom] = d;
-            vm.form[d.nama_kolom] = d.default ?? (d.input == 'array' ? [] : '');
+            // console.log(d.nama_kolom, d.default, d.input)
+            vm.form[d.nama_kolom] = vm.isEmpty(d.default) ? (d.input == 'array' ? [] : '') : d.default;
             vm.errors[d.nama_kolom] = d.input == 'array' ? [] : '';
             vm.original[d.nama_kolom] = false;
             if (d.input == 'file') {
@@ -673,6 +678,6 @@ export default {
 }
 :deep(.el-form-item__error) {
   margin-top: 3px;
-  position: relative;
+  position: static;
 }
 </style>

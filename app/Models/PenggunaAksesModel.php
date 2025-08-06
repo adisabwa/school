@@ -30,4 +30,23 @@ class PenggunaAksesModel extends Model
     {
         return $this->table;
     }
+
+    
+    public function getAll($whereAnd = [], $whereOr = [], $order = '')
+    {
+        $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
+        $whereOr = empty($whereOr) ? '1=1' : $whereOr;
+
+        $data = $this->db->table('sch_pengguna_akses i')
+                    ->select("i.*")
+                    ->where($whereAnd)
+                    ->groupStart()
+                        ->orWhere($whereOr)
+                    ->groupEnd()
+                    ->orderBy($order)
+                    ->get()
+                    ->getResultObject();
+
+        return $data;
+    }
 }

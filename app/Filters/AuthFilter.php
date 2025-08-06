@@ -9,18 +9,28 @@ use CodeIgniter\HTTP\ResponseInterface;
 class AuthFilter implements FilterInterface
 {
 
-    public function before(RequestInterface $request, $roles = null)
+    public function before(RequestInterface $request, $app_roles = '')
     {
+        #Format [app.role1,role2, app.role1,role2, ....]
         $session = session();
 
         $userdata = $session->get(AUTH_SESS_NAME);
 
         if (empty($userdata)) {
             return redirect()->to(site_url('auth/unauthorized'));
-        } if ($userdata->role == 'super-admin') {
+        } if (array_key_exists('all', $userdata->app_roles) || empty($app_roles)) {
             
-        } else if (!empty($roles) && !in_array($userdata->role, $roles)) {
-            return redirect()->to(site_url('auth/forbidden'));
+        } else {
+            $pass = FALSE;
+            foreach ($app_roles as $key => $_app_role) {
+                [$app, $role] = explode('.', $_app_role);
+                if ($userdata->app_roles[$app] == $role || $role == 'all') {
+                    $pass = TRUE;
+                }
+            }
+            if (!$pass) {
+                return redirect()->to(site_url('auth/forbidden'));
+            }
         }
     }
 

@@ -1,7 +1,7 @@
 <template>
   <div id="santri-list" class="pt-1" v-loading="loading">
     <table-data ref="tableData" :fields="fields" href="data/santri"
-      :checked="true" :upload="false" :pass-columns="[]"
+      :checked="true"  :pass-columns="[]"
       :params="tableParams">
     </table-data>
   </div>

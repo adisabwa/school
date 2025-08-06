@@ -4,10 +4,12 @@ import authRoute from './routes/auth'
 import dataRoute from './routes/data'
 import psbRoute from './routes/psb'
 import savingRoute from './routes/saving'
+import mapelRoute from './routes/mapel'
 // Vue router
 const routes = new createRouter({
   history: createWebHistory(),
   routes: [
+    ...mapelRoute,
     ...savingRoute,
     ...psbRoute,
     ...dataRoute,
@@ -58,26 +60,26 @@ routes.beforeEach(async (to, from, next) => {
           name: 'login',
           query: { nextUrl: to.fullPath }
         })
-      } else { if (to.meta.allowedRoles) {
-          console.log(to.meta.allowedRoles, loggedUser.role, !to.meta.allowedRoles.includes(loggedUser.role));
-          if (loggedUser.role == 'super-admin') {
+      } else { 
+        let app = to.meta.app
+        if (app) {
+          if (to.meta.allowedRoles) {
+            let role = loggedUser.app_roles[app] ?? loggedUser.app_roles.all
+            console.log(app, role)
+            if (to.meta.allowedRoles?.includes(role)) {
+              next()
+            } else {
+              let name = 'unauthorized'
+              if (to.meta.redirect)
+                name = to.meta.redirect
+              next({
+                name:name,
+              })
+            }
+          } else {
             next()
           }
-          else if (!to.meta.allowedRoles?.includes(loggedUser.role)) {
-            let name = 'unauthorized'
-            // console.log(name)
-            if (to.meta.redirect)
-              name = to.meta.redirect
-            // console.log(name)
-            next({
-              name: name,
-            })
-          } 
-          else {
-            next()
-          }
-        } 
-        else {
+        } else {
           next()
         }
       }

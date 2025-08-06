@@ -32,16 +32,23 @@ class MyRules
             return false;
     }
 
+
+    //Check if value exist in a table, check with combination paramaters 
     public function unique_combination(string $str, string $params, array $data): bool
     {
         // var_dump($str, $data, $params);
-        // Format: table.column1-column2,ignore-field,value-field
+        // Format: table.column1-column2-....,ignore-field,value-field,Array fieldKey for nested Value
         [$tableColumns, $ignoreField, $ignoreValue, $fieldPath] = explode(',', $params);
         [$table, $columns] = explode('.', $tableColumns);
-        [$col1, $col2] = explode('-', $columns);
-        [$table, $ind, $first_column] =  explode('.', $fieldPath);
+        $cols = explode('-', $columns);
+        $paths =  explode('.', $fieldPath);
         // var_dump($data, $tableColumns, $ignoreField, $ignoreValue, $fieldPath);
         // return TRUE;
+        array_pop($paths);
+        if ($paths)
+            foreach ($paths as $key => $p) {
+                $data = $data[$p];
+            }
 
         $db = \Config\Database::connect();
         $builder = $db->table($table);
@@ -49,16 +56,18 @@ class MyRules
         $ignore = empty($ignoreField) ? '1=1' :
             ($ignoreValue > 0 ? "$ignoreField!='$ignoreValue'" : '1=1');
         // Check for existing record with both values
-        $exists = $builder->where($col1, $data[$table][$ind][$col1])
-                          ->where($col2, $data[$table][$ind][$col2])
-                          ->where($ignore)
+        foreach ($cols as $key => $col) {
+            $builder->where($col, $data[$col]);
+        }
+        $exists = $builder->where($ignore)
                           ->get()
                           ->getRow();
-        // var_dump($exists, $data[$table][$ind], $ignore);
+        // var_dump($exists);
         return $exists === null;
     }
 
     
+    //Check if value exist in a table, check with combination paramaters 
     public function unique_input(string $str, string $params, array $data): bool
     {
         // var_dump($str, $data, $params);

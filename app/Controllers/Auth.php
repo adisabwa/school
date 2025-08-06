@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+use App\Libraries\GoogleAuth;
 
 class Auth extends BaseController
 {
@@ -13,10 +14,11 @@ class Auth extends BaseController
 
     public function login($username = NULL, $password = null)
     {
-        $username = $username ?? $this->request->getPost('username');
-        $password = $password ?? $this->request->getPost('password');
+        $username = $username ?? $this->request->getGetPost('username');
+        $password = $password ?? $this->request->getGetPost('password');
+        $email = $email ?? $this->request->getGetPost('email');
 
-        $user = $this->penggunaModel->login($username, md5($password));
+        $user = $this->penggunaModel->login($username, md5($password), $email);
         
         if ($user) {
             // Getting user positions
@@ -25,6 +27,28 @@ class Auth extends BaseController
         } else {
             return $this->respond([
                 'message' => 'Maaf akun Anda belum terdaftar.',
+            ], 401);
+        }
+
+    }
+
+    public function g_login()
+    {
+        $credential = $this->request->getPost('credential') ?? '';
+
+        $google = new GoogleAuth();
+        $userData = $google->verifyToken($credential);
+        $email = $userData['email'] ?? '';
+
+        $user = $this->penggunaModel->login(NULL, NULL, $email);
+        // var_dump($user);
+        if ($user) {
+            // Getting user positions
+            set_userdata($user);
+            return $this->respondCreated($user);
+        } else {
+            return $this->respond([
+                'email' => $email,
             ], 401);
         }
 

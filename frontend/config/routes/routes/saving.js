@@ -21,6 +21,7 @@ let routes = [
                     enterToClass : "opacity-100",
                     leaveFromClass : "opacity-100",
                     leaveToClass : "scale-0 opacity-50",
+                    allowedRoles: ['admin'],
                 },
                 children: [
                   {

@@ -18,7 +18,7 @@ use Modules\Saving\Controllers\Admin\RekapitulasiController as SavingRekapitulas
 
 //-------------------------------------Admin Tabungan -----------------------------------------------
 $routes->group('saving/admin', [
-    'filter' => 'api-auth:admin',
+    'filter' => 'api-auth:saving.admin',
 ], static function ($routes) {    
     $routes->add('/', [SavingAdmin::class,'index']);
     $routes->add('get', [SavingAdmin::class, 'get']);

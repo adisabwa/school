@@ -9,7 +9,7 @@
         sm:block sm:[&_*]:mr-3">
         <el-button class="py-[15px]" type="primary" size="small" v-if="upload" @click="showUpload = true">
           <icons icon="mdi:upload"/>
-          Upload Excel</el-button>
+          Import Data</el-button>
         <el-button class="py-[15px]" type="success" size="small" @click="handleActionClick({action:'add'})">
           <icons icon="mdi:plus"/>
           Buat Baru</el-button>
@@ -73,17 +73,17 @@
                   'font-weight': (order[0] == field.nama_kolom ? '900' : ''),
                 }">
                 <template v-if="field.sortable == '1'">
-                  <icons v-if="field.sort == 'asc'" icon="bx:sort-down" class="mr-2 text-xl"/>
-                  <icons v-else-if="field.sort == 'desc'" icon="bx:sort-up" class="mr-2 text-xl"/>
-                  <icons v-else icon="bx:sort" class="mr-2 text-xl"/>
+                  <icons v-if="field.sort == 'asc'" icon="bx:sort-down" class="mr-2 h-[20px] shrink-0"/>
+                  <icons v-else-if="field.sort == 'desc'" icon="bx:sort-up" class="mr-2 h-[20px] shrink-0"/>
+                  <icons v-else icon="bx:sort" class="mr-2 h-[20px] shrink-0"/>
                 </template>
                 <div>{{ field.label }}</div>
               </div>
             </template>
             <template #default="scope">
-              <template v-if="!field.hide_content">
+              <div v-if="!field.hide_content" class="ml-[23px]">
                 {{ runFunction(field.function, isEmpty(field.view_kolom) ? scope.row[field.nama_kolom] : scope.row[field.view_kolom], field.options)  }}
-              </template>
+              </div>
               <slot :name="field.nama_kolom+'-inside'" :scope="scope" :field="field"></slot>
             </template>
           </el-table-column>
@@ -139,14 +139,15 @@
       :data-id="editId" :type="dataType"
       @saved="onUpdated"></data-create>
     
-    <upload-dialog v-model:show="showUpload" title="Peminatan" :link="href" @saved="onUpdated" />
+    <excel-dialog v-model:show="showUpload" :href="href + '/store_many'" @saved="onUpdated" :fields="fields"
+      :default-value="defaultValue"/>
   </div>
 </template>
   
 <script>
   import { isEmpty, unset } from 'lodash';
   import DataCreate from './DataCreate.vue'
-  import UploadDialog from '@/components/UploadDialog.vue'
+  import ExcelDialog from '@/components/ExcelDialog.vue'
 
   export default {
     name: "table-data",
@@ -208,12 +209,16 @@
       verticalAlign:{
         type:String,
         default:'middle',
+      },
+      defaultValue:{
+        type: [Array, Object],
+        default: []
       }
     },
-    emits:['update:checkedId'],
+    emits:['update:checkedId','resetField'],
     components: {
       DataCreate,
-      UploadDialog,
+      ExcelDialog,
     },
     data: function() {
       return {
@@ -461,7 +466,9 @@
       },
       onUpdated: function(teacher) {
         this.showAdd = false;
+        this.showUpload = false;
         this.getData();
+        this.$emit('resetField')
         this.$notify({
           type:'success',
           title: 'Berhasil',

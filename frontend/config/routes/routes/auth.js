@@ -24,17 +24,6 @@ let routes = [
             pageTitle: '<b>Halaman Masuk</b>',
           }
         },
-        {
-          path: 'users',
-          alias: '',
-          name: 'users', 
-          component: () => import('@/pages/auths/PenggunaList.vue'),
-          meta: {
-            app:'user',
-            requiresAuth: true,
-            pageTitle: '<b>Pengaturan Pengguna</b>',
-          }
-        },
       ]
   },
   {
@@ -50,9 +39,18 @@ let routes = [
         {
           path: 'register',
           name: 'register', 
+          props: true,
           component: () => import('@/pages/auths/Register.vue'),
           meta: {
             pageTitle: '<b>Pendaftaran Akun Baru</b>',
+          }
+        },
+        {
+          path: 'unauthorized',
+          alias: '',
+          name: 'unauthorized', 
+          component: () => import('@/pages/auths/Unauthorized.vue'),
+          meta: {
           }
         },
       ],
@@ -74,14 +72,6 @@ let routes = [
             meta: {
               requiresAuth: true,
               pageTitle: '<b>Pengaturan Account</b>',
-            }
-          },
-          {
-            path: 'unauthorized',
-            alias: '',
-            name: 'unauthorized', 
-            component: () => import('@/pages/auths/Unauthorized.vue'),
-            meta: {
             }
           },
         ]

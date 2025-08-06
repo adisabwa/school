@@ -10,6 +10,11 @@ import Form from '@/components/Form.vue'
 import Star from '@/components/Star.vue'
 import DateWheelPicker from '@/components/form-components/DateWheelPicker.vue'
 import FloatingSelect from '@/components/form-components/FloatingSelect.vue'
+import colors from '@/helpers/tailwindcolors'
+
+function getColor(code) {
+  return colors[code]
+}
 
 export default {
   install: (app) => {
@@ -27,5 +32,6 @@ export default {
     app.config.globalProperties.$alert = ElMessageBox.alert
     app.config.globalProperties.$confirm = ElMessageBox.confirm
     app.config.globalProperties.$propmt = ElMessageBox.prompt
+    app.config.globalProperties.getColor = getColor
   }
 }

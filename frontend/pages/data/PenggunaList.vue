@@ -15,9 +15,9 @@
         Delete Checklist</el-button>
     </div>
     <div class="pt-1">
-      <table-data ref="tableData" :fields="fields" href="data/anggota"
-        :checked="true" :upload="false" :pass-columns="['tempat_lahir','tanggal_lahir','password','passwordconf','alamat','photo','id_unit','no_hp','email']"
-        :params="{where: user.role == 'super-admin' ? {} : {id_unit:user.id_unit},
+      <table-data ref="tableData" :fields="fields" href="data/pengguna"
+        :checked="true"  :pass-columns="['password','username']"
+        :params="{
           offset:0, limit:0
         }"
         :show-dropdown="false" :show-create="false">
@@ -113,10 +113,18 @@
     methods: {
       getInitial: async function() {
           this.loading = true;
-          await this.$http.get('/kolom/preparation?table=mu_anggota&grouping=0&input=0')
+          await this.$http.get('/kolom/preparation?table=sch_pengguna&grouping=0&input=0')
             .then(result => {
               var res = result.data;
               this.fields = res
+              this.fields.sch_pengguna_akses.default = [
+                {
+                  id_akses:'',
+                  role:'',
+                }
+              ]
+              this.fields.sch_pengguna_akses.fields.id_akses.span = 4
+              this.fields.sch_pengguna_akses.fields.role.span = 2
               this.loading = false
               this.$refs.tableData.getData()
             });

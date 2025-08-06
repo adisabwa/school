@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class ListAksesModel extends Model
 {
-    protected $table         = 'mu_list_akses';
+    protected $table         = 'sch_list_akses';
     protected $primaryKey = 'id';
 
     protected $useAutoIncrement = true;

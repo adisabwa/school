@@ -25,3 +25,14 @@
     }
   }
 }
+.table.two-line {
+  tr:nth-child(4n-3),
+  tr:nth-child(4n-2) {
+    background-color: #ffffff;
+  }
+
+  tr:nth-child(4n-1),
+  tr:nth-child(4n) {
+    background-color: #f9f9f9;
+  }
+}

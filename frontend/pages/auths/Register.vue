@@ -1,96 +1,119 @@
 <template>
-    <div id="register" class="max-w-[1100px] mx-6 sm:mx-auto bg-white bg-opacity-[0.9]
-      border-solid border border-gray-300">
-      <div class="h-full sm:px-10">
-        <div class="flex flex-col items-center align-middle
-           pt-[90px] px-5 pb-20">
-          <div class="w-full
-            text-center">
-            <h2 class="mt-0 mb-0 text-center text-2xl
-              font-[600] font-montserrat ">Buat Akun Baru</h2>
-            <div class="mt-0 mb-0 text-center text-[12px]
-            font-montserrat ">Silahkan Isi Data Diri Terlebih Dahulu</div>
-            <el-divider class="my-4 mx-0"/>
-            <div class="flex flex-col mt-6">
-              <form-comp ref="formRegistrasi"
-                class="[&_*]:text-center"
-                :key="'form-registrasi-'+formKey"
-                :fields="fields" 
-                :id="dataId"
-                v-model:form-value="formValue"
-                href="data/anggota/store"
-                href-get="data/anggota/get"
-                :pass-columns="['tempat_lahir','tanggal_lahir','photo','role']"
-                @saved="submittedAnggota"  
-                @error="saving=false"
-                size="large"
-                :show-submit="false"
-                :show-label="false"
-                label-position="top"
-                :show-required-text="false"
-              ></form-comp> 
-              <el-button 
-                type="primary" 
-                size="large" 
-                @click="$refs.formRegistrasi.submitForm();
-                saving=true"
-                :loading="saving" 
-                class="mt-2 w-full bg-teal-700 font-bold
-                  rounded-full">Buat Akun</el-button>
-            </div>
-          </div>
+  <div id="register" class="max-w-[1100px] mx-6 sm:mx-auto bg-white bg-opacity-[0.9]
+    border-solid border border-gray-300">
+    <div class="h-full sm:px-10">
+      <div class="flex flex-col items-center align-middle
+          pt-[90px] pb-20">
+        <div class="w-full
+          text-center">
+          <h2 class="mt-0 mb-0 text-center text-2xl
+            font-[600] font-montserrat ">Buat Akun Baru</h2>
+          <div class="mt-0 mb-0 text-center text-[12px]
+          font-montserrat ">Silahkan Isi Data Diri Terlebih Dahulu</div>
+          <el-divider class="my-4 mx-0"/>
+          <el-form class="flex flex-col mt-6 [&_*]:rounded-[15px] [&_*]:text-center"
+            label-position="top">
+            <el-form-item label="Nama Guru">
+              <floating-select v-model:value="form.id" placeholder="Pilih Nama Anda" 
+                filterable clearable
+                size="large" class="w-full"
+                :options="optionsGuru">
+              </floating-select>
+            </el-form-item>
+            <el-form-item label="Email">
+              <el-input v-model="form.email" placeholder="Email Anda" size="large" class="w-full"/>
+            </el-form-item>
+          </el-form>
+          <el-button 
+            type="primary" 
+            size="large" 
+            @click="register();
+            saving=true"
+            :loading="saving" 
+            class="mt-2 w-full bg-teal-700 font-bold
+              rounded-full">Buat Akun</el-button>
         </div>
       </div>
     </div>
+  </div>
 </template>
   
 <script>
-  import Form from '@/components/Form.vue'
   
 export default {
   name: 'register',
   components:{
-    'form-comp' : Form,
+    
   },
   data() {
     return {
       saving: false,
-      formKey:1,
-      formKeyAkun:1,
-      fields:{},
+      form:{
+        id:-1,
+        email:'',
+      },
       dataId:-1,
       dataIdAkun:-1,
       formValue:{},
+      optionsGuru:[],
     };
   },
   methods: {
     getInitial: async function() {
       this.saving = true;
-      await this.$http.get('/kolom/preparation?table=mu_anggota&grouping=0&input=0')
-        .then(result => {
-          var res = result.data;
-          let keys = Object.keys(res)
-          for (let i = 0; i < keys.length; i++) {
-            const element = res[keys[i]];
-            if (element.required == '0')
-              element.placeholder += ' (Opsional) '
+      await this.$http.get('/data/guru/options',{
+        params: {
+          where:{
+            'email': "",
           }
-          this.fields = res
-          this.formKey++
+        }
+      })
+        .then(res => {
+          this.optionsGuru = res.data
+          this.form.email = useDataStore().filters.email
           this.saving = false
+        })
+      // await this.$http.get('/kolom/preparation?table=sch__guru&grouping=0&input=0')
+      //   .then(result => {
+      //     var res = result.data;
+      //     let keys = Object.keys(res)
+      //     for (let i = 0; i < keys.length; i++) {
+      //       const element = res[keys[i]];
+      //       if (element.required == '0')
+      //         element.placeholder = element.label += ' (Opsional) '
+      //     }
+      //     this.fields = {...this.fields, ...res}
+      //     console.log(this.fields)
+      //     this.formKey++
+      //     this.saving = false
+      //   });
+
+    },
+    register(){
+      let form = this.convertNullToEmptyString(this.form)
+      var formData = window.jsonToFormData(form); 
+
+      this.$http.post('data/guru/store', formData)
+        .then(result => {
+          this.saving = false;
+          this.submittedAnggota(result.data)
+        })
+        .catch(err => {
+          this.saving = false;
+          console.log(err)
+          var res = err.response;
+          var code = res.status;
         });
     },
-     submittedAnggota(data){
+    submittedAnggota(data){
       console.log(data)
-      this.saving = false
       let payload = {
-        no_hp: this.formValue.no_hp,
-        password: this.formValue.password,
+        email: data.email,
       }
       // console.log(payload)
-      authStore.login(payload, true)
+      useAuthStore().login(payload, true)
         .then(() => {
-          this.$router.push({name:'dashboard'})
+          this.$router.push({name:'default'})
         })
     },
   },

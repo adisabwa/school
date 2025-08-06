@@ -188,10 +188,12 @@ export default {
       this.activeMenu = index
     },
     async getMenus(app = 'admin'){
+      this.resetStorage('menu',app)
+      this.saveToStorage('menu',app)
       // let index = vm.coalesce([vm.$route.meta.app, 'default'])
       await import(`@/helpers/menus/${app}.js`)
         .then(res => {
-          // console.log(res.default)
+          console.log(res.default)
           this.menus = res.default
           this.setActiveMenu()
         })
@@ -241,7 +243,7 @@ export default {
     }
   },
   created: async function() {
-    this.getMenus(this.$route?.meta?.app ?? 'admin')
+    this.getMenus(this.$route?.meta?.app ?? this.getDataFormStorage('menu') ?? 'admin')
     this.scrollPosition = window.scrollY;
     this.mainMenus.logout.function = this.doLogout
     this.isVertical = this.getDataFormStorage('vertical-menu') ?? '1';
