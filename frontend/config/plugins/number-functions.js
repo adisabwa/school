@@ -68,6 +68,23 @@ let listFunction = {
 
     // Hilangkan spasi ekstra di akhir
     return words.trim();
+  },
+  checkMinMax(val, min, max){
+    val = parseFloat(val)
+    min = parseFloat(min)
+    max = parseFloat(max)
+    console.log(val)
+    if (val < min) return min
+    else if (val > max) return max
+    return val
+  },
+  rounding(val, number = 0){
+    let ex = 1;
+    for (let i = 0; i < number; i++) {
+      ex *= 10      
+    }
+    val = parseFloat(val)
+    return Math.round(val * ex) / ex
   }
 }
 

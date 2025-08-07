@@ -15,6 +15,7 @@ $routes->group('mapel', [
         $routes->add('/', [MapelNilai::class,'index']);
         $routes->add('get', [MapelNilai::class, 'get']);
         $routes->add('store', [MapelNilai::class, 'store']);
+        $routes->add('store_many', [MapelNilai::class, 'store_many']);
     });
 
 

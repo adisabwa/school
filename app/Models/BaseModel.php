@@ -10,7 +10,7 @@ class BaseModel extends Model
     protected $primaryKey = 'id';
 
     protected $useAutoIncrement = true;
-    protected $returnType    = 'array';
+    protected $returnType    = 'object';
 
     protected $protectFields = false;
     protected $useTimestamps = true;
@@ -95,7 +95,7 @@ class BaseModel extends Model
         $data = $data->orderBy($order)
                     ->limit($limit, $offset)
                     ->get()
-                    ->getResultObject();
+                    ->getResult();
 
         return $data;
     }
