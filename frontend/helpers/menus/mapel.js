@@ -5,6 +5,7 @@ let mapel = [
     icon:'ph:notebook-fill',
     label:'Data Mata Pelajaran',
     type:'menu',
+    roles:['admin'],
   },
   {
     index: 'pembagian-mapel',
@@ -12,6 +13,7 @@ let mapel = [
     icon:'ic:baseline-data-thresholding',
     label:'Pembagian Pengampu',
     type:'menu',
+    roles:['admin'],
   },
   {
     index: 'nilai-mapel',

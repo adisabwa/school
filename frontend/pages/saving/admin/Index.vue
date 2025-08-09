@@ -143,7 +143,7 @@ export default {
             this.fields = this.fillAndAddObjectValue(this.fields, res)
             this.loading = false
           });
-        await this.$http.get('/data/santri/kelas')
+        await this.$http.get('/data/kelas/options')
           .then(result => {
             var res = result.data;
             this.filterFields.kelas.options = res

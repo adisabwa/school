@@ -87,7 +87,6 @@ class BaseDataController extends BaseController
         // return $this->failServerError();
         $data = $posted_data;
         unset($data['id']);
-        $data["created_by"] = userdata()->id ?? 0;
         $child_key = $data['nama_fk'] ?? [];
         $child_table = $data['tables'] ?? [];
         unset($data['nama_fk']);
@@ -96,14 +95,17 @@ class BaseDataController extends BaseController
         // Start the transaction
 
         $this->model->transBegin();
-        if ($posted_data['id'] > 0) {
-            $save = $this->model->update($posted_data['id'], $data);
-        } else {
-            $save = $this->model->insert($data, TRUE);
-            $posted_data['id'] = $this->model->insertID();
+        // var_dump($data);
+        if (!empty($data)) {
+            if ($posted_data['id'] > 0) {
+                $save = $this->model->update($posted_data['id'], $data);
+            } else {
+                $save = $this->model->insert($data, TRUE);
+                $posted_data['id'] = $this->model->insertID();
+            }
         }
         // // var_dump($posted_data);
-        // var_dump( $this->model->error());
+        // var_dump( $posted_data, $this->model->error());
         // Append ID to data
         foreach ($child_table as $table => $values) {
             $fk = $child_key[$table];

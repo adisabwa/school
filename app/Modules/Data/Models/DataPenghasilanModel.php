@@ -2,46 +2,19 @@
 
 namespace Modules\Data\Models;
 
-use CodeIgniter\Model;
+use App\Models\BaseModel;
 
-class DataPenghasilanModel extends Model
+class DataPenghasilanModel extends BaseModel
 {
-    protected $table         = 'sch__penghasilan';
-    protected $primaryKey = 'id';
-
-    protected $useAutoIncrement = true;
-    protected $returnType    = 'object';
-
-    protected $protectFields = false;
-    protected $useTimestamps = true;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-
-    protected function initialize()
+    public function __construct()
     {
+        parent::__construct();
 
+        $this->table = 'sch__penghasilan';
     }
 
-    public function getTableName()
-    {
-        return $this->table;
-    }
-    
     public function getOptions($where = [])
     {
-      $options = [];
-      $data = $this->db->table('sch__penghasilan p')
-                    ->select('*')
-                    ->where($where)
-                    ->get()
-                    ->getResult();
-      foreach ($data as $key => $d) {
-        $options[] = (object)[
-          'value' => "$d->id",
-          'label' => "$d->label ( Rp. ".number_format($d->dari, 2, ',', '.')." - Rp. ".number_format($d->hingga, 2, ',', '.')." )"
-        ];
-      }
-      return $options;
+      return $this->getOptionsData($where, function($d) { return "$d->label ( Rp. ".number_format($d->dari, 2, ',', '.')." - Rp. ".number_format($d->hingga, 2, ',', '.')." )"; });
     }
 }

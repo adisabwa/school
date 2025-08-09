@@ -40,7 +40,7 @@
           <div class="mt-1 text-md leading-[1] cursor-pointer"
             @click="showRole = true">
             <span class="el-dropdown-link text-white flex items-end gap-1">
-              {{ ucFirst(user.role) }}
+              {{ ucFirst(role) }}
               <icons icon="fe:arrow-down" class="text-[90%]" />
             </span>
           </div>
@@ -51,7 +51,7 @@
                 <div>Masuk Sebagai</div>
               </template>
               <el-radio-group class="flex flex-col gap-2"
-                v-model="role">
+                v-model="selectedRole">
                 <el-radio-button v-for="rl in user.allowed_roles"
                   :value="rl" class="
                   border border-solid border-teal-700/[0.5]
@@ -80,7 +80,7 @@
           w-full h-full
           pt-4 ">
         <template v-for="menu in menus">
-          <template v-if="menu.type == 'submenu' && (isEmpty(menu.roles) || menu?.roles?.includes(user.role))">
+          <template v-if="menu.type == 'submenu' && (isEmpty(menu.roles) || menu?.roles?.includes(role))">
             <el-sub-menu :index="menu.index" class="pl-5 [&>*]:p-0 text-left menu-item-custom title">
               <template #title>
                 <icons v-if="!isEmpty(menu.icon)" class="mr-2" :icon="menu.icon" />
@@ -88,7 +88,7 @@
               </template>
               <template v-for="child in menu.children">
                 <el-menu-item @click="$router.push({name:child.route, params: child.params})"
-                  v-if="(isEmpty(child.roles) || child?.roles?.includes(user.role))"
+                  v-if="(isEmpty(child.roles) || child?.roles?.includes(role))"
                   :index="child.index" class="pl-6 menu-item-custom title">
                   <icons v-if="!isEmpty(child.icon)" class="mr-2" :icon="child.icon" />
                   <span class="">{{ child.label }}</span>
@@ -96,7 +96,7 @@
               </template>
             </el-sub-menu>
           </template>
-          <template v-else-if="(isEmpty(menu.roles) || menu?.roles?.includes(user.role))">
+          <template v-else-if="(isEmpty(menu.roles) || menu?.roles?.includes(role))">
             <el-menu-item @click="isEmpty(menu.route) ?
               $emit('function', menu.function) :
               $router.push({name:menu.route, params: menu.params})"
@@ -154,7 +154,7 @@ export default {
   },
   data: function() {
     return {
-      role:'',
+      selectedRole:'',
       showRole:false
     };
   },
@@ -164,6 +164,7 @@ export default {
   computed: {
     ...mapState(useAuthStore, {
       user: 'loggedUser',
+      role: 'role',
     }),
   },
   methods: {

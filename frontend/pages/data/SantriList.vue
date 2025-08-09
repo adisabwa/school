@@ -1,8 +1,23 @@
 <template>
   <div id="santri-list" class="pt-1" v-loading="loading">
     <table-data ref="tableData" :fields="fields" href="data/santri"
-      :checked="true"  :pass-columns="[]"
+      :checked="true"  :pass-columns="['foto']"
       :params="tableParams">
+      <el-table-column label="Foto Santri" width="200px" align="center">
+        <template #default="scope">
+          <div v-if="isEmpty(scope.row.foto)"
+            class="text-center">
+            <el-button type="primary" @click="$refs.tableData.handleActionClick({action:'edit', id:scope.row.id}, ['foto'])"
+              size="small">
+              Upload Foto
+            </el-button>
+          </div>
+          <div v-else
+            class="text-center">
+            <img :src="scope.row.foto" height="40px" />
+          </div>
+        </template>
+      </el-table-column>
     </table-data>
   </div>
 </template>

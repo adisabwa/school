@@ -72,7 +72,10 @@
                         : 'bg-gray-100 text-gray-400']">
                       <template v-if="cols[col_num]">
                         <div class="text-sm" v-if="forms[row_num][col_num]">
-                          {{ runFunction(null, forms[row_num][col_num], fields[cols[col_num]].options) }}
+                          {{ runFunction({
+                            data:forms[row_num][col_num], 
+                            options:fields[cols[col_num]].options
+                          }) }}
                         </div>
                         <div v-else class="text-red-900">
                           <div>{{ col }}</div>

@@ -63,7 +63,7 @@
           </template>
         </el-table-column>
         <template v-for="(field, ind) in fields">
-          <el-table-column v-if="!passColumns.includes(field.nama_kolom)"
+          <el-table-column v-if="showColumns.length > 0 ? showColumns.includes(field.nama_kolom) : !passColumns.includes(field.nama_kolom)"
             :width="field.width" :align="field.align" :min-width="field.min_width">
             <template #header="scope">
               <div class="flex items-center pointer"
@@ -82,7 +82,12 @@
             </template>
             <template #default="scope">
               <div v-if="!field.hide_content" class="ml-[23px]">
-                {{ runFunction(field.function, isEmpty(field.view_kolom) ? scope.row[field.nama_kolom] : scope.row[field.view_kolom], field.options)  }}
+                {{ runFunction({
+                  func: field.function, 
+                  data: isEmpty(field.view_kolom) ? scope.row[field.nama_kolom] : scope.row[field.view_kolom], 
+                  options: field.options,
+                  defaultData: field?.defaultData,
+                })  }}
               </div>
               <slot :name="field.nama_kolom+'-inside'" :scope="scope" :field="field"></slot>
             </template>
@@ -136,11 +141,13 @@
     <data-create v-model:show="showAdd"
       :title="title" :href="href + '/store'" :href-get="href + '/get'"
       :fields="fieldsCreate"
+      :pass-columns="passColumnsInput"
+      :show-columns="showColumnsInput"
       :data-id="editId" :type="dataType"
       @saved="onUpdated"></data-create>
     
     <excel-dialog v-model:show="showUpload" :href="href + '/store_many'" @saved="onUpdated" :fields="fields"
-      :default-value="defaultValue"/>
+      :default-value="defaultData"/>
   </div>
 </template>
   
@@ -178,6 +185,18 @@
         type:Array,
         default: [],
       },
+      showColumns:{
+        type:Array,
+        default: [],
+      },
+      passColumnsInput:{
+        type:Array,
+        default: [],
+      },
+      showColumnsInput:{
+        type:Array,
+        default: [],
+      },
       href:{
         type:String,
         default: '',
@@ -210,7 +229,7 @@
         type:String,
         default:'middle',
       },
-      defaultValue:{
+      defaultData:{
         type: [Array, Object],
         default: []
       }
@@ -279,7 +298,12 @@
                 for (var i = 0; i < keys.length; i++) {
                   let ind = keys[i]
                   let field = fields[ind]
-                  let text = vm.runFunction(field.function, data[field.nama_kolom])
+                  let text = vm.runFunction({
+                    func: field.function, 
+                    data: data[field.nama_kolom],
+                    options: field.options,
+                    defaultData: field?.defaultData,
+                  })
                   if (text?.toLowerCase()?.includes(q)) {
                     exist = true
                     break
@@ -287,7 +311,12 @@
                 }
               } else {
                 let field = fields[vm.searchField]
-                let text = vm.runFunction(field.function, data[field.nama_kolom])
+                let text = vm.runFunction({
+                  func: field.function, 
+                  data: data[field.nama_kolom],
+                  options: field.options,
+                  defaultData: field?.defaultData,
+                })
                 if (text?.toLowerCase()?.includes(q))
                   exist = true
               }

@@ -227,7 +227,12 @@ export default {
     };
   },
   watch: {
-    
+    filter:{
+      deep:true,
+      handler(val){
+        this.getFinance();
+      }
+    }
 
   },  
   computed: {      
@@ -353,11 +358,6 @@ export default {
           });
 
     },
-    onUpdated(){
-      this.showAdd = false;
-      this.showUpload = false;
-      this.getFinance();
-    },
     getFixedColumn() {
       let vm = this;
       vm.jquery('table.fixed-column-generate').remove();
@@ -385,6 +385,12 @@ export default {
         vm.jquery(e).parent().prepend(clone);
       });
     },
+  },
+  updated(){
+    console.log('updated')
+    this.showAdd = false;
+    this.showUpload = false;
+    this.getFinance();
   },
   created: function() {
     this.getInitial();

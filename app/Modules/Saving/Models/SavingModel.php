@@ -30,8 +30,9 @@ class SavingModel extends Model
         $whereOr = empty($whereOr) ? '1=1' : $whereOr;
 
         return $this->db->table('sch_sav_tabungan'.' f')
-                    ->select('f.*, s.nama, s.tingkat, s.kelas')
+                    ->select('s.*, f.*, k.kelas')
                     ->join('sch__santri'.' s','s.id=f.id_santri')
+                    ->join('sch__kelas k','k.id=s.id_kelas','left')
                     ->where($whereAnd)
                     ->groupStart()
                         ->orWhere($whereOr)
@@ -48,8 +49,9 @@ class SavingModel extends Model
         $where3 = empty($end) ? '1=1' : "tanggal <= '$end'";
 
         return $this->db->table('sch__santri'.' s')
-                    ->select("f.id_santri, f.tanggal, s.nama, s.tingkat, s.kelas, f.jenis, SUM(f.nominal) jumlah" )
+                    ->select("f.id_santri, f.tanggal, s.nama, k.kelas, f.jenis, SUM(f.nominal) jumlah" )
                     ->join('sch_sav_tabungan'.' f',"s.id=f.id_santri")
+                    ->join('sch__kelas k','k.id=s.id_kelas','left')
                     ->where($where2)
                     ->where($where3)
                     ->groupBy('s.id, f.jenis, f.tanggal')
@@ -64,8 +66,9 @@ class SavingModel extends Model
         $where3 = empty($end) ? '1=1' : "tanggal < '$end'";
 
         return $this->db->table('sch__santri'.' s')
-                    ->select("f.id_santri, f.tanggal, s.nama, s.tingkat, s.kelas, f.jenis, SUM(f.nominal) jumlah" )
+                    ->select("f.id_santri, f.tanggal, s.nama, k.kelas, f.jenis, SUM(f.nominal) jumlah" )
                     ->join('sch_sav_tabungan'.' f',"s.id=f.id_santri")
+                    ->join('sch__kelas k','k.id=s.id_kelas','left')
                     ->where($where3)
                     ->groupBy('s.id, f.jenis')
                     ->orderBy('tingkat, kelas, nama')

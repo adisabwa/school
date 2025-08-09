@@ -3,8 +3,9 @@
     <el-input v-model="labelModel" :placeholder="placeholder" 
       :clearable="clearable"
       :size="size"
+      :readonly="readonly"
       @clear="clearData"
-      @click="showModal = true"
+      @click="showModal = true && !readonly"
       :input-style="{color: multiple ? 'lightgray' : 'black'}">
       <template #prepend v-if="prefix">
         {{ prefix }}
@@ -75,11 +76,13 @@ export default {
     size:{type:[String], default:'',},
     filterable:{type:[Boolean], default:false,},
     clearable:{type:[Boolean], default:false,},
+    readonly:{type:[Boolean], default:false,},
     multiple:{type:[Boolean], default:false,},
     allowCreate:{type:[Boolean], default:false,},
     options:{type:[Array, Object], default:[],},
     type:{type:[String], default:'select',},
     prefix:{type:[String], default:'',},
+    emptyValue:{type:[String], default:'',},
   },
   data: function() {
     return {
@@ -144,9 +147,13 @@ export default {
     vModel:{
       deep: true,
       handler(val) {
-        // console.log('model', val)
-        this.selectOption(val)
-        this.$emit('update:value', val)
+        if (val === null)
+          this.vModel = ''
+        else {
+          // console.log('model', val)
+          this.selectOption(val)
+          this.$emit('update:value', val)
+        }
       },
     },
     value: {
@@ -167,6 +174,13 @@ export default {
         opt.forEach(d => {
           d.name = pre + ' ' + d.label
         })
+        if (this.emptyValue){
+          opt.unshift({
+            value:'',
+            label:'Semua ' + this.placeholder
+          })
+        }
+        console.log(opt)
         this.listOptions = opt
         this.selectOption(this.vModel)
       }

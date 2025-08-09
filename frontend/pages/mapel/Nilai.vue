@@ -8,6 +8,7 @@
           class="mt-2 "
           label-width="150px"
           v-model:form-value="filter"
+          :pass-columns="[]"
           :show-submit="false"
           text-submit="Cari"
           error-submit-text="Tidak dapat mengambil data"
@@ -134,16 +135,16 @@
             input:'select',
             options:[],
           },
-          id_guru:{
-            label:'Guru',
-            nama_kolom:'id_guru',
+          id_kelas:{
+            label:'Kelas',
+            nama_kolom:'id_kelas',
             input:'select',
             input_only:'1',
             options:[],
           },
-          id_kelas:{
-            label:'Kelas',
-            nama_kolom:'id_kelas',
+          id_guru:{
+            label:'Guru',
+            nama_kolom:'id_guru',
             input:'select',
             input_only:'1',
             options:[],
@@ -158,8 +159,8 @@
         fields:{},
         filter:{
           id_semester:'',
-          id_guru:'',
           id_kelas:'',
+          id_guru:'',
           id_pembagian_mapel:'',
         },
         params:{
@@ -179,13 +180,13 @@
       'paging.currentPage': function(val) {
         this.paging.offset = val * this.paging.perPage - this.paging.perPage;
       },
-      'filter.id_guru' (val){
-        this.filterFields.id_kelas.options = this.filterFields.id_guru.options[val].options
-        this.filter.id_kelas = Object.values(this.filterFields.id_kelas.options)[0].value
-      },
       'filter.id_kelas' (val){
-        this.filterFields.id_pembagian_mapel.options = this.filterFields.id_kelas.options[val].options
-        this.filter.id_pembagian_mapel = Object.values(this.filterFields.id_pembagian_mapel.options)[0].value
+        this.filterFields.id_guru.options = this.filterFields.id_kelas.options[val]?.options ?? []
+        this.filter.id_guru = Object.values(this.filterFields.id_guru.options)[0]?.value
+      },
+      'filter.id_guru' (val){
+        this.filterFields.id_pembagian_mapel.options = this.filterFields.id_guru.options[val]?.options ?? []
+        this.filter.id_pembagian_mapel = Object.values(this.filterFields.id_pembagian_mapel.options)[0]?.value
       },
       'filter.id_pembagian_mapel' (val) {
         console.log('id',val)
@@ -205,6 +206,7 @@
     computed: {
       ...mapState(useAuthStore, {
         user: 'loggedUser',
+        role: 'role',
       }),
       ...mapState(useDataStore, {
         storeFilters: 'filters',
@@ -227,15 +229,37 @@
               this.filterFields.id_semester.options = res.data
               this.filter.id_semester = this.storeFilters?.id_semester ? this.storeFilters?.id_semester : res.data[0].value
             })
-          this.$http.get('mapel/admin/pembagian/options')
+          let where = []
+          switch (this.role) {
+            case 'guru':
+              where = {
+                id_guru:this.user.id_guru
+              }
+              this.filterFields.id_guru.readonly = true
+              break;
+            case 'walas':
+              where = {
+                id_kelas:this.user.id_kelas
+              }
+              this.filterFields.id_kelas.readonly = true
+              break;
+            
+            default:
+              break;
+          }
+          this.$http.get('mapel/admin/pembagian/options',{
+            params:{
+              where:where
+            }
+          })
             .then(res => {
               let data = res.data
-              this.filterFields.id_guru.options = data
-              this.filter.id_guru = this.storeFilters?.id_guru ? this.storeFilters?.id_guru : this.user.id_guru ?? Object.values(data)[0].value
-              this.filterFields.id_kelas.options = data[this.filter.id_guru].options
-              this.filter.id_kelas = this.storeFilters?.id_kelas ? this.storeFilters?.id_kelas : Object.values(this.filterFields.id_kelas.options)[0].value
-              this.filterFields.id_pembagian_mapel.options = this.filterFields.id_kelas.options[this.filter.id_kelas].options
-              this.filter.id_pembagian_mapel = this.storeFilters?.id_mapel ? this.storeFilters?.id_mapel : Object.values(this.filterFields.id_pembagian_mapel.options)[0].value
+              this.filterFields.id_kelas.options = data
+              this.filter.id_kelas = this.storeFilters?.id_kelas ? this.storeFilters?.id_kelas : Object.values(data)[0]?.value
+              this.filterFields.id_guru.options = data[this.filter.id_kelas]?.options ?? {}
+              this.filter.id_guru = this.storeFilters?.id_guru ? this.storeFilters?.id_guru : this.user.id_guru ?? Object.values(this.filterFields.id_guru.options)[0]?.value
+              this.filterFields.id_pembagian_mapel.options = this.filterFields.id_guru.options[this.filter.id_guru]?.options
+              this.filter.id_pembagian_mapel = this.storeFilters?.id_mapel ? this.storeFilters?.id_mapel : Object.values(this.filterFields.id_pembagian_mapel.options)[0]?.value
             })
         },
       getData(){

@@ -32,21 +32,21 @@ class MapelPembagianModel extends BaseModel
                 'value' => "$d->id",
                 'label' => $d->nama_mapel,
             ];
-            if (empty($options[$d->id_guru])) {
-                $options[$d->id_guru] = (object) [
-                    'value' => $d->id_guru,
-                    'label' => $d->nama,
-                    'options' => []
-                ];
-            } 
-            if (empty($options[$d->id_guru]->options[$d->id_kelas])) {
-                $options[$d->id_guru]->options[$d->id_kelas] = (object) [
+            if (empty($options[$d->id_kelas])) {
+                $options[$d->id_kelas] = (object) [
                     'value' => $d->id_kelas,
                     'label' => $d->kelas,
                     'options' => []
                 ];
             } 
-            $options[$d->id_guru]->options[$d->id_kelas]->options[$d->id] = $option;
+            if (empty($options[$d->id_kelas]->options[$d->id_guru])) {
+                $options[$d->id_kelas]->options[$d->id_guru] = (object) [
+                    'value' => $d->id_guru,
+                    'label' => $d->nama,
+                    'options' => []
+                ];
+            } 
+            $options[$d->id_kelas]->options[$d->id_guru]->options[$d->id] = $option;
       }
       return $options;
     }

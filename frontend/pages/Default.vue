@@ -11,11 +11,11 @@
             flex flex-col gap-3 items-center">
           <GoogleLogin :callback="doGLogin" prompt
             class="w-full" />
-          <div class="text-cyan-700 text-md w-full
+          <!-- <div class="text-cyan-700 text-md w-full
             cursor-pointer"
             @click="$router.push({name:'login'})"> 
             Login dengan Username dan Password
-          </div>
+          </div> -->
         </div>
         <template v-else>
           <div class="max-w-[80%] mx-auto relative

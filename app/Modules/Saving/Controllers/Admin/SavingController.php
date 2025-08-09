@@ -35,7 +35,7 @@ class SavingController extends BaseDataController
         $order = implode(",", $this->request->getPostGet('order') ?? []);
         $whereAnd = [
             "nama LIKE '%$nama%'" => NULL,
-            empty($kelas) ? '1=1' : "kelas='$kelas'" => NULL,
+            empty($kelas) ? '1=1' : "id_kelas='$kelas'" => NULL,
             empty($start) ? '1=1' : "tanggal>='$start'" => NULL,
             empty($end) ? '1=1' : "tanggal<='$end'" => NULL,
         ];

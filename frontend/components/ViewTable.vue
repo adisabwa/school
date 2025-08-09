@@ -28,7 +28,11 @@
                 <slot :name="field.nama_kolom+'-inside'" :data="isEmpty(field.view_kolom) ? form[field.nama_kolom] : form[field.view_kolom]" :field="field"></slot>
               </div>
               <div v-else>
-                {{ runFunction(field.function, (isEmpty(field.view_kolom) ? form[field.nama_kolom] : form[field.view_kolom]), field.options ) }}
+                {{ runFunction({
+                  func:field.function, 
+                  data:(isEmpty(field.view_kolom) ? form[field.nama_kolom] : form[field.view_kolom]), 
+                  options: field.options 
+                }) }}
               </div>
             </template>
           </div>

@@ -84,6 +84,15 @@ class BaseModel extends Model
                         ->orWhere($whereOr)
                     ->groupEnd();
 
+        foreach ($this->relations as $key => $rel) {
+            $data->select($rel['select']);
+            $condition = [
+                "$this->table.".$rel['foreign_key']."=".$rel['table'].".".($rel['local_key'] ?? 'id'),
+                $rel['condition'] ?? "1=1"
+            ];
+            $data->join($rel['table'], implode(" AND ", $condition), $rel['type']);
+        }
+
         foreach ($whereIn as $key => $value) {
             $data->whereIn($key, $value);
         }

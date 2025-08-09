@@ -10,7 +10,7 @@
     <slot name="before" :errors="errors" :form="form" :fields="fieldsData"></slot>
       <template  v-for="(field, ind) in fieldsData">
         <el-form-item :class="['grow-0', gridItemClass(field?.span), formItemClass, formItemClass[field.nama_kolom], formItemClass['all']]"
-          v-show="resolvedShowColumns.length > 0 ? resolvedShowColumns.includes(field.nama_kolom) : !resolvedPassColumns.includes(field.nama_kolom)"
+          v-show="field.hidden != '1' && (resolvedShowColumns.length > 0 ? resolvedShowColumns.includes(field.nama_kolom) : !resolvedPassColumns.includes(field.nama_kolom))"
           :error="field.input == 'array' ? '' : errors[field.nama_kolom]">
           <template #label v-if="showLabel">
             <span :class="[field.required == '1' ? 'required' : '','leading-[1.5] mt-2', labelClass]"> {{ field.label }} </span>
@@ -25,6 +25,7 @@
                 :class="['w-full',inputClass]" 
                 @change="searchData(ind); changedValue(field.nama_kolom)" @input="form[field.nama_kolom] = runFunction(field.function_input, form[field.nama_kolom])"
                 :size="size"
+                :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}">
                 <template #prepend v-if="!isEmpty(field.prepend)"> {{ field.prepend }}</template>
                 <template #apppend v-if="!isEmpty(field.apppend)"> {{ field.append }}</template>  
@@ -36,6 +37,7 @@
                 type="password" show-password
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
+                :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}">
                 <template #prefix>
                   <icons icon="material-symbols:lock-outline" />
@@ -47,6 +49,7 @@
                 @change="changedValue(field.nama_kolom)"
                 :class="['w-full',inputClass]" 
                 :size="size"
+                :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}"/>
             </template>
             <template v-else-if="field.input == 'number'">
@@ -55,6 +58,7 @@
                 type="number"
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
+                :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}"/>
             </template>
             <template v-else-if="field.input == 'textarea'">
@@ -63,6 +67,7 @@
                 type="textarea" row="3"
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
+                :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}"/>
             </template>
             <template v-else-if="['select','select-multiple','scroll'].includes(field.input)">
@@ -71,6 +76,8 @@
                 :allow-create="field.allow_create"
                 :class="['w-full',inputClass]" 
                 :size="size"
+                :readonly="field.readonly"
+                :empty-value="field.emptyValue"
                 @change="changedValue(field.nama_kolom)"
                 :style="{width:((field.width_input ?? '').split('-')[1] ?? '') + ' !important'}"  
                 :type="(field.input ?? '').split?.('-')[0]"
@@ -111,6 +118,8 @@
                 filterable clearable
                 @change="form[field.nama_kolom] = null; changedValue(field.nama_kolom)"
                 :size="size"
+                :readonly="field.readonly"
+                :empty-value="field.emptyValue"
                 :options="field.options"
                 :type="(field.input ?? '').split('/')[1]?.split('-')[0]"
                 :style="{width:((field.width_input ?? '').split('-')[0] ?? '') + ' !important'}"
@@ -121,6 +130,8 @@
                 :class="['w-full',inputClass]" 
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
+                :readonly="field.readonly"
+                :empty-value="field.emptyValue"
                 :type="(field.input ?? '').split('/')[1]?.split('-')[1]"
                 :style="{width:((field.width_input ?? '').split('-')[1] ?? '') + ' !important'}"  
                 :options="field.options[field.parentSelect]?.options"
@@ -157,6 +168,7 @@
             <template v-else-if="field.input=='radio'">
               <el-radio-group v-model="form[field.nama_kolom]"
                 :class="[inputClass]" 
+                :readonly="field.readonly"
                 @change="changedValue(field.nama_kolom)"
                 :style="{width:field.width_input + ' !important'}">
                 <template 
@@ -174,6 +186,7 @@
                 format="DD MMMM YYYY"
                 clearable 
                 :size="size"
+                :readonly="field.readonly"
                 @change="changedValue(field.nama_kolom)"
                 :style="{width:field.width_input + ' !important'}"
               />
@@ -189,6 +202,7 @@
                 @change="changedValue(field.nama_kolom)"
                 @blur="changeData"
                 :size="size"
+                :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}"/>
             </template>
             <template v-else-if="field.input == 'file'">
@@ -440,13 +454,14 @@ export default {
   },
   computed: {
     resolvedPassColumns(){
+      let pass = []
       if (Array.isArray(this.passColumns) && this.passColumns.length > 0)
-        return this.passColumns 
+        pass = [...pass, ...(this.passColumns ?? [])]
       
       if (Array.isArray(this?.sharedState?.passColumns) && this?.sharedState?.passColumns?.length > 0)
-        return this?.sharedState?.passColumns
-      
-       return []
+        pass = [...pass, ...(this?.sharedState?.passColumns ?? [])]
+
+       return pass
     },
     resolvedShowColumns(){
       if (Array.isArray(this.showColumns) && this.showColumns.length > 0)

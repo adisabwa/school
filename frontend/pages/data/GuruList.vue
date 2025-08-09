@@ -2,6 +2,7 @@
   <div id="guru-list" class="pt-1" v-loading="loading">
     <table-data ref="tableData" :fields="fields" href="data/guru"
       :checked="true"  :pass-columns="['prefix','suffix']"
+      :pass-columns-input="[]"
       :params="tableParams">
       <template #nama-inside="{ scope }">
        {{ scope.row.prefix }}

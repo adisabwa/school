@@ -4,6 +4,15 @@ let listFunction = {
     return (!str || 0 === str.length || str === undefined || str === '0000-00-00');
   },
   ucFirst: str => str ? str[0].toUpperCase() + str.slice(1) : str,
+  capitalizeEachWord(str) {
+    if (typeof str !== 'string') {
+        return ''; // Or throw an error, depending on desired behavior
+    }
+    return str.split(' ').map(word => {
+        if (word.length === 0) return '';
+        return word.charAt(0).toUpperCase() + word.slice(1);
+    }).join(' ');
+  },
   openLink(link){
     window.open(link,'_blank');
   },
@@ -169,10 +178,10 @@ export default {
       let ind = keys[i]
       app.config.globalProperties[ind] = listFunction[ind]
     }
-    app.config.globalProperties.runFunction = (_func, data, options = []) => {
+    app.config.globalProperties.runFunction = ({func, data, options = [], defaultData = ''}) => {
       let listFunction = app.config.globalProperties
-      // console.log(listFunction, _func)
-      if (listFunction.isEmpty(_func)) {
+      // console.log(data, options)
+      if (listFunction.isEmpty(func)) {
         if (listFunction.isEmpty(options))
           return data
         else {
@@ -183,9 +192,13 @@ export default {
           }
         }
       } else { 
-        return ( typeof _func == 'string' ? listFunction[_func](data) : _func(data) )
+        return ( typeof func == 'string' ? listFunction[func](data) : func(data) )
       }
-      return data
+      // console.log(data, defaultData)
+      if (defaultData)
+        return defaultData
+      else
+        return data
     }
   }
 }

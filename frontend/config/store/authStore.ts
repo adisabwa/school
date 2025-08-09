@@ -16,6 +16,9 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {
     loggedUser: state  => state?.userData ? JSON.parse(state.userData) : DEFAULT,
+    role() {
+      return this.getRole()
+    }
   },
   actions: {
     async login(payload: any, save = true) {
@@ -51,6 +54,13 @@ export const useAuthStore = defineStore('auth', {
           reject(error);
         });
       }); 
+    },
+    getRole(){
+      let user = this.loggedUser
+      let app = this.$route?.meta?.app ?? ''
+      let role = user.app_roles[app] ?? user.app_roles['all'] ?? ''
+      // console.log(app, role)
+      return role
     },
     changeRole(payload: any, save = true) {
       return new Promise((resolve, reject) => {

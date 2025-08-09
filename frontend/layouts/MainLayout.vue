@@ -225,7 +225,7 @@ export default {
     doLogout: function() {
       useAuthStore().logout()
         .then(res => {
-          this.$router.replace({ name: 'login' });
+          this.$router.replace({ name: 'default' });
         })
         .catch(err => {
           this.$notify({

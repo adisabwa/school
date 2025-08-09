@@ -7,6 +7,8 @@ let topMenu = [
     label:"Pembelajaran dan Penilaian",
     route:{
       admin:'admin-mapel',
+      guru:'nilai-mapel',
+      walas:'nilai-mapel',
     },
     color:'emerald-100',
     darkColor:'emerald-500',

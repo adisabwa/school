@@ -103,7 +103,7 @@ $routes->group('data', [
     $routes->group('pengguna', static function ($routes) {
         $routes->add('/', [PenggunaController::class, 'index']);
         $routes->add('get', [PenggunaController::class, 'get']);
-        $routes->add('store', [PenggunaController::class, 'store'], [ 'filter' => 'api-validation:sch_pengguna']);
+        $routes->add('store', [PenggunaController::class, 'store'], [ 'filter' => 'api-validation:sch__guru']);
         $routes->add('delete/(:any)', [PenggunaController::class, 'delete/$1']);
         $routes->add('delete_many', [PenggunaController::class, 'delete_many']);
         $routes->add('template', [PenggunaController::class, 'template']);

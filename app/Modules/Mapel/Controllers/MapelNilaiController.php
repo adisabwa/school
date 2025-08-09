@@ -18,11 +18,11 @@ class MapelNilaiController extends BaseDataController
 
     public function index()
     {
-        $id_pembagian_mapel = $this->request->getGetPost('id_pembagian_mapel');
+        $id_pembagian_mapel = $this->request->getGetPost('id_pembagian_mapel') ?? -1;
         $pembagian = $this->mapelPembagianModel->find($id_pembagian_mapel) ?? NULL;
         $saved_nilai = $this->model->getAll(whereAnd: ['id_pembagian_mapel' => $id_pembagian_mapel]);
         // var_dump($pembagian);
-        $id_kelas = $pembagian->id_kelas ?? NULL;
+        $id_kelas = $pembagian->id_kelas ?? -1;
 
         $santris = $this->santriModel->getAll(whereAnd: ['id_kelas' => $id_kelas], order: 'nama');
         $result = [];

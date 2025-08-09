@@ -34,7 +34,7 @@ $routes->get('/p/(:any)', 'Vue::index');
 //----------------------Authenthication-----------------------------//
 $routes->group('auth', static function ($routes) {
     $routes->add('/', 'Auth::login');
-    $routes->add('login', 'Auth::login');
+    // $routes->add('login', 'Auth::login');
     $routes->add('g_login', 'Auth::g_login');
     // $routes->add('login/(:any)', 'Auth::login/$1');
     $routes->add('logout', 'Auth::logout');
@@ -43,18 +43,6 @@ $routes->group('auth', static function ($routes) {
     $routes->add('unauthorized', 'Auth::unauthorized');
     $routes->add('change_role', 'Auth::change_role');
     $routes->add('reset', 'Auth::reset');
-});
-
-//----------------------Data Pengguna-----------------------------//
-$routes->group('pengguna', static function ($routes) {
-    $routes->add('/', 'PenggunaController::index');
-    $routes->add('show', 'PenggunaController::get_where');
-    $routes->add('get', 'PenggunaController::get');
-    $routes->add('store', 'PenggunaController::store', [ 'filter' => 'api-validation:mu_pengguna' ]);
-    $routes->add('delete/(:any)', 'PenggunaController::delete/$1');
-    $routes->add('delete_many', 'PenggunaController::delete_many');
-    $routes->add('template', 'PenggunaController::template');
-    $routes->add('upload', 'PenggunaController::upload');
 });
 //-----------------------------------------------------------------------//
 

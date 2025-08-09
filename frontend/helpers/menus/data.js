@@ -21,17 +21,17 @@ let data = [
     type:'menu',
   },
   {
-    index: 'kelas-list',
-    route: 'kelas-list',
-    icon:'mdi:table-chair',
-    label:'Data Kelas',
-    type:'menu',
-  },
-  {
     index: 'teacher-list',
     route: 'teacher-list',
     icon:'mdi:teacher',
     label:'Data Guru',
+    type:'menu',
+  },
+  {
+    index: 'kelas-list',
+    route: 'kelas-list',
+    icon:'mdi:table-chair',
+    label:'Data Kelas & Walas',
     type:'menu',
   },
   {

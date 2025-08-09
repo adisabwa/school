@@ -13,12 +13,15 @@
           :id="dataId"
           label-position="top"
           class="mt-6"
+          :pass-columns="passColumns"
+          :show-columns="showColumns"
           :href="href"
           :href-get="hrefGet"
           @saved="submitted"  
           @error="saving=false"
           :show-submit="false"
-          ></form-comp>
+          >
+        </form-comp>
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="showDialog = false">Batal</el-button>
@@ -73,6 +76,14 @@
       fields: {
         type: [Array, Object],
         default: []
+      },
+      passColumns:{
+        type:Array,
+        default: [],
+      },
+      showColumns:{
+        type:Array,
+        default: [],
       },
     },
     emits:['update:show','saved'],

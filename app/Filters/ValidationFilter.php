@@ -55,7 +55,7 @@ class ValidationFilter implements FilterInterface
 
             $postData = $this->groupingData($datas, $oldPost, $model, $folders);
             
-            // var_dump($folders);
+            // var_dump($postData);
             
             foreach ($_FILES as $inputName => $fileData) {
                 // Get the file object
@@ -77,9 +77,9 @@ class ValidationFilter implements FilterInterface
         }
         
         $posts = $new_post;
-
+        // var_dump($posts, $multiple);
         if (!$multiple) {
-            $posts = $posts[0];
+            $posts = $posts[0] ?? [];
             $errors = $errors[0] ?? [];
         }
         if (!empty($errors)) {
@@ -125,9 +125,9 @@ class ValidationFilter implements FilterInterface
                          // 'rules' => 'even'
                          'rules' => ($data->required == '1' ? 'required' : 'permit_empty').(empty($data->rules) ? '' : '|'.$data->rules),
                      ]; 
-                     // var_dump("{id}",$id,$validationRule[$nama]['rules']);
+                    //  var_dump("{id}",$id,$validationRule[$nama]['rules']);
                      // $koloms[] = $data;
-                    $validationRule[$nama_rule]['rules'] = str_replace("{id}", $id,$validationRule[$nama_rule]['rules']);
+                    $validationRule[$nama_rule]['rules'] = str_replace("{id}", is_array($id) ? implode(',', $id) : $id,$validationRule[$nama_rule]['rules']);
                     $validationRule[$nama_rule]['rules'] = str_replace("{field}", $nama_rule, $validationRule[$nama_rule]['rules']);
                  }
             } else if (isset($files_data[$nama])) {
@@ -169,6 +169,8 @@ class ValidationFilter implements FilterInterface
                     foreach ($postData[$nama] as $ind => &$elements) {
                         $elements = $this->groupingData($kolom_child, $elements, $model, $folders);
                     }
+                 } else if ($postData[$nama] == '') {
+                    unset($postData[$nama]);
                  } else {
                      if (str_contains($data->input,'select-double'))
                          $double_input[$nama] = $postData[$nama];
@@ -199,6 +201,7 @@ class ValidationFilter implements FilterInterface
             unset($postData[$nama_kolom]);
         }
         
+        // var_dump($tables);
         foreach ($tables as $nama_kolom => $data) {
             $postData['tables'][$nama_kolom] = $data;
             $postData['nama_fk'][$nama_kolom] = $nama_fk[$nama_kolom];
