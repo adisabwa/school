@@ -34,7 +34,7 @@ let routes = [
                     name: 'admin-saving', 
                     component: () => import('@/pages/saving/admin/Index.vue'),
                     meta: {
-                        pageTitle: '<b>Daftar Pelanggaran Santri</b>',
+                        pageTitle: '<b>Daftar Tabungans Santri</b>',
                     }
                   },
                   {
@@ -42,7 +42,15 @@ let routes = [
                     name: 'rekap-saving', 
                     component: () => import('@/pages/saving/admin/Rekapitulasi.vue'),
                     meta: {
-                        pageTitle: '<b>Rekapitulasi Pelanggaran</b>',
+                        pageTitle: '<b>Rekapitulasi Tabungans</b>',
+                    }
+                  },
+                  {
+                    path: 'kas',
+                    name: 'kas-saving', 
+                    component: () => import('@/pages/saving/admin/Kas.vue'),
+                    meta: {
+                        pageTitle: '<b>Data Kas</b>',
                     }
                   },
                 ]

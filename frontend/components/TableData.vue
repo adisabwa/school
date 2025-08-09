@@ -139,6 +139,7 @@
     </el-card>
 
     <data-create v-model:show="showAdd"
+      v-model:form-value="valueForm"
       :title="title" :href="href + '/store'" :href-get="href + '/get'"
       :fields="fieldsCreate"
       :pass-columns="passColumnsInput"
@@ -232,9 +233,13 @@
       defaultData:{
         type: [Array, Object],
         default: []
-      }
+      },
+      formValue: {
+        type:[Array, Object],
+        default:[],
+      },
     },
-    emits:['update:checkedId','resetField'],
+    emits:['update:checkedId','resetField','update:formValue'],
     components: {
       DataCreate,
       ExcelDialog,
@@ -260,6 +265,7 @@
         dataType: 'create',
         order:[],
         fieldsCreate:[],
+        valueForm: {},
       };
     },
     watch: {
@@ -283,6 +289,19 @@
       },
       checkedIdList(val){
         this.$emit('update:checkedId', val)
+      },
+      formValue: {
+        immediate: true,
+        deep: true,
+        handler(val) {
+          this.valueForm = val;
+        }
+      },
+      valueForm: {
+        deep: true,
+        handler(val) {
+          this.$emit('update:formValue', val);
+        }
       },
     },
     computed: {

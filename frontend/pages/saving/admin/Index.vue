@@ -43,8 +43,10 @@
         :show-search="false"
         :title="'Data Tabungan Santri'"
         v-model:checked-id="ids"
+        v-model:form-value="formValue"
         :fields="fields"
-        :pass-columns="['jenis','nominal']"
+        :pass-columns="['jenis','nominal','id_santri','id_kas']"
+        :pass-columns-input="passColumnsInput"
         class="p-0">
         <el-table-column label="Pemasukan" width="150" align="center">
           <template #default="scope">
@@ -114,20 +116,35 @@ export default {
       },
       editId:-1,
       ids:[],
-      sizeWindow:window.innerWidth,
+      formValue: {},
     };
   },
   watch: {
     'paging.currentPage': function(val) {
       this.paging.offset = val * this.paging.perPage - this.paging.perPage;
     },
+    'formValue.sumber': function(val) {
+      // console.log(val);
+      if (val == 'kas') {
+        this.formValue.id_santri = null;
+      } else {
+        this.formValue.id_kas = null;
+      }
+    }
   },  
   computed: {
     ...mapState(useAuthStore, {
       user: 'loggedUser',
     }),
     labelPosition(){
-      return this.sizeWindow < 800 ? 'top' : 'left'
+      return this.$windowWidth < 800 ? 'top' : 'left'
+    },
+    passColumnsInput(){
+      if (this.formValue.sumber == 'kas') {
+        return ['id_santri'];
+      } else {
+        return ['id_kas'];
+      }
     }
   },
   methods: {
@@ -152,7 +169,7 @@ export default {
       },
   },
   created: function() {
-    let filter = useDataStore().filter
+    let filter = useDataStore().filters
     this.filter.nama =  filter?.nama ?? ''
     this.filter.kelas =   filter?.kelas ?? ''
     this.filter.start =   filter?.start ?? ''
@@ -161,11 +178,6 @@ export default {
     // console.log(this.$router);
   },
   mounted: function() {
-    let vm = this
-    vm.sizeWindow = window.innerWidth
-    window.addEventListener('resize', () => {
-      vm.sizeWindow = window.innerWidth
-    });
     this.searchData()
   },
 }

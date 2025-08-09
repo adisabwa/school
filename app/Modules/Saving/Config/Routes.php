@@ -1,5 +1,6 @@
 <?php
 
+use Modules\Saving\Controllers\Admin\KasController as KasAdmin;
 use Modules\Saving\Controllers\Admin\SavingController as SavingAdmin;
 use Modules\Saving\Controllers\Admin\RekapitulasiController as SavingRekapitulasi;
 
@@ -35,6 +36,13 @@ $routes->group('saving/admin', [
     $routes->group('rekapitulasi', static function ($routes) {
         $routes->add('/', [SavingRekapitulasi::class,'index']);
         $routes->add('download', [SavingRekapitulasi::class,'download']);
+    });
+
+    //------------------------------------ Data Kas --------------//
+    $routes->group('kas', static function ($routes) {
+        $routes->add('/', [KasAdmin::class,'get']);
+        $routes->add('get', [KasAdmin::class,'get']);
+        $routes->add('store', [KasAdmin::class,'store'],[ 'filter' => 'api-validation:sch_sav_kas']);
     });
 });
 

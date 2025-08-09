@@ -1,9 +1,9 @@
 let saving = [
   {
-    index: 'santri-list',
-    route: 'santri-list',
-    icon:'fa-solid:user',
-    label:'Data Santri',
+    index: 'kas-saving',
+    route: 'kas-saving',
+    icon:'map:book-store',
+    label:'Data Kas',
     type:'menu',
   },
   {

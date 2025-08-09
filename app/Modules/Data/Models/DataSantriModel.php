@@ -17,7 +17,7 @@ class DataSantriModel extends BaseModel
     {
       $options = [];
       $data = $this->db->table('sch__santri p')
-                    ->select('*')
+                    ->select('p.*, k.kelas')
                     ->join('sch__kelas k','k.id=p.id_kelas')
                     ->where($where)
                     ->orderBy('kelas, nama')

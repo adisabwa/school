@@ -13,6 +13,7 @@
           :id="dataId"
           label-position="top"
           class="mt-6"
+          v-model:form-value="valueForm"
           :pass-columns="passColumns"
           :show-columns="showColumns"
           :href="href"
@@ -85,13 +86,18 @@
         type:Array,
         default: [],
       },
+      formValue: {
+        type:[Array, Object],
+        default:[],
+      },
     },
-    emits:['update:show','saved'],
+    emits:['update:show','saved','update:formValue'],
     data: function() {
       return {
         saving: false,
         showDialog: false,
         key:0,  
+        valueForm: {},
       };
     },
     watch: {
@@ -108,6 +114,19 @@
           // this.resetData();
         }
       },
+      formValue: {
+        immediate: true,
+        deep: true,
+        handler(val) {
+          this.valueForm = val;
+        }
+      },
+      valueForm: {
+        deep: true,
+        handler(val) {
+          this.$emit('update:formValue', val);
+        }
+      }
     },
     computed: {
     },

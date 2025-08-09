@@ -138,6 +138,7 @@ export default {
           this.redirect();
         }).catch(err => {
           this.loading = false;
+          console.log(err)
           const res = err.response;
           if (res.status == 401) {
             useDataStore().setFilter({key:'email', val:res?.data?.email})

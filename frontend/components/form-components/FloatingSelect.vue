@@ -180,7 +180,7 @@ export default {
             label:'Semua ' + this.placeholder
           })
         }
-        console.log(opt)
+        // console.log(opt)
         this.listOptions = opt
         this.selectOption(this.vModel)
       }
