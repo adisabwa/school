@@ -8,7 +8,7 @@
           border-0 border-b border-solid border-gray-300`,
           ind == fields.length - 1 ? 'border-b-0' : '',
           labelPosition == 'left' ? 'flex items-center [&_*]:leading-[1.5] py-2 ' : 'flex flex-col [&_*]:leading-[1.7] py-[8px]']"
-          v-if="!passColumns.includes(field.nama_kolom)">
+          v-if="showColumns.length > 0 ? showColumns.includes(field.nama_kolom) : !passColumns.includes(field.nama_kolom)">
           <template #label>
             <div class="font-semibold my-2"> {{ field.label }} </div>
           </template>
@@ -94,6 +94,10 @@ export default {
       default:[],
     },
     passColumns: {
+      type:[Array,Object],
+      default:[],
+    },
+    showColumns: {
       type:[Array,Object],
       default:[],
     },

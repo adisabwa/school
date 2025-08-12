@@ -20,7 +20,7 @@
         :title="'Data Mata Pelajaran'"
         v-model:checked-id="ids"
         :fields="fields"
-        :pass-columns="[]"
+        :pass-columns="['id_semester']"
         :default-value="[
          {
           key:'id_semester',

@@ -1,7 +1,7 @@
 <template>
   <div id="santri-list" class="pt-1" v-loading="loading">
     <table-data ref="tableData" :fields="fields" href="data/santri"
-      :checked="true"  :pass-columns="['foto']"
+      :checked="true"  :show-columns="['id_kelas','nama','nisn','status','gender']"
       :params="tableParams">
       <el-table-column label="Foto Santri" width="200px" align="center">
         <template #default="scope">

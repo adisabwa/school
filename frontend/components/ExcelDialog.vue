@@ -4,15 +4,60 @@
     <teleport to="body">
       <el-dialog  
         v-model="showDialog"
-        class="p-7 w-fit min-w-[50vw]"
+        class="p-7 w-fit min-w-[50vw] my-10"
         :close-on-click-modal="false">
         <template #header>
           <b>Import Data dari Excel</b>
         </template>
-        <div class="text-center w-full">
-          <el-input @paste="handlePaste" placeholder="Copy Data dari File Excel kemudian tempel disini"
-            class="w-full mb-5"></el-input>
-          <div v-if="parsedData">
+        <div class="w-full" v-loading="loading">
+          <div class="flex w-full gap-x-2 mb-2 ">
+            <el-input @paste="handlePaste" placeholder="Paste Data dari File Excel kemudian tempel disini"
+              class="w-full"></el-input>
+            <span class="flex flex-row items-center">atau</span>
+            <el-upload
+              ref="uploadRef"
+              class="upload-demo flex"
+              :auto-upload="false"
+              v-model:file-list="fileList"
+              :show-file-list="false"
+              :on-change="handleFile"
+              >
+              <template #trigger>
+                <el-button type="success" size="large">Upload File Excel</el-button>
+              </template>
+              </el-upload>
+          </div>
+          <!-- Sheet Selector -->
+          <div v-if="sheetNames.length" class="mt-4">
+            <label>Pilih sheet:</label>
+            <el-select v-model="selectedSheet" placeholder="Choose a sheet" @blur="loadSelectedSheet" multiple>
+              <el-option
+                v-for="name in sheetNames"
+                :key="name"
+                :label="name"
+                :value="name"
+              />
+            </el-select>
+          </div>
+          <div>
+            <el-checkbox v-model="haveHeader">
+              <span class="text-sm">Baris Pertama adalah Header</span>
+            </el-checkbox>
+          </div>
+          <div class="flex gap-x-5">
+            <el-checkbox v-model="updateData">
+              <span class="text-sm">Update Data yang Sama</span>
+            </el-checkbox>
+            <el-select v-if="updateData" 
+              v-model="checkColumn" multiple clearable filterable
+              placeholder="Pilih Kolom Acuan"
+              @change="checkIds">
+              <el-option v-for="data in Object.values(fields)"
+                :value="data.nama_kolom"
+                :label="data.label"/>
+            </el-select>
+          </div>
+          <div v-if="parsedData.length > 0" class="mt-3">
             <div v-if="mustEdit?.filter(d => d)?.length > 0"
               class="p-3 bg-cyan-50 border border-solid border-cyan-700/[0.5]">
               <div class="text-left font-bold italic">Aksi untuk Menyesuaikan Data yang Tidak Sesuai</div>
@@ -31,86 +76,110 @@
                 </el-button>
               </div>
             </div>
-            <h3 class="mb-1 mt-3">Data yang dimasukkan:</h3>
-            <table class="table two-line">
-              <thead>
-                <tr>
-                  <th align="center" width="5px"></th>
-                  <th align="center" width="10px">No.</th>
-                  <th v-for="(col, key) in parsedData[0]"
-                    valign="top">
-                    <el-select placeholder="Nama Kolom"
-                      size="small"
-                      clearable
-                      class="font-normal"
-                      v-model="cols[key]"
-                      @change="addDataToForm($event, key)">
-                      <el-option v-for="f in fields"
-                        :value="f.nama_kolom"
-                        :label="f.label" />
-                    </el-select>
-                    <div class="mt-2 text-center" >{{ fields[cols[key]]?.label ?? 'Kolom belum dipilih' }}</div>
-                    <div class="mt-1 font-normal text-[13px] text-center" v-if="mustEdit[key] && fields[cols[key]].allow_add == '0'">
-                      <div >Silahkan masuk ke halaman {{ fields[cols[key]]?.label }}</div>
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <template v-for="(row, row_num) in parsedData">
-                  <tr >
-                    <td align="center" class="px-1 ">
-                      <icons icon="mdi-delete" 
-                        class="text-md text-center text-red-700 m-0 cursor-pointer"
-                          @click="parsedData.splice(row_num, 1)"/>
-                    </td>
-                    <td align="center">{{ row_num + 1}}</td>
-                    <td v-for="(col, col_num) in row"
-                      :class="['min-w-[150px]',
-                        cols[col_num] ?
-                        !forms[row_num][col_num] ? 'bg-red-200' : ''
-                        : 'bg-gray-100 text-gray-400']">
-                      <template v-if="cols[col_num]">
-                        <div class="text-sm" v-if="forms[row_num][col_num]">
-                          {{ runFunction({
-                            data:forms[row_num][col_num], 
-                            options:fields[cols[col_num]].options
-                          }) }}
-                        </div>
-                        <div v-else class="text-red-900">
-                          <div>{{ col }}</div>
-                          <div v-if="showOption">
-                            <el-select v-model="forms[row_num][col_num]"
-                              :placeholder="`Pilih ${fields[cols[col_num]].label} yang sesuai` "
-                              :title="`Pilih ${fields[cols[col_num]].label} yang sesuai` "
-                              size="small"
-                              >
-                              <el-option v-for="opt in fields[cols[col_num]].options"
-                                :label="opt.label"
-                                :value="opt.value" />
-                            </el-select>
-                          </div>
-                          <div class="text-[12px]" v-else>
-                            Tidak ada data yang sesuai dalam daftar <b>{{ fields[cols[col_num]].label }}</b>
-                          </div>
-                        </div>
-                      </template>
-                      <div v-else>{{ col }}</div>
-                    </td>
+            <h3 class="mb-1 mt-3 text-center">Data yang dimasukkan:</h3>
+            <div class="max-w-[90vw] overflow-x-auto max-h-[55vh] overflow-y-auto" >
+              <table class="table two-line">
+                <thead class="*:bg-cyan-100/[0.7] *:leading-[1.2]">
+                  <tr>
+                    <th v-if="updateData"
+                      rowspan="2" class="text-center relative" width="10px">
+                      <div class="-rotate-90 absolute
+                        left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">Update</div>
+                    </th>
+                    <th colspan="2" class="text-center" width="50px">
+                      Pilih Kolom
+                    </th>
+                    <th v-for="(col, key) in parsedData[0]"
+                      valign="top">
+                      <el-select placeholder="Nama Kolom"
+                        size="small"
+                        clearable filterable
+                        class="font-normal"
+                        v-model="cols[key]"
+                        @change="addDataToForm(key); checkIds()">
+                        <el-option v-for="f in fields"
+                          :value="f.nama_kolom"
+                          :label="f.label" />
+                      </el-select>
+                      <div class="text-center mt-1" >{{ fields[cols[key]]?.label ?? 'Kolom belum dipilih' }}</div>
+                    </th>
                   </tr>
-                  <tr v-show="errors[row_num]">
-                    <td></td>
-                    <td></td>
-                    <td :colspan="parsedData[0].length">
-                      <div v-if="errors[row_num]"
-                        class="text-left text-[12px] text-red-600">
-                        Error Data {{row_num + 1}} : {{ errors[row_num] }}
-                      </div>
-                    </td>
+                  <tr v-if="haveHeader">
+                    <th colspan="2" class="text-center" valign="top">Header</th>
+                    <th v-for="(col, key) in headerData"
+                      class="text-center font-normal"
+                      valign="top">
+                      {{ col }}
+                    </th>
                   </tr>
-                </template>
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  <template v-for="(row, row_num) in parsedData">
+                    <tr class="[&:has(.not-found)]:bg-red-50
+                    [&:has(.not-found)_+_tr]:bg-red-50">
+                      <td v-if="updateData ">
+                        <el-checkbox v-if="ids[row_num] > 0"
+                          v-model="updates[row_num]">
+                          {{ ids[row_num] }}
+                        </el-checkbox>
+                      </td>
+                      <td align="center" class="px-1 ">
+                        <icons icon="mdi-delete" 
+                          class="text-md text-center text-red-700 m-0 cursor-pointer"
+                            @click="parsedData.splice(row_num, 1)"/>
+                      </td>
+                      <td align="center">{{ row_num + 1}}</td>
+                      <td v-for="(col, col_num) in row"
+                        :class="['min-w-[150px]',
+                          cols[col_num] ?
+                          forms[row_num][col_num] === false ? 'not-found bg-red-200' : ''
+                          : 'bg-gray-100 text-gray-400']">
+                        <template v-if="cols[col_num]">
+                          <div class="text-sm" v-if="forms[row_num][col_num] !== false">
+                            {{ runFunction({
+                              data:forms[row_num][col_num], 
+                              options:fields[cols[col_num]].options
+                            }) }}
+                          </div>
+                          <div v-else class="text-red-900">
+                            <div>{{ col }}</div>
+                            <div v-if="showOption">
+                              <el-select v-model="forms[row_num][col_num]"
+                                @change="(value) => {
+                                  changeSimilar(col_num, col, value)
+                                }"
+                                :placeholder="`Pilih ${fields[cols[col_num]].label} yang sesuai` "
+                                :title="`Pilih ${fields[cols[col_num]].label} yang sesuai` "
+                                size="small"
+                                >
+                                <el-option v-for="opt in fields[cols[col_num]].options"
+                                  :label="opt.label"
+                                  :value="opt.value" />
+                              </el-select>
+                            </div>
+                            <div class="text-[12px]" v-else>
+                              Tidak ada data yang sesuai dalam daftar <b>{{ fields[cols[col_num]].label }}</b>
+                            </div>
+                          </div>
+                        </template>
+                        <div v-else>{{ col }}</div>
+                      </td>
+                    </tr>
+                    <tr v-show="errors[row_num]">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td :colspan="parsedData[0].length">
+                        <div v-if="errors[row_num]"
+                          class="text-left text-[12px] text-red-600">
+                          Error Data {{row_num + 1}} : {{ errors[row_num] }}
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
         <template #footer>
@@ -126,6 +195,8 @@
 </template> 
 
 <script>
+import { update } from 'lodash';
+import * as XLSX from "xlsx";
 
 export default {
   name: 'excel-dialog',
@@ -157,6 +228,10 @@ export default {
     defaultValue:{
       type: [Array, Object],
       default: []
+    },
+    datas:{
+      type: [Array, Object],
+      default: []
     }
   },
   emits:['update:show'],
@@ -164,13 +239,24 @@ export default {
     return {
       showDialog: true,
       saving:false,
-      parsedData: null,
+      loading: false,
+      parsedData: [],
+      headerData: [],
       cols:[],
       reqCols:[],
       forms:[],
       errors:[],
       mustEdit:[],
       showOption:false,
+      haveHeader: true,
+      updateData: true,
+      checkColumn:[],
+      ids:[],
+      updates:[],
+      fileList : [],
+      workbook: null,
+      sheetNames: [],
+      selectedSheet: [],
     }
   },
   watch: {
@@ -182,21 +268,95 @@ export default {
     },
     showDialog: function(val, oldVal) {
       this.$emit('update:show', val);
-      this.parsedData = ''
+      this.parsedData = []
       this.cols = []
       this.reqCols = Object.values(this.fields).filter(f => f.required == '1').map(f => f.nama_kolom)
       // console.log('show',val)
-    }
+    },
+    haveHeader: {
+      handler(val) {
+        this.createForm()
+        if (!this.parsedData || this.parsedData.length == 0) {
+          return
+        }
+        // console.log('haveHeader', val, this.headerData)
+        if (val) {
+          this.parsedData?.shift()
+          this.forms?.shift()
+          this.errors?.shift()
+          this.setAutoCols()
+        } else {
+          this.parsedData?.unshift(this.headerData)
+          this.forms?.unshift(this.headerData.map(() => ''))
+          this.errors?.unshift('')
+        }
+        // console.log(this.parsedData)
+      }
+    },
   },
   computed: {
     
   },
   methods: {
-    handlePaste(event) {
+    handleFile(file, fileList) {
+      console.log('handleFile', file, fileList)
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        this.workbook = XLSX.read(data, { type: "array" });
+        this.sheetNames = this.workbook.SheetNames;
+        this.selectedSheet = [];
+      };
+      reader.readAsArrayBuffer(file.raw);
+    },
+    loadSelectedSheet() {
+      if (!this.selectedSheet || !this.workbook) return;
+      let datas = []
+      this.selectedSheet.forEach((sheet, key) => {
+        let worksheet = this.workbook.Sheets[sheet];
+        const rows = XLSX.utils.sheet_to_json(worksheet, { 
+          header: 1,
+          blankrows: true,  // keep empty rows
+          defval: ""        // fill empty cells with ""
+        });
+
+        const trimmed = [];
+        for (let row of rows) {
+          const isEmpty = row.every(cell => cell === "" || cell === null);
+          if (isEmpty) break; // stop at first empty row
+          trimmed.push(row);
+        }
+        if (this.haveHeader && key != 0) {
+          trimmed.shift(); // remove header row if haveHeader is true
+        }
+        datas = [...datas, ...trimmed];
+      })
+      this.parsedData = datas;
+      this.generateInitial();
+    },
+    async handlePaste(event) {
+      // this.loading = true;
       // console.log(event)
-      const pastedData = event.clipboardData.getData('Text');
+      const pastedData = await event.clipboardData.getData('Text');
       // Process the pastedData (e.g., split by lines and tabs/commas)
-      this.parsedData = this.parseExcelData(pastedData);
+      this.parsedData = await this.parseExcelData(pastedData);
+      this.generateInitial()
+      // this.loading = false;
+      event.preventDefault(); // Prevent default paste behavior if needed
+    },
+    generateInitial(){
+      this.createForm();
+      this.headerData = this.parsedData[0]
+      if (this.haveHeader) {
+        this.parsedData?.shift()
+        this.forms?.shift()
+        this.errors?.shift()
+        this.setAutoCols()
+      }
+    },
+    async createForm(){
       for (let i = 0; i < this.parsedData.length; i++) {
         const element = this.parsedData[i];
         this.forms[i] = []
@@ -206,9 +366,8 @@ export default {
         }
         
       }
-      console.log(this.forms)
-      this.cols = this.parsedData[0].map(a => null) 
-      event.preventDefault(); // Prevent default paste behavior if needed
+      // console.log(this.forms)
+      this.cols = this.parsedData[0]?.map(a => null) 
     },
     parseExcelData(data) {
       // Example: Simple parsing for tab-separated values
@@ -217,21 +376,110 @@ export default {
       const parsedRows = rows.map(row => row.split('\t'));
       return parsedRows;
     },
-    addDataToForm(event, key){
-      let field = this.fields[this.cols[key]]
+    setAutoCols() {
+      // this.createForm()
+      console.log('setAutoCols', this.headerData)
+      let optionsFields = []
+      Object.values(this.fields).forEach(f => {
+        optionsFields.push({
+          value:f.nama_kolom,
+          label:f.label
+        })
+      })
+      this.headerData.forEach((col, index) => {
+        let findKolom = this.getValueFromOption(col, optionsFields, 0.8);
+        console.log('findKolom', findKolom, col)
+        if (findKolom) {
+          this.cols[index] = findKolom
+          this.addDataToForm(index, findKolom);
+        } else {
+          this.cols[index] =  null; // or some default value
+        }
+      });
+    },
+    addDataToForm(key, kolom = null) {
+      let field = this.fields[kolom ?? this.cols[key]]
       this.mustEdit[key] = false
       // console.log(this.cols[key], field.options)
       for (let i = 0; i < this.parsedData.length; i++) {
         let val = this.parsedData[i][key]
+        let value = ''
         this.errors[i] = ''
         if (val) {
-          this.forms[i][key] = field.options?.length > 0 ? 
+          value = field?.options?.length > 0 ? 
             this.getValueFromOption(val, field.options) :
             val
-          if (!this.forms[i][key])
+          if (!value)
             this.mustEdit[key] = true
         }
+        if (field?.function_input) {
+          value = this.runFunction({
+            func: field?.function_input,
+            data: value,
+          })
+        }
+        this.forms[i][key] = value
       }
+    },
+    checkIds(){
+      let keys = []
+      this.checkColumn.forEach(c => {
+        let ind = this.cols.findIndex(d => d == c)
+        keys.push(ind)
+      })
+      console.log(keys)
+      let setId = []
+      this.datas.forEach(d => {
+        let ind = []
+        this.checkColumn.forEach(c => {
+          ind.push(d[c])
+        })
+        ind = ind.join('-')
+        setId[ind] = d.id
+      })
+      console.log(setId)
+      this.forms.forEach((row, row_num) => {
+        let ind = []
+        keys.forEach(k => {
+          ind.push(row[k] ?? '')
+        })
+        ind = ind.join('-')
+        this.ids[row_num] = parseInt(setId[ind]) ?? -1
+        console.log(this.ids[row_num], this.ids[row_num] > 0)
+        this.updates[row_num] = this.ids[row_num] > 0
+      })
+      console.log(this.ids, this.updates)
+      // this.forms.forEach((row, row_num) => {
+      //   let id = -1
+      //   for (let ind_data = 0; ind_data < this.datas.length; ind_data++) {
+      //     console.log('ind',ind_data)
+      //     const d = this.datas[ind_data];
+      //     let same = true
+      //     this.checkColumn.forEach((c, i_c) => {
+      //       console.log(c, row[keys[i_c]], d[c], row[keys[i_c]] == d[c])
+      //       if (row[keys[i_c]] != d[c]) 
+      //         same = false
+      //     })
+      //     if (same) {
+      //       id = d.id
+      //       break
+      //     }
+      //   }
+      //   this.ids[row_num] = id
+      //   this.updates[row_num] = id > 0
+      //  })
+    },
+    changeSimilar(col_num, col, value) {
+      // console.log('changeSimilar', row_num, col, value)
+      if (this.isEmpty(value)) {
+        return
+      }
+      this.parsedData.forEach((row, row_num) => {
+        let value = row[col_num]
+        if (value == col) {
+          this.forms[row_num][col_num] = value
+        }
+      })
     },
     submitUpload(){
       this.saving = true;
@@ -243,13 +491,20 @@ export default {
       console.log(this.reqCols, cols, addCols)
       let form = this.forms.map((el, key) => {
         let formData = Object.fromEntries(
-          el.filter((val, col) => cols[col])
-          .map((val, col) => {
-          return [cols[col], val]
-        }))
+          el.map((val, col) => {
+            return [cols[col], val]
+          })
+          .filter(([key, value]) => !this.isEmpty(key))
+        )
+        console.log('formData', formData)
         addCols.forEach(col => {
           formData[col] = ''
         })
+        if (this.updates[key]) {
+          formData.id = this.ids[key]
+        } else {
+          formData.id = -1
+        }
         this.defaultValue.forEach(d => {
           formData[d.key] = d.value
         })
@@ -264,6 +519,9 @@ export default {
       // form.id = this.dataId
       console.log(form)
       form = this.convertNullToEmptyString(form)
+      form = {
+        json: JSON.stringify(form),
+      }
       var formData = window.jsonToFormData(form); 
 
       this.$http.post(this.href, formData, {
@@ -319,8 +577,8 @@ export default {
           // console.log(formData)
           if (formData) continue
           let field = this.fields[this.cols[j]]
-          console.log(field.allow_add)
-          if (field.allow_add != '1') continue 
+          console.log(field?.allow_add)
+          if (field?.allow_add != '1') continue 
           let data = this.parsedData[i][j]
           let href = field.add_href
           let form = {}

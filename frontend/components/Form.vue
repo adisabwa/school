@@ -23,7 +23,10 @@
             <template v-if="field.input == 'input' || isEmpty(field.input)">
               <el-input v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
                 :class="['w-full',inputClass]" 
-                @change="searchData(ind); changedValue(field.nama_kolom)" @input="form[field.nama_kolom] = runFunction(field.function_input, form[field.nama_kolom])"
+                @change="searchData(ind); changedValue(field.nama_kolom)" @input="form[field.nama_kolom] = runFunction({
+                  func:field.function_input, 
+                  data:form[field.nama_kolom]
+                })"
                 :size="size"
                 :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}">

@@ -54,13 +54,13 @@ let listFunction = {
     }
 
     let _sim = Math.max(...sim)
-    console.log(label, _sim)
+    // console.log(label, _sim)
     if (_sim > sim_rate) {
       let ind = sim.findIndex(d => d == _sim)
       let element = options[ind]
       return element.value   
     }
-    return ''
+    return false
   },
   isSimilar(s1, s2, caseSensitive = false){
     if (!caseSensitive) {

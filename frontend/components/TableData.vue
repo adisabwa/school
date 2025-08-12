@@ -104,6 +104,9 @@
               <template #dropdown>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item 
+                    :command="{action: 'view', id: scope.row.id}">
+                    <icons icon="material-symbols:view-outline"/> Lihat Detail</el-dropdown-item>
+                  <el-dropdown-item 
                     :command="{action: 'edit', id: scope.row.id}">
                     <icons icon="material-symbols:edit-outline"/> Ubah</el-dropdown-item>
                   <el-dropdown-item 
@@ -147,7 +150,16 @@
       :data-id="editId" :type="dataType"
       @saved="onUpdated"></data-create>
     
-    <excel-dialog v-model:show="showUpload" :href="href + '/store_many'" @saved="onUpdated" :fields="fields"
+    <data-view v-model:show="showView"
+      v-model:form-value="valueForm"
+      :title="title" :href-get="href + '/get'"
+      :fields="fieldsCreate"
+      :pass-columns="passColumnsInput"
+      :show-columns="showColumnsInput"
+      :data-id="editId" :type="dataType"
+      @saved="onUpdated"></data-view>
+      
+    <excel-dialog v-model:show="showUpload" :href="href + '/store_many'"      @saved="onUpdated" :fields="fields" :datas="datas"
       :default-value="defaultData"/>
   </div>
 </template>
@@ -155,6 +167,7 @@
 <script>
   import { isEmpty, unset } from 'lodash';
   import DataCreate from './DataCreate.vue'
+  import DataView from './DataView.vue'
   import ExcelDialog from '@/components/ExcelDialog.vue'
 
   export default {
@@ -242,12 +255,14 @@
     emits:['update:checkedId','resetField','update:formValue'],
     components: {
       DataCreate,
+      DataView,
       ExcelDialog,
     },
     data: function() {
       return {
         page: [10,20,30,40,50],
         showAdd: false,
+        showView: false,
         showUpload: false,
         editId: '',
         loading: false,
@@ -466,6 +481,10 @@
         } else if (action == 'edit') {
           this.editId = id;
           this.showAdd = true;
+          this.dataType = 'update';
+        } else if (action == 'view') {
+          this.editId = id;
+          this.showView = true;
           this.dataType = 'update';
         } else if (action == 'edit-all') {
           let id = [];

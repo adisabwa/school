@@ -17,6 +17,7 @@ $routes->group('data/guru', static function ($routes) {
     $routes->add('/', [GuruController::class, 'index']);
     $routes->add('get', [GuruController::class, 'get']);
     $routes->add('store', [GuruController::class, 'store'], [ 'filter' => 'api-validation:sch__guru']);
+    $routes->add('store_many', [GuruController::class, 'store_many'], [ 'filter' => 'api-validation:sch__guru,true']);
     $routes->add('delete/(:any)', [GuruController::class, 'delete/$1']);
     $routes->add('delete_many', [GuruController::class, 'delete_many']);
     $routes->add('template', [GuruController::class, 'template']);
@@ -33,6 +34,7 @@ $routes->group('data', [
         $routes->add('/', [PenghasilanController::class, 'index']);
         $routes->add('get', [PenghasilanController::class, 'get']);
         $routes->add('store', [PenghasilanController::class, 'store'], [ 'filter' => 'api-validation:sch__penghasilan']);
+        $routes->add('store_many', [PenghasilanController::class, 'store_many'], [ 'filter' => 'api-validation:sch__penghasilan,true']);
         $routes->add('delete/(:any)', [PenghasilanController::class, 'delete/$1']);
         $routes->add('delete_many', [PenghasilanController::class, 'delete_many']);
         $routes->add('options', [PenghasilanController::class, 'options']);
@@ -77,6 +79,7 @@ $routes->group('data', [
         $routes->add('/', [KelasController::class, 'index']);
         $routes->add('get', [KelasController::class, 'get']);
         $routes->add('store', [KelasController::class, 'store'], [ 'filter' => 'api-validation:sch__kelas']);
+        $routes->add('store_many', [KelasController::class, 'store_many'], [ 'filter' => 'api-validation:sch__kelas,true']);
         $routes->add('delete/(:any)', [KelasController::class, 'delete/$1']);
         $routes->add('delete_many', [KelasController::class, 'delete_many']);
         $routes->add('template', [KelasController::class, 'template']);
@@ -91,6 +94,7 @@ $routes->group('data', [
         $routes->add('/', [SantriController::class, 'index']);
         $routes->add('get', [SantriController::class, 'get']);
         $routes->add('store', [SantriController::class, 'store'], [ 'filter' => 'api-validation:sch__santri']);
+        $routes->add('store_many', [SantriController::class, 'store_many'], [ 'filter' => 'api-validation:sch__santri,true']);
         $routes->add('delete/(:any)', [SantriController::class, 'delete/$1']);
         $routes->add('delete_many', [SantriController::class, 'delete_many']);
         $routes->add('template', [SantriController::class, 'template']);

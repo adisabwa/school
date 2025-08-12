@@ -24,11 +24,13 @@ function convertHundreds(num) {
 
 let listFunction = {
   toIDR: function(number) {
+    // console.log(number, typeof number)
     if (number == null || number == undefined) return 'Rp. 0,00';
     number = Math.round(number);
     return "Rp " + number.toString().replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1\.") + ",00";
   },
   setCurrency: function(number) {
+    // console.log('curr', number, typeof number)
     number = listFunction.toNumber(number)
     return number.toString().replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1\.");
   },

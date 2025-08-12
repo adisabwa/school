@@ -30,7 +30,7 @@ class MapelNilaiController extends BaseDataController
             $result[$value->id_santri] = $value;
         }
         
-        // var_dump($result);
+        // var_dump($santris, $result);
         array_walk($santris, function($a) use ($id_pembagian_mapel, $result) {
             $a->id_santri = $id_santri = $a->id;
             // var_dump($id_santri, $result[$id_santri]);

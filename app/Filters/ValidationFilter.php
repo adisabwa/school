@@ -25,6 +25,11 @@ class ValidationFilter implements FilterInterface
         $datas = $model->getAll($table);
         // $koloms = [];
         $posts = $request->getPost();
+        if (isset($posts['json'])) {
+            $posts = json_decode($posts['json'], true);
+        } else {
+            $posts = $request->getPost();
+        }
         $errors = [];
 
         if (!$multiple) {
@@ -208,6 +213,7 @@ class ValidationFilter implements FilterInterface
             unset($postData[$nama_kolom]);
         }
 
+        // var_dump($input_only);
         foreach ($input_only as $nama_kolom => $data) {
             unset($postData[$nama_kolom]);
         }

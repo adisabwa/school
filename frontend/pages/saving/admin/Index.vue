@@ -126,9 +126,9 @@ export default {
     'formValue.sumber': function(val) {
       // console.log(val);
       if (val == 'kas') {
-        this.formValue.id_santri = null;
+        this.fields.id_santri = 0;
       } else {
-        this.formValue.id_kas = null;
+        this.fields.id_kas = 0;
       }
     }
   },  

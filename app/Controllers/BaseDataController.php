@@ -105,7 +105,7 @@ class BaseDataController extends BaseController
             }
         }
         // // var_dump($posted_data);
-        // var_dump( $posted_data, $this->model->error());
+        var_dump( $posted_data, $this->model->error());
         // Append ID to data
         foreach ($child_table as $table => $values) {
             $fk = $child_key[$table];

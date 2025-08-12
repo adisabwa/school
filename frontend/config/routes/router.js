@@ -57,7 +57,7 @@ routes.beforeEach(async (to, from, next) => {
       if (loggedUser.role == '') {
         // window.alert('Silahkan login terlebih dahulu')
         next({
-          name: 'login',
+          name: 'default',
           query: { nextUrl: to.fullPath }
         })
       } else { 

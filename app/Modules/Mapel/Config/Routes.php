@@ -31,6 +31,7 @@ $routes->group('mapel/admin', [
         $routes->add('/', [MapelAdmin::class,'index']);
         $routes->add('get', [MapelAdmin::class, 'get']);
         $routes->add('store', [MapelAdmin::class, 'store'], [ 'filter' => 'api-validation:sch_aka_mapel']);
+        $routes->add('store_many', [MapelAdmin::class, 'store_many'], [ 'filter' => 'api-validation:sch_aka_mapel,true']);
         $routes->add('dashboard', [MapelAdmin::class, 'dashboard']);
         $routes->add('delete/(:any)', [MapelAdmin::class,'delete/$1']);
         $routes->add('delete_many', [MapelAdmin::class,'delete_many']);

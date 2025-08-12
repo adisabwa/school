@@ -15,7 +15,7 @@
       if (error.response.status === 401) {
         console.log('error interceptors');
         router.replace({ 
-          name: 'login', 
+          name: 'default', 
           query: { 
             nextUrl: router.currentRoute.fullPath 
           }
