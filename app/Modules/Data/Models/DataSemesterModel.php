@@ -17,4 +17,15 @@ class DataSemesterModel extends BaseModel
     {
       return $this->getOptionsData($where, function($d) { return "Semester ".ucfirst($d->semester)." $d->tahun_ajaran"; });
     }
+
+    public function get_semester_now()
+    {
+      $tanggal = date('Y-m-d');
+      $data = $this->getAll(whereAnd: [
+        'tanggal_mulai <= ' => $tanggal,
+        'tanggal_selesai >= ' => $tanggal,
+      ]);
+      // var_dump($data, $this->getLastQuery());
+      return $data[0] ?? [];
+    }
 }

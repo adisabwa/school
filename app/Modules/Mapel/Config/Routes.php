@@ -83,3 +83,27 @@ $routes->group('mapel/admin', [
 
 //-----------------------------------------------------------------------------------------------------
 
+
+use Modules\Mapel\Controllers\Kmi\MapelRecordPembelajaranController as MapelRecordKmi;
+
+//-------------------------------------KMI Mapel -----------------------------------------------
+$routes->group('mapel/kmi', [
+    'filter' => 'api-auth:mapel.admin,kmi',
+], static function ($routes) {    
+
+    //-------------------------------------Record Mapel -----------------------------------------------
+    $routes->group('record', static function ($routes) {
+        $routes->add('/', [MapelRecordKmi::class,'index']);
+        $routes->add('get', [MapelRecordKmi::class, 'get']);
+        $routes->add('store', [MapelRecordKmi::class, 'store'], [ 'filter' => 'api-validation:sch_aka_mapel']);
+        $routes->add('store_many', [MapelRecordKmi::class, 'store_many'], [ 'filter' => 'api-validation:sch_aka_mapel,true']);
+        $routes->add('dashboard', [MapelRecordKmi::class, 'dashboard']);
+        $routes->add('delete/(:any)', [MapelRecordKmi::class,'delete/$1']);
+        $routes->add('delete_many', [MapelRecordKmi::class,'delete_many']);
+        $routes->add('download/(:any)', [MapelRecordKmi::class,'download/$1']);
+        $routes->add('download_many', [MapelRecordKmi::class,'download_many']);
+        $routes->add('options', [MapelRecordKmi::class,'options']);
+    });
+});
+
+//-----------------------------------------------------------------------------------------------------

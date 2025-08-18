@@ -46,7 +46,7 @@ class Autoload extends AutoloadConfig
         'Modules\Psb'      => APPPATH . 'Modules/Psb',
         'Modules\Data'      => APPPATH . 'Modules/Data',
         'Modules\Mapel'      => APPPATH . 'Modules/Mapel',
-        'Modules\Sholat'      => APPPATH . 'Modules/Sholat',
+        'Modules\Presensi'      => APPPATH . 'Modules/Presensi',
         'Modules\Kajian'      => APPPATH . 'Modules/Kajian',
         'Modules\Persyarikatan'      => APPPATH . 'Modules/Persyarikatan',
     ];

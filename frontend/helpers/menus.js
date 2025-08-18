@@ -16,6 +16,19 @@ let topMenu = [
     image:baseUrl + 'assets/images/icons/subject.png',
   },
   {
+    app:'presensi',
+    label:"Presensi Guru",
+    route:{
+      admin:'kmi-presensi',
+      kmi:'kmi-presensi',
+      guru:'guru-presensi',
+    },
+    color:'orange-100',
+    darkColor:'orange-500',
+    textColor:'cyan-700',
+    image:baseUrl + 'assets/images/icons/attendance.png',
+  },
+  {
     app:'psb',
     label:"PPDB",
     route:{

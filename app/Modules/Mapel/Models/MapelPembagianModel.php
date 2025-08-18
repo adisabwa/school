@@ -12,6 +12,39 @@ class MapelPembagianModel extends BaseModel
         parent::__construct();
 
         $this->table = 'sch_aka_pembagian_mapel';
+        $this->relations = [
+            [
+                'foreign_key' => 'id_semester',
+                'table' => 'sch__semester',
+                'selects' => [
+                    'semester',
+                    "tahun_ajaran",
+                    "CONCAT('Semester ', {f}.semester, ' ',{f}.tahun_ajaran) semester_keterangan",
+                ]
+            ],
+            [
+                'foreign_key' => 'id_guru',
+                'table' => 'sch__guru',
+                'selects' => [
+                    "nama nama_guru",
+                    "TRIM(CONCAT(COALESCE({f}.prefix,''), ' ',{f}.nama, ', ',COALESCE({f}.suffix,''))) nama_guru_lengkap",
+                ]
+            ],
+            [
+                'foreign_key' => 'id_kelas',
+                'table' => 'sch__kelas',
+                'selects' => [
+                    'kelas',
+                ]
+            ],
+            [
+                'foreign_key' => 'id_mapel',
+                'table' => 'sch_aka_mapel',
+                'selects' => [
+                    'nama_mapel',
+                ]
+            ]
+        ];
     }
 
     
