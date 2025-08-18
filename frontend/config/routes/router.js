@@ -65,7 +65,7 @@ routes.beforeEach(async (to, from, next) => {
         if (app) {
           if (to.meta.allowedRoles) {
             let role = loggedUser.app_roles[app] ?? loggedUser.app_roles.all
-            console.log(app, role)
+            // console.log(app, role)
             if (to.meta.allowedRoles?.includes(role)) {
               next()
             } else {

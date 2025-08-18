@@ -18,7 +18,7 @@ class DataSantriModel extends BaseModel
       $options = [];
       $data = $this->db->table('sch__santri p')
                     ->select('p.*, k.kelas')
-                    ->join('sch__kelas k','k.id=p.id_kelas')
+                    ->join('sch__kelas k','k.id=p.id_kelas','left')
                     ->where($where)
                     ->orderBy('kelas, nama')
                     ->get()
@@ -27,7 +27,7 @@ class DataSantriModel extends BaseModel
       foreach ($data as $key => $d) {
         $options[] = (object)[
           'value' => "$d->id",
-          'label' => "$d->kelas - $d->nama"
+          'label' => "$d->nama"
         ];
       }
       return $options;

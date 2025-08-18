@@ -24,7 +24,7 @@
     </div>
       
     <el-container class="w-full main-content-wrap ml-0">
-      <el-main class="p-0
+      <el-main class="p-0 overflow-x-hidden
         min-h-[calc(100vh-70px)] mt-[50px] relative h-full
         flex flex-col"
         :style="{
@@ -35,7 +35,7 @@
           bg-cover bg-no-repeat bg-left-center bg-fixed"
           :style="`background-image:url('${$baseUrl}assets/images/back-sketch.png');`">
         </div>
-        <router-view v-slot="{ Component , route}" class="h-full flex-1 z-[1]" >
+        <router-view v-slot="{ Component , route}" class="h-full flex-1 z-[1]" :key="$route.fullPath" >
           <transition name="slide-in" mode="out-in"
             enter-active-class="transition-all ease-in-out duration-500"
             leave-active-class="transition-all ease-in-out duration-500"

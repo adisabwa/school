@@ -47,7 +47,7 @@ import API from '@/config/api'
 app.config.globalProperties.$http = API
 
 import vue3GoogleLogin from 'vue3-google-login'
-console.log(import.meta.env)
+// console.log(import.meta.env)
 app.use(vue3GoogleLogin, {
     clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID
 })

@@ -24,11 +24,11 @@ class PenggunaModel extends BaseModel
 
           $data = $this->db->table('sch__guru g')
                         // ->select("*")
-                          ->select("a.id id_akses, g.id, g.id id_guru, g.nama, g.email, k.id id_kelas,
-                            GROUP_CONCAT(la.app,'-',a.role ORDER BY a.id) as app_roles")
-                          ->join('sch__pengguna_akses a','a.id_guru=g.id OR a.id_guru IS NULL',"LEFT")
+                          ->select("a.id id_akses, g.id, g.id id_guru, g.nama, g.email, k.id id_kelas, k.kelas, km.id id_kamar, CONCAT(km.rayon,' ',km.nomor) kamar")
+                          ->join('sch__pengguna_akses a','a.id_guru=g.id',"LEFT")
                           ->join('sch__list_akses la',"a.id_akses=la.id","LEFT")
                           ->join('sch__kelas k','k.id_walas=g.id','left')
+                          ->join('sch__kamar km','km.id_wali_kamar=g.id','left')
                           ->where('g.email',$email)
                           ->where('g.id IS NOT NULL')
                           ->groupBy('g.id')
@@ -38,22 +38,27 @@ class PenggunaModel extends BaseModel
 
         if (empty($data)) return;
         
-        $app_roles = explode(',', $data->app_roles ?? '');
-        $ar = [];
-        $akses = [];  
-        foreach ($app_roles as $key => $var) {
-          [$app, $role] = explode('-', $var);
-          $ar[$app] = $role;
-        }
-        $data->app_roles = $ar;
+        $data->app_roles = [];
+        $data->akses = [];
+        $where = [
+          "a.id_guru = '$data->id'" => NULL,
+          "((a.id_guru = '0' OR a.id_guru IS NULL) AND a.role = 'guru')" => NULL,
+        ];
+        if ($data->id_kelas)
+          $where["((a.id_guru = '0' OR a.id_guru IS NULL) AND a.role = 'walas')" ] = NULL;
+        if ($data->id_kamar)
+          $where["((a.id_guru = '0' OR a.id_guru IS NULL) AND a.role = 'wamar')" ] = NULL;
+
         $akses = $this->db->table('sch__pengguna_akses a')
                 ->select("la.*, a.*")
                 ->join('sch__list_akses la','a.id_akses=la.id')
-                ->where(['a.id_guru' => $data->id])
+                ->orWhere($where)
                 ->get()
                 ->getResult();
-        $data->akses = [];
+        
+        // var_dump($this->db->getLastQuery());
         foreach ($akses as $key => $value) {
+          $data->app_roles[$value->app] = $value->role;
           $data->akses[$value->app][] = $value;
         }
         return $data;

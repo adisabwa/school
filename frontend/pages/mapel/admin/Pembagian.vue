@@ -41,12 +41,12 @@
 
 <script>
 import { mapState } from 'pinia';
-import TableData from '@/components/TableData.vue'
+
 
 export default {
   name: "mapel",
   components: {
-    TableData,
+    
   },
   data: function() {
     return {

@@ -13,4 +13,10 @@ class MapelPembagianController extends BaseDataController
         $this->model = model('MapelPembagianModel');
     }
 
+    public function options_penjadwalan()
+    {
+        $where = $this->request->getGet('where') ?? [];
+        // var_dump($where);
+        return $this->respondCreated($this->model->getOptionsPenjadwalan($where));
+    }
 }

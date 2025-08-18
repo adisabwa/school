@@ -30,7 +30,7 @@ class BaseDataController extends BaseController
 
         $order = implode(",", $order);
 
-        // var_dump($order);
+        // var_dump($where);
         $data = $this->model->getAll(whereAnd: $where, whereOr: $or, whereIn: $in, orWhereIn: $inOr, 
             order: $order, limit: $limit, offset: $offset);
         
@@ -43,7 +43,6 @@ class BaseDataController extends BaseController
     public function get()
     {
         $id = $this->request->getGet('id');
-
         return $this->respondCreated(method_exists($this->model, 'getData') ? $this->model->getData($id) : $this->model->find($id));
     }
 
@@ -157,8 +156,8 @@ class BaseDataController extends BaseController
                 $save = $this->model->insert($data, TRUE);
                 $posted_data['id'] = $this->model->insertID();
             }
-            // var_dump($posted_data);
-            // var_dump( $this->model->error());
+            var_dump($posted_data);
+            var_dump( $this->model->error());
             // Append ID to data
             foreach ($child_table as $table => $values) {
                 $fk = $child_key[$table];

@@ -197,13 +197,16 @@ class ValidationFilter implements FilterInterface
             $postData[$nama_kolom] = $f($postData[$nama_kolom]);
         }
 
+        var_dump($double_input);
         foreach ($double_input as $nama_kolom => $data) {
             $koloms = explode('-', $nama_kolom);
             $datas = explode('-', $data);
+            var_dump('double', $koloms, $datas, !in_array($nama_kolom, $koloms));
             foreach ($koloms as $key => $kolom) {
                 $postData[$kolom] = $datas[$key] ?? '';
             }
-            unset($postData[$nama_kolom]);
+            if (!in_array($nama_kolom, $koloms))
+                unset($postData[$nama_kolom]);
         }
         
         // var_dump($tables);

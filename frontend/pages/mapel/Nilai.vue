@@ -117,12 +117,12 @@
   
 <script>
   import { mapState } from 'pinia';
-  import TableData from '@/components/TableData.vue'
+  
   
   export default {
     name: "mapel",
     components: {
-      TableData,
+      
     },
     data: function() {
       return {
@@ -142,15 +142,8 @@
             input_only:'1',
             options:[],
           },
-          id_guru:{
-            label:'Guru',
-            nama_kolom:'id_guru',
-            input:'select',
-            input_only:'1',
-            options:[],
-          },
           id_pembagian_mapel:{
-            label:'Mapel',
+            label:'Mata Pelajaran',
             nama_kolom:'id_pembagian_mapel',
             input:'select',
             options:[],
@@ -160,7 +153,6 @@
         filter:{
           id_semester:'',
           id_kelas:'',
-          id_guru:'',
           id_pembagian_mapel:'',
         },
         params:{
@@ -174,18 +166,22 @@
         promptDinas:false ,
         nilaiMin:78,
         nilaiMax:0,
+        // role:'walas',
       };
     },
     watch: {
       'paging.currentPage': function(val) {
         this.paging.offset = val * this.paging.perPage - this.paging.perPage;
       },
-      'filter.id_kelas' (val){
-        this.filterFields.id_guru.options = this.filterFields.id_kelas.options[val]?.options ?? []
-        this.filter.id_guru = Object.values(this.filterFields.id_guru.options)[0]?.value
+      'filter.id_semester' (val){
+        this.filterFields.id_kelas.options = this.filterFields.id_semester.options[val]?.options ?? []
+        this.filter.id_kelas = -1
+        setTimeout(() => {
+          this.filter.id_kelas = Object.values(this.filterFields.id_kelas.options)[0]?.value
+        }, 100)
       },
-      'filter.id_guru' (val){
-        this.filterFields.id_pembagian_mapel.options = this.filterFields.id_guru.options[val]?.options ?? []
+      'filter.id_kelas' (val){
+        this.filterFields.id_pembagian_mapel.options = this.filterFields.id_kelas.options[val]?.options ?? []
         this.filter.id_pembagian_mapel = Object.values(this.filterFields.id_pembagian_mapel.options)[0]?.value
       },
       'filter.id_pembagian_mapel' (val) {
@@ -224,26 +220,15 @@
       getInitial: async function() {
           this.loading = true;
           console.log(this.storeFilters)
-          this.$http.get('data/semester/options')
-            .then(res => {
-              this.filterFields.id_semester.options = res.data
-              this.filter.id_semester = this.storeFilters?.id_semester ? this.storeFilters?.id_semester : res.data[0].value
-            })
-          let where = []
+          let where = {}
           switch (this.role) {
             case 'guru':
-              where = {
-                id_guru:this.user.id_guru
-              }
-              this.filterFields.id_guru.readonly = true
+              where.id_guru = this.user.id_guru
               break;
             case 'walas':
-              where = {
-                id_kelas:this.user.id_kelas
-              }
-              this.filterFields.id_kelas.readonly = true
+              where.id_kelas = this.user.id_kelas
+              // where.id_kelas = 1
               break;
-            
             default:
               break;
           }
@@ -254,11 +239,11 @@
           })
             .then(res => {
               let data = res.data
-              this.filterFields.id_kelas.options = data
-              this.filter.id_kelas = this.storeFilters?.id_kelas ? this.storeFilters?.id_kelas : Object.values(data)[0]?.value
-              this.filterFields.id_guru.options = data[this.filter.id_kelas]?.options ?? {}
-              this.filter.id_guru = this.storeFilters?.id_guru ? this.storeFilters?.id_guru : this.user.id_guru ?? Object.values(this.filterFields.id_guru.options)[0]?.value
-              this.filterFields.id_pembagian_mapel.options = this.filterFields.id_guru.options[this.filter.id_guru]?.options
+              this.filterFields.id_semester.options = data
+              this.filter.id_semester = this.storeFilters?.id_semester ? this.storeFilters?.id_semester : Object.values(data)[0]?.value
+              this.filterFields.id_kelas.options = data[this.filter.id_semester]?.options ?? {}
+              this.filter.id_kelas = this.storeFilters?.id_kelas ? this.storeFilters?.id_kelas : this.user.id_kelas ?? Object.values(this.filterFields.id_kelas.options)[0]?.value
+              this.filterFields.id_pembagian_mapel.options = this.filterFields.id_kelas.options[this.filter.id_kelas]?.options
               this.filter.id_pembagian_mapel = this.storeFilters?.id_mapel ? this.storeFilters?.id_mapel : Object.values(this.filterFields.id_pembagian_mapel.options)[0]?.value
             })
         },

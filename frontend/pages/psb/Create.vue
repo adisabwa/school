@@ -78,12 +78,10 @@
   
  <script>
    import { mapState } from 'pinia';
-  import Form from '@/components/Form.vue'
   
   export default {
     name: "psb",
     components: {
-      'form-comp' : Form,
     },
     data: function() {
       return {

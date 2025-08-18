@@ -1,3 +1,4 @@
+import { isArray } from "lodash";
 
 let listFunction = {
   isEmpty(str) {
@@ -47,9 +48,11 @@ let listFunction = {
     let sim = []
     for (let i = 0; i < options.length; i++) {
       const element = options[i];
+      let text2 = element?.match ?? element?.label ?? ''
+      let text1 = label
       // console.log(element)
-      sim[i] = this.isSimilar(label, element.label)
-      // console.log(label, element.label, sim[i])
+      sim[i] = this.isSimilar(text1.trim().toLowerCase(), text2.trim().toLowerCase())
+      // console.log(label, text, sim[i])
       // let sim = 0    
     }
 
@@ -57,7 +60,9 @@ let listFunction = {
     // console.log(label, _sim)
     if (_sim > sim_rate) {
       let ind = sim.findIndex(d => d == _sim)
+      // console.log(ind)
       let element = options[ind]
+      // console.log(element)
       return element.value   
     }
     return false
@@ -180,14 +185,23 @@ export default {
     }
     app.config.globalProperties.runFunction = ({func, data, options = [], defaultData = ''}) => {
       let listFunction = app.config.globalProperties
-      // console.log(data, options)
+      if (typeof options == 'object')
+        options = Object.values(options)
+      // console.log(data, options, listFunction.isEmpty(options))
       if (listFunction.isEmpty(func)) {
         if (listFunction.isEmpty(options))
           return data
         else {
           for (let index = 0; index < options.length; index++) {
             const el = options[index];
-            if (el.value == data)
+            if (Array.isArray(el.options)) {
+              for (let j = 0; j < el.options.length; j++) {
+                const element = el.options[j];
+                // console.log(element.value, data)
+                if (element.value == data)
+                  return element.label
+              }
+            } else if (el.value == data)
               return el.label
           }
         }

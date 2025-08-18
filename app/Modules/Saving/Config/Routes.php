@@ -24,6 +24,7 @@ $routes->group('saving/admin', [
     $routes->add('/', [SavingAdmin::class,'index']);
     $routes->add('get', [SavingAdmin::class, 'get']);
     $routes->add('store', [SavingAdmin::class, 'store'], [ 'filter' => 'api-validation:sch_sav_tabungan']);
+    $routes->add('store_many', [SavingAdmin::class, 'store_many'], [ 'filter' => 'api-validation:sch_sav_tabungan,true']);
     $routes->add('template', [SavingAdmin::class, 'template']);
     $routes->add('upload', [SavingAdmin::class, 'upload']);
     $routes->add('dashboard', [SavingAdmin::class, 'dashboard']);

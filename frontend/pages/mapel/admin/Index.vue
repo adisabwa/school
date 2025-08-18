@@ -14,7 +14,7 @@
 </template>
   
   <script>
-    import TableData from '@/components/TableData.vue'
+    
     import { reactive } from 'vue';
     import { mapActions, mapState } from 'pinia';
   
@@ -32,7 +32,7 @@
       },
     },
     components: {
-      TableData,
+      
     },
     data: function() {
       return {

@@ -64,6 +64,20 @@ let listFunction = {
         }
       });
     },
+    flattenObject(obj, parentKey = '', result = {}) {
+      for (const key in obj) {
+        if (!obj.hasOwnProperty(key)) continue;
+    
+        const newKey = parentKey ? `${parentKey}.${key}` : key;
+    
+        if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+          listFunction.flattenObject(obj[key], newKey, result);
+        } else {
+          result[newKey] = obj[key];
+        }
+      }
+      return result;
+    },
     getObjectValueByPath(obj, path) {
       path = path.split('.')
       return path.reduce((acc, key) => acc?.[key], obj);
@@ -145,13 +159,13 @@ let listFunction = {
     saveToStorage(index, value){
       let old_data = this.getDataFormStorage(index) ?? []
       localStorage.setItem(index,JSON.stringify([...new Set([...old_data, ...[value]])]))
-      console.log('save',this.getDataFormStorage(index))
+      // console.log('save',index,this.getDataFormStorage(index))
     },
     removeFromStorage(index, value){
       let old_data = this.getDataFormStorage(index) ?? []
       let new_data = old_data.filter(d => d !== value)
       localStorage.setItem(index,JSON.stringify(new_data))
-      console.log('save',this.getDataFormStorage(index))
+      // console.log('remove',this.getDataFormStorage(index))
     },
     resetStorage(index){
       return localStorage.setItem(index, null)

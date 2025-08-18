@@ -4,6 +4,8 @@ use Modules\Mapel\Controllers\MapelNilaiController as MapelNilai;
 
 use Modules\Mapel\Controllers\Admin\MapelController as MapelAdmin;
 use Modules\Mapel\Controllers\Admin\MapelPembagianController as MapelPembagianAdmin;
+use Modules\Mapel\Controllers\Admin\MapelPenjadwalanController as MapelPenjadwalanAdmin;
+use Modules\Mapel\Controllers\Admin\MapelPenjadwalanDetailController as MapelPenjadwalanDetailAdmin;
 
 //------------------------------------- All User Mapel -----------------------------------------------
 $routes->group('mapel', [
@@ -51,6 +53,31 @@ $routes->group('mapel/admin', [
         $routes->add('download/(:any)', [MapelPembagianAdmin::class,'download/$1']);
         $routes->add('download_many', [MapelPembagianAdmin::class,'download_many']);
         $routes->add('options', [MapelPembagianAdmin::class,'options']);
+        $routes->add('options_penjadwalan', [MapelPembagianAdmin::class,'options_penjadwalan']);
+
+    });
+
+    
+    //------------------------------------- Penjadwalan Mapel -----------------------------------------------
+    $routes->group('penjadwalan', static function ($routes) {
+        $routes->add('/', [MapelPenjadwalanAdmin::class,'index']);
+        $routes->add('get', [MapelPenjadwalanAdmin::class, 'get']);
+        $routes->add('store', [MapelPenjadwalanAdmin::class, 'store'], [ 'filter' => 'api-validation:sch_aka_penjadwalan']);
+        $routes->add('store_many', [MapelPenjadwalanAdmin::class, 'store_many']);
+        $routes->add('delete/(:any)', [MapelPenjadwalanAdmin::class,'delete/$1']);
+        $routes->add('delete_many', [MapelPenjadwalanAdmin::class,'delete_many']);
+        $routes->add('options', [MapelPenjadwalanAdmin::class,'options']);
+        
+        //------------------------------------- Penjadwalan Detail Mapel -----------------------------------------------
+        $routes->group('detail', static function ($routes) {
+            $routes->add('/', [MapelPenjadwalanDetailAdmin::class,'index']);
+            $routes->add('get', [MapelPenjadwalanDetailAdmin::class, 'get']);
+            $routes->add('store', [MapelPenjadwalanDetailAdmin::class, 'store'], [ 'filter' => 'api-validation:sch_aka_penjadwalan_detail']);
+            $routes->add('store_many', [MapelPenjadwalanDetailAdmin::class, 'store_many'], [ 'filter' => 'api-validation:sch_aka_penjadwalan_detail,true']);
+            $routes->add('delete/(:any)', [MapelPenjadwalanDetailAdmin::class,'delete/$1']);
+            $routes->add('delete_many', [MapelPenjadwalanDetailAdmin::class,'delete_many']);
+            $routes->add('options', [MapelPenjadwalanDetailAdmin::class,'options']);
+        });
     });
 });
 

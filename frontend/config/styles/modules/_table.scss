@@ -36,3 +36,16 @@
     background-color: #f9f9f9;
   }
 }
+.table.three-line {
+  tr:nth-child(6n-5),
+  tr:nth-child(6n-4),
+  tr:nth-child(6n-3) {
+    background-color: #ffffff;
+  }
+
+  tr:nth-child(6n-2),
+  tr:nth-child(6n-1),
+  tr:nth-child(6n) {
+    background-color: #f9f9f9;
+  }
+}

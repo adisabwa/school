@@ -31,7 +31,14 @@ let data = [
     index: 'kelas-list',
     route: 'kelas-list',
     icon:'mdi:table-chair',
-    label:'Data Kelas & Walas',
+    label:'Data Kelas',
+    type:'menu',
+  },
+  {
+    index: 'kamar-list',
+    route: 'kamar-list',
+    icon:'tabler:bed-filled',
+    label:'Data Kamar',
     type:'menu',
   },
   {
@@ -39,6 +46,13 @@ let data = [
     route: 'santri-list',
     icon:'fa-solid:user',
     label:'Data Santri',
+    type:'menu',
+  },
+  {
+    index: 'sesi-list',
+    route: 'sesi-list',
+    icon:'mdi:timetable',
+    label:'Sesi Pembelajaran',
     type:'menu',
   },
 ]

@@ -1,7 +1,7 @@
 <template>
     <div id="psb" class="py-6">
       <el-card class="bg-white/[0.7]">
-        <form-filter ref="formFilter"
+        <form-comp ref="formFilter"
           :fields="filterFields"
           :label-position="labelPosition"
           class="mt-6"
@@ -11,7 +11,7 @@
           text-submit="Cari"
           error-submit-text="Tidak dapat mengambil data"
           :show-required-text="false"
-          ></form-filter>
+          ></form-comp>
         <div class="mt-3 flex flex-row justify-between">
           <div class="flex flex-col md:flex-row gap-3 justify-start">
             <el-dropdown trigger="click" @command="handleActionClick">
@@ -97,14 +97,12 @@
   <script>
    import { mapState } from 'pinia';
   import { setStatusText, setStatusType } from '@/helpers/psb'
-  import Form from '@/components/Form.vue'
-  import TableData from '@/components/TableData.vue'
+  
   
   export default {
     name: "psb",
     components: {
-      'form-filter' : Form,
-      TableData,
+      
     },
     data: function() {
       return {

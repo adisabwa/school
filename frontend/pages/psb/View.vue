@@ -111,11 +111,11 @@
         </div>
       </el-card>
     </div>
-  </template>
+</template>
   
-  <script>
-   import { mapState } from 'pinia';
-  import ViewTable from '@/components/ViewTable.vue'
+<script>
+  import { mapState } from 'pinia';
+  import ViewTable from '@/components/form/ViewTable.vue'
   
   export default {
     name: "psb",

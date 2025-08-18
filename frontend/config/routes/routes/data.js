@@ -71,21 +71,33 @@ let routes = [
                     pageTitle: "<b>Daftar Kelas</b>",
                 }
               },
+              {
+                path: 'kamar',
+                name: 'kamar-list', 
+                component: () => import('@/pages/data/KamarList.vue'),
+                meta: {
+                    pageTitle: "<b>Daftar Kamar</b>",
+                }
+              },
             ],
           },
           {
             path: 'penghasilan',
-            children: [ 
-              {
-                path: '',
-                name: 'penghasilan-list', 
-                component: () => import('@/pages/data/PenghasilanList.vue'),
-                meta: {
-                    pageTitle: "<b>Daftar Unit</b>",
-                    allowedRoles: ['admin'],
-                }
-              },
-            ]
+            name: 'penghasilan-list', 
+            component: () => import('@/pages/data/PenghasilanList.vue'),
+            meta: {
+                pageTitle: "<b>Daftar Unit</b>",
+                allowedRoles: ['admin'],
+            }
+          },
+          {
+            path: 'sesi',
+            name: 'sesi-list', 
+            component: () => import('@/pages/data/SesiList.vue'),
+            meta: {
+                pageTitle: "<b>Daftar Sesi</b>",
+                allowedRoles: ['admin'],
+            }
           },
         ],
       },

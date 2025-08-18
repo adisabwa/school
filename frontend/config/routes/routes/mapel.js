@@ -40,6 +40,14 @@ let routes = [
                         pageTitle: '<b>Pembagian Pengampu</b>',
                     }
                   },
+                  {
+                    path: 'penjadwalan',
+                    name: 'penjadwalan-mapel', 
+                    component: () => import('@/pages/mapel/admin/Penjadwalan.vue'),
+                    meta: {
+                        pageTitle: '<b>Penjadwalan Pembelajaran</b>',
+                    }
+                  },
                 ]
             },
             {

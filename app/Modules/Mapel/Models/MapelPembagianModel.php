@@ -19,35 +19,71 @@ class MapelPembagianModel extends BaseModel
     {
       $options = [];
       $data = $this->db->table($this->table." pm")
-                    ->select("k.*, g.*, m.*, pm.*")
+                    ->select("k.*, g.*, m.*, s.*, pm.*")
                     ->join("sch__guru g","g.id=pm.id_guru")
                     ->join("sch_aka_mapel m","m.id=pm.id_mapel")
                     ->join("sch__kelas k","k.id=pm.id_kelas")
+                    ->join("sch__semester s","s.id=pm.id_semester")
                     ->where($where)
+                    ->orderBy('m.nama_mapel')
                     ->get()
                     ->getResult();
                     
         foreach ($data as $key => $d) {
             $option = (object)[
                 'value' => "$d->id",
-                'label' => $d->nama_mapel,
+                'label' => "$d->nama_mapel ( $d->nama )",
             ];
-            if (empty($options[$d->id_kelas])) {
-                $options[$d->id_kelas] = (object) [
+            if (empty($options[$d->id_semester])) {
+                $options[$d->id_semester] = (object) [
+                    'value' => $d->id_semester,
+                    'label' => "Semester ".ucfirst($d->semester)." $d->tahun_ajaran",
+                    'options' => []
+                ];
+            } 
+            if (empty($options[$d->id_semester]->options[$d->id_kelas])) {
+                $options[$d->id_semester]->options[$d->id_kelas] = (object) [
                     'value' => $d->id_kelas,
                     'label' => $d->kelas,
                     'options' => []
                 ];
             } 
-            if (empty($options[$d->id_kelas]->options[$d->id_guru])) {
-                $options[$d->id_kelas]->options[$d->id_guru] = (object) [
-                    'value' => $d->id_guru,
-                    'label' => $d->nama,
+            $options[$d->id_semester]->options[$d->id_kelas]->options[] = $option;
+      }
+      return $options;
+    }
+
+    
+    public function getOptionsPenjadwalan($where = [])
+    {
+        $options = [];
+        $data = $this->db->table($this->table." pm")
+                    ->select("k.*, g.*, m.*, s.*, pm.*")
+                    ->join("sch__guru g","g.id=pm.id_guru")
+                    ->join("sch_aka_mapel m","m.id=pm.id_mapel")
+                    ->join("sch__kelas k","k.id=pm.id_kelas")
+                    ->join("sch__semester s","s.id=pm.id_semester")
+                    ->where($where)
+                    ->orderBy('m.nama_mapel')
+                    ->get()
+                    ->getResult();
+        
+        $options = [];
+        foreach ($data as $key => $d) {
+            $option = (object)[
+                'value' => "$d->id",
+                'label' => "$d->kode_mapel - $d->nama_mapel",
+                'match' => "$d->kelas - $d->kode_mapel",
+            ];
+            if (empty($options[$d->id_kelas])) {
+                $options[$d->id_kelas] = (object) [
+                    'value' => $d->id_kelas,
+                    'label' => "$d->kelas",
                     'options' => []
                 ];
             } 
-            $options[$d->id_kelas]->options[$d->id_guru]->options[$d->id] = $option;
-      }
-      return $options;
+            $options[$d->id_kelas]->options[] = $option;
+        }
+        return $options;
     }
 }

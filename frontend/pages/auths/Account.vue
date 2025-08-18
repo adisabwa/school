@@ -89,8 +89,7 @@
 <script>
 
 import { mapState } from 'pinia';
-import ViewTable from '../../components/ViewTable.vue';
-import Form from '../../components/Form.vue';
+import ViewTable from '@/components/form/ViewTable.vue';
 import { unset } from 'lodash';
 const authStore = useAuthStore()
 
@@ -98,7 +97,6 @@ export default {
 	name: 'account-page',
 	components:{
 		ViewTable,
-		'form-comp' : Form,
 	},
 	data: function() {
 		return {

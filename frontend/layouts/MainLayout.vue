@@ -36,7 +36,7 @@
     <el-container>
       <el-main class="p-0 px-3 pb-3 overflow-visible
         sm:px-5 sm:mt-[20px]
-        min-h-[calc(100vh-110px)] 
+        min-h-[calc(100vh-110px)] max-w-[100vw]
         relative
         flex flex-col">
         <div class="fixed w-screen h-screen left-0 top-0
@@ -105,6 +105,7 @@
 import { mapState } from 'pinia';
 import VerticalMenu from './components/VerticalMenu.vue';
 import HorizontalMenu from './components/HorizontalMenu.vue';
+import { useAuthStore } from '../config/store/authStore';
 
 export default {
   name: 'default-layout',
@@ -188,8 +189,9 @@ export default {
       this.activeMenu = index
     },
     async getMenus(app = 'admin'){
-      this.resetStorage('menu',app)
+      this.resetStorage('menu')
       this.saveToStorage('menu',app)
+      console.log(app);
       // let index = vm.coalesce([vm.$route.meta.app, 'default'])
       await import(`@/helpers/menus/${app}.js`)
         .then(res => {
@@ -240,10 +242,12 @@ export default {
       this.resetStorage('vertical-menu')
       this.saveToStorage('vertical-menu',to);
       this.isVertical = to
+      // useDataStore().filters.isVertical = to
     }
   },
   created: async function() {
-    this.getMenus(this.$route?.meta?.app ?? this.getDataFormStorage('menu') ?? 'admin')
+    // this.resetStorage('menu')
+    this.getMenus(useAuthStore().getApp())
     this.scrollPosition = window.scrollY;
     this.mainMenus.logout.function = this.doLogout
     this.isVertical = this.getDataFormStorage('vertical-menu') ?? '1';

@@ -17,38 +17,6 @@ class SavingController extends BaseDataController
         $this->santriModel = model('SantriModel');
     }
 
-    public function index()
-    {
-        $start = $this->request->getGet('start');
-        $end = $this->request->getGet('end');
-        $nama = $this->request->getGet('nama');
-        $kelas = $this->request->getGet('kelas');
-        $type = $this->request->getGet('type') ?? 'month';
-
-        if ($type == 'month') {
-            $start = date('Y-m-01',strtotime($start));
-            $end = ($end == '') ? date('Y-m-t') : date('Y-m-t',strtotime($end));
-        }
-        
-        $nama = $this->request->getPostGet('nama');
-        $kelas = $this->request->getPostGet('kelas'); 
-        $order = implode(",", $this->request->getPostGet('order') ?? []);
-        $whereAnd = [
-            "nama LIKE '%$nama%'" => NULL,
-            empty($kelas) ? '1=1' : "id_kelas='$kelas'" => NULL,
-            empty($start) ? '1=1' : "tanggal>='$start'" => NULL,
-            empty($end) ? '1=1' : "tanggal<='$end'" => NULL,
-        ];
-        
-        $whereOr = [
-            
-        ];
-        $data = $this->model->getAll($whereAnd, $whereOr, $order);
-
-        // var_dump($this->listIqabModel->db->getLastQuery());
-        return $this->respondCreated($data);
-    }
-
     public function template()
     {
         $filename = 'TEMPLATE-UPLOAD-DATA-KEUANGAN';

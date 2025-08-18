@@ -16,12 +16,13 @@ class Kolom extends BaseController
 
     public function preparation($table = NULL, $return_data = FALSE, $grouping = NULL)
     {
-        $input = empty($this->request) ? '1' : $this->request->getGet('input');
-        $output = empty($this->request) ? '0' : $this->request->getGet('output');
+        $input = empty($this->request) ? '1' : $this->request->getGetPost('input');
+        $output = empty($this->request) ? '0' : $this->request->getGetPost('output');
+        $options_params = empty($this->request) ? '0' : $this->request->getGetPost('options_params');
         $input = ($input ?? '1') == '1';
         $output = ($output ?? '0') == '1';
-        $table = $table ?? $this->request->getGet('table');
-        $grouping = ($grouping ?? $this->request->getGet('grouping')) != '0';
+        $table = $table ?? $this->request->getGetPost('table');
+        $grouping = ($grouping ?? $this->request->getGetPost('grouping')) != '0';
         $datas = $this->kolomModel->getAll($table, $input, $output);
 
         $results = [];
@@ -46,7 +47,8 @@ class Kolom extends BaseController
                     $method = $methods[1] ?? 'getOptions';
                     // var_dump($model);
                     $model = model($model);
-                    $options = $model?->$method() ?? [];
+                    $params = isset($options_params[$data->nama_kolom]) ? $options_params[$data->nama_kolom] : [];
+                    $options = $model?->$method($params) ?? [];
                 }
             }
             $data->options = $options;

@@ -7,7 +7,9 @@ use Modules\Data\Controllers\UnitController;
 use Modules\Data\Controllers\JurusanController;
 use Modules\Data\Controllers\GuruController;
 use Modules\Data\Controllers\KelasController;
+use Modules\Data\Controllers\KamarController;
 use Modules\Data\Controllers\SemesterController;
+use Modules\Data\Controllers\SesiController;
 
 //----------------------------------Section Data-------------------------------------
 
@@ -50,6 +52,17 @@ $routes->group('data', [
         $routes->add('delete_many', [UnitController::class, 'delete_many']);
         $routes->add('options', [UnitController::class, 'options']);
     });
+
+    
+    //----------------------------------Data Sesi-------------------------------------
+    $routes->group('sesi', static function ($routes) {
+        $routes->add('/', [SesiController::class, 'index']);
+        $routes->add('get', [SesiController::class, 'get']);
+        $routes->add('store', [SesiController::class, 'store'], [ 'filter' => 'api-validation:sch__sesi']);
+        $routes->add('delete/(:any)', [SesiController::class, 'delete/$1']);
+        $routes->add('delete_many', [SesiController::class, 'delete_many']);
+        $routes->add('options', [SesiController::class, 'options']);
+    });
     
     //----------------------------------Data Jurusan-------------------------------------
     $routes->group('jurusan', static function ($routes) {
@@ -74,6 +87,21 @@ $routes->group('data', [
         $routes->add('options', [SemesterController::class, 'options']);
     });
 
+    //----------------------------------Data Kamar-------------------------------------
+    $routes->group('kamar', static function ($routes) {
+        $routes->add('/', [KamarController::class, 'index']);
+        $routes->add('get', [KamarController::class, 'get']);
+        $routes->add('store', [KamarController::class, 'store'], [ 'filter' => 'api-validation:sch__kamar']);
+        $routes->add('store_many', [KamarController::class, 'store_many'], [ 'filter' => 'api-validation:sch__kamar,true']);
+        $routes->add('delete/(:any)', [KamarController::class, 'delete/$1']);
+        $routes->add('delete_many', [KamarController::class, 'delete_many']);
+        $routes->add('template', [KamarController::class, 'template']);
+        $routes->add('upload', [KamarController::class, 'upload']);
+        $routes->add('options', [KamarController::class, 'options']);
+        $routes->add('search', [KamarController::class, 'search']);
+    });
+
+    
     //----------------------------------Data Kelas-------------------------------------
     $routes->group('kelas', static function ($routes) {
         $routes->add('/', [KelasController::class, 'index']);
@@ -87,7 +115,6 @@ $routes->group('data', [
         $routes->add('options', [KelasController::class, 'options']);
         $routes->add('search', [KelasController::class, 'search']);
     });
-
 
     //----------------------------------Data Santri-------------------------------------
     $routes->group('santri', static function ($routes) {

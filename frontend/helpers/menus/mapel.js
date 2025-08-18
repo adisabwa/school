@@ -16,6 +16,14 @@ let mapel = [
     roles:['admin'],
   },
   {
+    index: 'penjadwalan-mapel',
+    route: 'penjadwalan-mapel',
+    icon:'dashicons:schedule',
+    label:'Penjadwalan Pembelajaran',
+    type:'menu',
+    roles:['admin'],
+  },
+  {
     index: 'nilai-mapel',
     route: 'nilai-mapel',
     icon:'streamline-ultimate:paper-write-bold',
