@@ -4,7 +4,7 @@ import { baseUrl } from "@/config/url";
 let topMenu = [
   {
     app:'mapel',
-    label:"Pembelajaran dan Penilaian",
+    label:"Pembelajaran & Penilaian",
     route:{
       admin:'admin-mapel',
       guru:'nilai-mapel',
@@ -29,19 +29,8 @@ let topMenu = [
     image:baseUrl + 'assets/images/icons/attendance.png',
   },
   {
-    app:'psb',
-    label:"PPDB",
-    route:{
-      admin:'admin-psb',
-    },
-    color:'sky-100',
-    darkColor:'sky-500',
-    textColor:'teal-700',
-    image:baseUrl + 'assets/images/icons/psb.png',
-  },
-  {
     app:'kmi',
-    label:"Kulliyatul Mu'alimin Al Islamiyah",
+    label:"KMI",
     route:{
       admin:'admin-kmi',
     },
@@ -60,6 +49,17 @@ let topMenu = [
     darkColor:'indigo-500',
     textColor:'cyan-700',
     image:baseUrl + 'assets/images/icons/saving.png',
+  },
+  {
+    app:'psb',
+    label:"PPDB",
+    route:{
+      admin:'admin-psb',
+    },
+    color:'sky-100',
+    darkColor:'sky-500',
+    textColor:'teal-700',
+    image:baseUrl + 'assets/images/icons/psb.png',
   },
   {
     app:'data',

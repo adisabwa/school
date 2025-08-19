@@ -5,21 +5,26 @@
         @click="$router.push({name:'default'})">
         <div class="add-play h-full w-full bg-[#11716d]
           animate in [--transY:-60px]"></div>
-        <div class="add-play h-[90px] w-full 
+        <div class="add-play 
+          md:h-[90px] h-[70px]
+          w-full 
           bg-cover bg-bottom
           absolute z-[5] top-0
           animate in [--transY:-50px]"
           :style="`background-image:url('${$baseUrl}assets/images/top-2.png')`"></div>
         <div id="top" class="add-play bg-cover bg-bottom
-          h-[150px] w-full absolute z-[-1]
+          h-[100px] md:h-[150px] w-[300%] md:w-full absolute z-[-1]
+          [--toTransX:-50%] left-1/2
           animate in [--transY:-75px]"
           :style="`background-image:url('${$baseUrl}assets/images/top.png')`"></div>
-        <img id="logo" :src="$baseUrl + 'assets/images/logo-color.png'" height="160px" 
+        <img id="logo" :src="$baseUrl + 'assets/images/logo-color.png'"
           class="add-play animate zoom
-            absolute top-[10px] left-1/2 -translate-x-1/2 z-10"/>
-        <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'" height="100px" 
+            absolute top-0 md:top-[10px]  left-1/2 -translate-x-1/2 z-10
+            md:h-[160px] h-[130px]"/>
+        <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'"
           class="remove-play animate zoom play
-            absolute top-[10px] left-1/2 -translate-x-1/2 z-10"/>
+            absolute top-[10px] left-1/2 -translate-x-1/2 z-10
+            md:h-[160px] h-[130px]"/>
       </el-header>
     </div>
       
