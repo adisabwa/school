@@ -15,6 +15,11 @@ class DataSesiModel extends BaseModel
 
     public function getOptions($where = [])
     {
-      return $this->getOptionsData($where, function($d) { return $d->sesi; });
+      return $this->getOptionsData($where, function($d) { return $d->sesi; },
+        function($option, $data) { 
+          $option->waktu_mulai = $data->waktu_mulai;
+          $option->waktu_selesai = $data->waktu_selesai;
+          return $option; 
+        });
     }
 }

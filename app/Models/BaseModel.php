@@ -19,9 +19,11 @@ class BaseModel extends Model
     protected $updatedField  = 'updated_at';
 
     protected $beforeInsert = ['setCreatedBy'];
+    protected $beforeInsertBatch = ['setCreatedBatchBy'];
     protected $beforeUpdate = ['setUpdatedBy'];
     public $userId;
     public $relations = [];
+    public $selects = [];
 
     public function __construct()
     {
@@ -41,7 +43,7 @@ class BaseModel extends Model
         return $this->table;
     }
     
-    public function getOptionsData($where = [], callable $concatFunc)
+    public function getOptionsData($where = [], ?callable $concatFunc = null, ?callable $addOptions = null)
     {
       $options = [];
       $data = $this->where($where)
@@ -49,10 +51,12 @@ class BaseModel extends Model
                     ->getResult();
                     
       foreach ($data as $key => $d) {
-        $options[] = (object)[
+        $option = (object)[
           'value' => "$d->id",
-          'label' => $concatFunc($d)
+          'label' => $concatFunc($d) ?? $d->nama
         ];
+        $option = $addOptions($option, $d);
+        $options[] = $option;
       }
       return $options;
     }
@@ -64,6 +68,18 @@ class BaseModel extends Model
         return $data;
     }
 
+    protected function setCreatedBatchBy(array $data)
+    {
+        $id = $this->userId ?? null;
+        $data['data'] = array_map(function($item) use ($id) {
+            $item['created_by'] = $id; // mulai dari 1
+            return $item;
+        }, $data['data'], array_keys($data['data']));
+
+        // var_dump($data['data']);exit;
+        return $data;
+    }
+
     protected function setUpdatedBy(array $data)
     {
         $data['data']['updated_by'] = $this->userId ?? null;
@@ -71,10 +87,13 @@ class BaseModel extends Model
         return $data;
     }
 
-    public function addTableBefore(string $table, array $attr)
+    public function addTableBefore(string $table, $attr)
     {
+        $attr = is_array($attr) ? $attr : explode(',', $attr);
         $new_attr = [];
         foreach ($attr as $key => $value) {
+            if (empty($value))
+                continue;
             $pos = strpos($value, '{f}');
             if ($pos !== false) {
                 $new_attr[] = str_replace('{f}',$table, $value);
@@ -85,7 +104,15 @@ class BaseModel extends Model
         return $new_attr;
     }
 
-    public function getAll(array $whereAnd = [], array $whereOr = [], array $whereIn = [], array $orWhereIn = [], string $order = '', int $limit = 0, int $offset = 0,  $relations = NULL)
+    public function getAll(
+        array $whereAnd = [], 
+        array $whereOr = [], 
+        array $whereIn = [], 
+        array $orWhereIn = [], 
+        string $order = '', 
+        int $limit = 0, 
+        int $offset = 0,  
+        $relations = NULL)
     {
         $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
         $whereOr = empty($whereOr) ? '1=1' : $whereOr;
@@ -93,6 +120,7 @@ class BaseModel extends Model
         // var_dump($whereAnd, $relations);
         $data = $this->db->table($this->table)
                     ->select("{$this->table}.*")
+                    ->select($this->addTableBefore($this->table, $this->selects))
                     ->orderBy($order)
                     ->having($whereAnd)
                     ->havingGroupStart()
@@ -109,11 +137,11 @@ class BaseModel extends Model
             $data->orHavingIn($key, $value);
         }
 
-        $data = $data->limit($limit, $offset)
-                    ->get()
-                    ->getResult();
+        $data->limit($limit, $offset);
 
-        return $data;
+        // var_dump($data->getCompiledSelect());
+
+        return $data->get()->getResult();
     }
 
     public function getDataWhere(array $whereAnd = [], array $whereOr = [], array $whereIn = [], array $orWhereIn = [], string $order = '', int $limit = 0, int $offset = 0)
@@ -122,7 +150,7 @@ class BaseModel extends Model
 
         // var_dump($whereAnd, $data);
         if ($data) {
-            return $data[0];
+            return $data[0];    
         } else {
             return [];
         }
@@ -153,21 +181,33 @@ class BaseModel extends Model
                 // var_dump($relation, $rel);
                 $model = false;
                 $table = $rel['table'];
+                $alias = $rel['alias'] ?? NULL;
+                $table_alias = $alias ?? $table;
                 if ($rel['model'] ?? false) {
                     $model = model($rel['model']);
                     $table = $model->getTableName();
                 }
 
-                $builder->select($this->addTableBefore($table, $rel['selects']));
+                $builder->select($this->addTableBefore($table_alias, $rel['selects']));
+                // var_dump($this->addTableBefore($table_alias, $rel['selects']));
+                // echo "<br/>";
                 $condition = [
-                    "$this->table.".$rel['foreign_key']."=".$table.".".($rel['local_key'] ?? 'id')
+                    "$this->table.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
                 ];
                 if ($rel['condition'] ?? false)
-                    $condition[] = $rel['condition'];
+                    $condition = array_merge($condition,
+                    $this->addTableBefore($table_alias, $rel['condition'])
+                );
 
-                $builder->join($table, implode(" AND ", $condition), $rel['type'] ?? 'inner');
+                $text_table = $alias ? "$table $alias" : $table;
+                // var_dump($condition, $text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
+                // var_dump(implode(" AND ", $condition), $text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
+                $builder->join($text_table, implode(" AND ", $condition), $rel['type'] ?? 'inner');
                 if ($rel['order'] ?? false) {
-                    $j_order = $this->addTableBefore($table, $rel['order']);
+                    if (!is_array($rel['order'])) {
+                        $j_order = explode(',', $rel['order']);
+                    }
+                    $j_order = $this->addTableBefore($table_alias, $rel['order']);
                     $j_order = implode(",", $j_order);
                     $builder->orderBy($j_order);
                 }
@@ -178,10 +218,12 @@ class BaseModel extends Model
             }
         }
 
+        // var_dump($builder->getCompiledSelect());
+        // exit;
         return $builder;
     }
-
-    public function addRelation($relations)
+    
+    public function addRelations($relations)
     {
         foreach ($relations as $key => $relation) {
             if ($this->relations[$key] ?? false){

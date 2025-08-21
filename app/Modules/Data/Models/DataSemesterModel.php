@@ -15,7 +15,13 @@ class DataSemesterModel extends BaseModel
 
     public function getOptions($where = [])
     {
-      return $this->getOptionsData($where, function($d) { return "Semester ".ucfirst($d->semester)." $d->tahun_ajaran"; });
+      return $this->getOptionsData($where, 
+        function($d) { return "Semester ".ucfirst($d->semester)." $d->tahun_ajaran"; },
+        function($option, $data) { 
+          $option->tanggal_mulai = $data->tanggal_mulai;
+          $option->tanggal_selesai = $data->tanggal_selesai;
+          return $option; 
+        });
     }
 
     public function get_semester_now()

@@ -13,7 +13,7 @@ class MapelPembagianModel extends BaseModel
 
         $this->table = 'sch_aka_pembagian_mapel';
         $this->relations = [
-            [
+            'id_semester' => [
                 'foreign_key' => 'id_semester',
                 'table' => 'sch__semester',
                 'selects' => [
@@ -22,22 +22,22 @@ class MapelPembagianModel extends BaseModel
                     "CONCAT('Semester ', {f}.semester, ' ',{f}.tahun_ajaran) semester_keterangan",
                 ]
             ],
-            [
+            'id_guru' => [
                 'foreign_key' => 'id_guru',
                 'table' => 'sch__guru',
                 'selects' => [
                     "nama nama_guru",
-                    "TRIM(CONCAT(COALESCE({f}.prefix,''), ' ',{f}.nama, ', ',COALESCE({f}.suffix,''))) nama_guru_lengkap",
+                    "TRIM(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,''))) nama_guru_lengkap",
                 ]
             ],
-            [
+            'id_kelas' => [
                 'foreign_key' => 'id_kelas',
                 'table' => 'sch__kelas',
                 'selects' => [
                     'kelas',
                 ]
             ],
-            [
+            'id_mapel' => [
                 'foreign_key' => 'id_mapel',
                 'table' => 'sch_aka_mapel',
                 'selects' => [

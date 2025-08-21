@@ -85,6 +85,7 @@ $routes->group('data', [
         $routes->add('delete/(:any)', [SemesterController::class, 'delete/$1']);
         $routes->add('delete_many', [SemesterController::class, 'delete_many']);
         $routes->add('options', [SemesterController::class, 'options']);
+        $routes->add('semester_now', [SemesterController::class, 'semester_now']);
     });
 
     //----------------------------------Data Kamar-------------------------------------
