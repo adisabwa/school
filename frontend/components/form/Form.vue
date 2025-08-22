@@ -5,7 +5,7 @@
 </style>
 <template>
 	<div class="">
-    <el-form :label-width="labelWidth" :label-position="labelPosition" v-loading="saving" :inline="inline"
+    <el-form :label-width="showLabel ? labelWidth : 0" :label-position="labelPosition" v-loading="saving" :inline="inline"
       :class="[gridClass,formClass]">
     <slot name="before" :errors="errors" :form="form" :fields="fieldsData"></slot>
       <template  v-for="(field, ind) in fieldsData">

@@ -158,7 +158,7 @@ let listFunction = {
     },
     saveToStorage(index, value){
       let old_data = this.getDataFormStorage(index) ?? []
-      localStorage.setItem(index,JSON.stringify([...new Set([...old_data, ...[value]])]))
+      localStorage.setItem(index,JSON.stringify([...new Set([...[value], ...old_data])]))
       // console.log('save',index,this.getDataFormStorage(index))
     },
     removeFromStorage(index, value){
@@ -168,10 +168,12 @@ let listFunction = {
       // console.log('remove',this.getDataFormStorage(index))
     },
     resetStorage(index){
-      return localStorage.setItem(index, null)
+      localStorage.removeItem(index)
+      // console.log('reset',this.getDataFormStorage(index))
     },
     getDataFormStorage(index){
       let data = localStorage.getItem(index)
+      // console.log('get-local', index, data)
       if (data)
         return JSON.parse(data)
       else

@@ -1,11 +1,49 @@
 <template>
     <div id="nilai" class="py-2">
-      <el-card class="bg-white/[0.7]">
+      <div :class="[scrollY > 286 ? 'opacity-100' : 'opacity-0 w-0 h-0',
+        'animate fixed top-[50px] flex z-[9999] right-11 bg-white/[0.7]']">
+        <div class="text-right md:block hidden">
+          <el-button size="default" type="success" @click="downloadDinas">
+            <icons icon="ri:file-excel-2-fill" /> Template Dinas
+          </el-button>
+          <el-button size="default" type="primary" @click="promptDinas = true">
+            <icons icon="ic:twotone-create" /> Generate Raport Dinas
+          </el-button>
+          <el-divider direction="vertical" />
+          <el-button size="default" type="success" @click="saveScore">
+            <icons icon="fluent:save-20-filled" /> Simpan
+          </el-button>
+        </div>
+        <el-dropdown
+          trigger="click"
+          class="md:hidden block text-right">
+          <el-button class="" type="success" size="small">
+            Aksi <icons icon="mdi:arrow-down" class="m-0 ml-2"/>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="downloadDinas">
+                <icons icon="ri:file-excel-2-fill" /> Template Dinas
+              </el-dropdown-item>
+              <el-dropdown-item @click="promptDinas = true">
+                <icons icon="ic:twotone-create" /> Generate Raport Dinas
+              </el-dropdown-item>
+              <el-dropdown-item @click="saveScore">
+                <icons icon="fluent:save-20-filled" /> Simpan
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
+    <!-- <diV></diV> -->
+      <el-card class="bg-white/[0.7] mb-2">
         <form-comp ref="formFilter"
           :key="formKey"
           :fields="filterFields"
-          :label-position="labelPosition"
-          class="mt-2 "
+          label-position="left"
+          :show-label="showLabel"
+          class="max-sm:mt-4"
+          form-class="m-0"
           label-width="150px"
           v-model:form-value="filter"
           :pass-columns="[]"
@@ -15,94 +53,118 @@
           :show-required-text="false"
           >
         </form-comp>
+      </el-card>
+      <el-card class="bg-white/[0.7]"
+        body-class="p-3">
+        <div :class="[scrollY > 286 ? 'opacity-0' : 'opacity-100'],
+          'animate'">
+          <div class="text-right md:block hidden">
+            <el-button size="default" type="success" @click="downloadDinas">
+              <icons icon="ri:file-excel-2-fill" /> Template Dinas
+            </el-button>
+            <el-button size="default" type="primary" @click="promptDinas = true">
+              <icons icon="ic:twotone-create" /> Generate Raport Dinas
+            </el-button>
+            <el-divider direction="vertical" />
+            <el-button size="default" type="success" @click="saveScore">
+              <icons icon="fluent:save-20-filled" /> Simpan
+            </el-button>
+          </div>
+          <el-dropdown
+            trigger="click"
+            class="md:hidden block text-right">
+            <el-button class="" type="success" size="small">
+              Aksi <icons icon="mdi:arrow-down" class="m-0 ml-2"/>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="downloadDinas">
+                  <icons icon="ri:file-excel-2-fill" /> Template Dinas
+                </el-dropdown-item>
+                <el-dropdown-item @click="promptDinas = true">
+                  <icons icon="ic:twotone-create" /> Generate Raport Dinas
+                </el-dropdown-item>
+                <el-dropdown-item @click="saveScore">
+                  <icons icon="fluent:save-20-filled" /> Simpan
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
         <teleport to="body">
-          <div :class="[scrollY > 286 ? 'opacity-100' : 'opacity-0',
-            'animate fixed top-[50px] flex z-[9999] right-11 bg-white/[0.7]']">
-            <div class="py-2 px-4">
-              <el-button size="default" type="success" @click="downloadDinas">
-                <icons icon="ri:file-excel-2-fill" /> Template Dinas
-              </el-button>
-              <el-button size="default" type="primary" @click="promptDinas = true">
-                <icons icon="ic:twotone-create" /> Generate Raport Dinas
-              </el-button>
-              <el-divider direction="vertical" />
-              <el-button size="default" type="success" @click="saveScore">
-                <icons icon="fluent:save-20-filled" /> Simpan
-              </el-button>
-            </div>
-          </div>
-        </teleport>
-        <el-card class="">
-          <div :class="[scrollY > 286 ? 'opacity-0' : 'opacity-100'],
-            'animate'">
-            <div class="text-right">
-              <el-button size="default" type="success" @click="downloadDinas">
-                <icons icon="ri:file-excel-2-fill" /> Template Dinas
-              </el-button>
-              <el-button size="default" type="primary" @click="promptDinas = true">
-                <icons icon="ic:twotone-create" /> Generate Raport Dinas
-              </el-button>
-              <el-divider direction="vertical" />
-              <el-button size="default" type="success" @click="saveScore">
-                <icons icon="fluent:save-20-filled" /> Simpan
-              </el-button>
-            </div>
-          </div>
-          <teleport to="body">
-            <el-dialog  
-              v-model="promptDinas"
-              class="p-7 w-[400px]"
-              :close-on-click-modal="true">
-              <template #header>
-                <b>Setting Raport Dinas</b>
-              </template>
-              <b>Masukkan nilai minimal dan nilai maksimal terlebih dahulu</b>
-              <div class="flex gap-4 mt-4">
-                <div class="flex flex-col">
-                  <label class="font-semibold mb-1">Nilai Minimal</label>
-                  <el-input size="large" v-model="nilaiMin"
-                    placeholder="Nilai Terkecil" />
-                </div>
-                <div class="flex flex-col">
-                  <label class="font-semibold mb-1">Nilai Maksimal</label>
-                  <el-input size="large" v-model="nilaiMax"
-                    placeholder="Nilai Terbesar" />
-                </div>
+          <el-dialog  
+            v-model="promptDinas"
+            class="p-7 w-[400px]"
+            :close-on-click-modal="true">
+            <template #header>
+              <b>Setting Raport Dinas</b>
+            </template>
+            <b>Masukkan nilai minimal dan nilai maksimal terlebih dahulu</b>
+            <div class="flex gap-4 mt-4">
+              <div class="flex flex-col">
+                <label class="font-semibold mb-1">Nilai Minimal</label>
+                <el-input size="large" v-model="nilaiMin"
+                  placeholder="Nilai Terkecil" />
               </div>
-              <template #footer>
-                <el-button @click="promptDinas = false">Batal</el-button>
-                <el-button 
-                  type="success" 
-                  @click="generateDinas()" :icon="saving ? 'el-icon-loading' : ''" 
-                  :disabled="saving">Generate</el-button>
-              </template>
-            </el-dialog>
-          </teleport>
-          <table class="table  mt-3">
-            <thead>
+              <div class="flex flex-col">
+                <label class="font-semibold mb-1">Nilai Maksimal</label>
+                <el-input size="large" v-model="nilaiMax"
+                  placeholder="Nilai Terbesar" />
+              </div>
+            </div>
+            <template #footer>
+              <el-button @click="promptDinas = false">Batal</el-button>
+              <el-button 
+                type="success" 
+                @click="generateDinas()" :icon="saving ? 'el-icon-loading' : ''" 
+                :disabled="saving">Generate</el-button>
+            </template>
+          </el-dialog>
+        </teleport>
+        <div class="overflow-scroll bg-white">
+          <table id="table-freeze" class="table mt-1 md:text-[14px] text-[12px] leading-[1.5]">
+            <thead >
               <tr>
                 <th rowspan="2" width="20px">No</th>
                 <th rowspan="2">Nama</th>
-                <th rowspan="2" width="80px" class="text-center">Nilai Harian</th>
-                <th rowspan="2" width="80px" class="text-center">UTS</th>
-                <th rowspan="2" width="80px" class="text-center">UAS</th>
-                <th rowspan="2" width="80px" class="text-center">Raport</th>
-                <th colspan="2" class="text-center">Nilai Raport Dinas</th>
+                <th rowspan="2" class="text-center">Nilai Harian</th>
+                <th rowspan="2" class="text-center">UTS</th>
+                <th rowspan="2" class="text-center">UAS</th>
+                <th rowspan="2" class="text-center">Raport</th>
+                <th colspan="2" class="text-center">Raport Dinas</th>
               </tr>
               <tr>
-                <th width="80px" class="text-center">Nilai 1</th>
-                <th width="80px" class="text-center">Nilai 2</th>
+                <th class="text-center" nowrap>Nilai 1</th>
+                <th class="text-center" nowrap>Nilai 2</th>
+              </tr>
+            </thead>
+          </table>
+          <table id="table-base" class="table mt-1 md:text-[14px] text-[12px] leading-[1.5] w-[90%]">
+            <thead >
+              <tr>
+                <th rowspan="2" width="20px">No</th>
+                <th rowspan="2">Nama</th>
+                <th rowspan="2" class="text-center">Nilai Harian</th>
+                <th rowspan="2" class="text-center">UTS</th>
+                <th rowspan="2" class="text-center">UAS</th>
+                <th rowspan="2" class="text-center">Raport</th>
+                <th colspan="2" class="text-center">Raport Dinas</th>
+              </tr>
+              <tr>
+                <th class="text-center" nowrap>Nilai 1</th>
+                <th class="text-center" nowrap>Nilai 2</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(data, key) in dataNilai">
                 <td>{{ key + 1 }}</td>
                 <td>{{ data.nama }}</td>
-                <td v-for="ujian in ['nilai_harian','uts','uas']">
+                <td v-for="ujian in ['nilai_harian','uts','uas']" class="text-center">
                   <el-input v-model="data.nilai[ujian]" size="large"
+                    @focus="(event) => { console.log(event) }"
                     @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 0, 100)
                       countRapor(key);"
-                    class="w-full" />
+                    class="w-[60px]" />
                 </td>
                 <td class="text-center">{{ data.nilai.nilai_rapor }}</td>
                 <td class="text-center">{{ data.nilai.katrol1 }}</td>
@@ -110,7 +172,7 @@
               </tr>
             </tbody>
           </table>
-        </el-card>
+        </div>
       </el-card>
     </div>
 </template>
@@ -207,8 +269,8 @@
       ...mapState(useDataStore, {
         storeFilters: 'filters',
       }),
-      labelPosition(){
-        return this.$windowWidth < 800 ? 'top' : 'left'
+      showLabel(){
+        return this.$windowWidth > 800
       },
     },
     methods: {
@@ -315,6 +377,9 @@
               position: 'bottom-right'
             });
           })
+      },
+      getFreezeHeader(){
+        
       }
     },
     created: function() {
