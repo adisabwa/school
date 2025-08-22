@@ -43,18 +43,6 @@ let routes = [
               leaveToClass : "translate-x-full opacity-0",
             }
           },
-          {
-            path: 'activity',
-            name: 'activity', 
-            component: () => import('@/pages/Activity.vue'),
-            meta: {
-              requiresAuth: true,
-              enterFromClass : "-translate-y-full opacity-0",
-              enterToClass : "opacity-50",
-              leaveFromClass : "opacity-50",
-              leaveToClass : "translate-y-full opacity-0",
-            }
-          },
         ]
       },
     ],
