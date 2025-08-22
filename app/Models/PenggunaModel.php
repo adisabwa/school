@@ -64,16 +64,7 @@ class PenggunaModel extends BaseModel
         return $data;
     }
   
-    
-    public function getAll(
-        array $whereAnd = [], 
-        array $whereOr = [], 
-        array $whereIn = [], 
-        array $orWhereIn = [], 
-        string $order = '', 
-        int $limit = 0, 
-        int $offset = 0,  
-        $relations = NULL)
+    public function getAll(array $whereAnd = [], array $whereOr = [], array $whereIn = [], array $orWhereIn = [], string $order = '', int $limit = 0, int $offset = 0, $relations = [])
     {
       $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
 

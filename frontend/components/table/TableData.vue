@@ -4,9 +4,9 @@
       class="flex flex-col sm:flex-row mb-3 gap-4
       mt-7 sm:mt-2">
       <div v-if="showCreate" class="w-full
-        grid grid-cols-2 [&_*]:m-0
+        grid grid-cols-2 max-sm:[&_button]:m-0
         gap-x-3 gap-y-2
-        sm:block sm:[&_*]:mr-3">
+        sm:block">
         <slot name="before-menu" :action="handleActionClick"></slot>
         <el-button class="py-[15px]" type="primary" size="small" v-if="upload" @click="showUpload = true">
           <icons icon="mdi:upload"/>
@@ -34,9 +34,13 @@
         <el-input placeholder="Cari..." class="min-w-[200px] rounded-full" size="default" type="search" @input="isTyping=true" v-model="searchKeyword" />
       </div>
     </div>
-    <el-card class="bg-white/[0.7]">
+    <el-card class="bg-white/[0.7]"
+      body-class="px-2 py-1 pb-3 sm:px-3">
       <loading v-if="loading" />
       <el-table
+        class="max-sm:[&_.cell]:text-[12px]
+          max-sm:[&_.el-table\_\_cell]:p-[5px]
+          max-sm:[&_.cell]:p-0"
         v-else
         :data="datasFilter.slice(paging.offset, paging.offset + paging.perPage)"
           :header-cell-style="{ verticalAlign: headerVerticalAlign }"
@@ -58,7 +62,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="60" label="No" align="center">
+          :width="$windowWidth > 600 ? 60 : 40" label="No" align="center">
           <template #default="scope">
             {{ scope.$index + 1 + paging.offset }}
           </template>
@@ -75,15 +79,15 @@
                   'font-weight': (order[0] == field.nama_kolom ? '900' : ''),
                 }">
                 <template v-if="field.sortable == '1'">
-                  <icons v-if="field.sort == 'asc'" icon="bx:sort-down" class="mr-2 h-[20px] shrink-0"/>
-                  <icons v-else-if="field.sort == 'desc'" icon="bx:sort-up" class="mr-2 h-[20px] shrink-0"/>
-                  <icons v-else icon="bx:sort" class="mr-2 h-[20px] shrink-0"/>
+                  <icons :icon="field.sort == 'asc' ? 'bx:sort-down' :
+                    (field.sort == 'desc' ? 'bx:sort-up' : 'bx:sort')"
+                    class="mr-1 h-[20px] shrink-0"/>
                 </template>
                 <div>{{ field.label }}</div>
               </div>
             </template>
             <template #default="scope">
-              <div v-if="!field.hide_content" class="ml-[23px]">
+              <div v-if="!field.hide_content" :class="field.sortable == '1' ? 'ml-[16px]' : 'ml-0'">
                 {{ runFunction({
                   func: field.function, 
                   data: isEmpty(field.view_kolom) ? scope.row[field.nama_kolom] : scope.row[field.view_kolom], 
@@ -97,21 +101,21 @@
         </template>
         <slot></slot>
         <el-table-column v-if="showDropdown"
-          width="120">
+          width="100" align="center">
           <template #default="scope">
-            <el-dropdown trigger="click" @command="handleActionClick">
-              <el-button type="primary" size="small"> 
-                Aksi <icons icon="fe:arrow-down" class="el-icon--right" />
+            <el-dropdown trigger="click" @command="handleActionClick" class="max-sm:[&_*]:text-[11px]">
+              <el-button type="primary" size="small" > 
+                Aksi <icons icon="fe:arrow-down" class="el-icon--right text-[11px] m-0 ml-1" />
               </el-button>
               <template #dropdown>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item 
+                <el-dropdown-menu slot="dropdown" class="max-sm:[&_*]:text-[12px]">
+                  <el-dropdown-item class="py-[2px]"
                     :command="{action: 'view', id: scope.row.id}">
                     <icons icon="lsicon:view-filled"/> Lihat Detail</el-dropdown-item>
-                  <el-dropdown-item 
+                  <el-dropdown-item class="py-[2px]"
                     :command="{action: 'edit', id: scope.row.id}">
                     <icons icon="material-symbols:edit-outline"/> Ubah</el-dropdown-item>
-                  <el-dropdown-item 
+                  <el-dropdown-item class="py-[2px]"
                     :command="{action: 'delete', id: scope.row.id}">
                     <icons icon="material-symbols:delete-outline"/> Hapus</el-dropdown-item>
                 </el-dropdown-menu>
@@ -124,8 +128,19 @@
         Diurutkan berdasarkan : <br/>
         <span class="font-semibold">{{ orderText }}</span>
       </div>
-      <el-row type="flex" justify="space-between" style="margin-top: 15px" v-if="paging.dataTotal > paging.perPage">
-        <el-select v-model="paging.perPage" placeholder="Select" style="width:70px;">
+      <el-row type="flex" justify="space-between" class="mt-3 gap-y-2" v-if="paging.dataTotal > paging.perPage">
+        <el-pagination
+          background
+          pager-count="3"
+          size="small"
+          layout="prev, pager, next, total"
+          :total="paging.dataTotal"
+          v-model:page-size="paging.perPage"
+          v-model:current-page="paging.currentPage">
+        </el-pagination>
+        <el-select v-model="paging.perPage" placeholder="Select"
+          class="w-[60px]"
+          size="small">
           <el-option
             v-for="(item,key) in page"
             :key="key"
@@ -133,13 +148,6 @@
             :value="item">
           </el-option>
         </el-select>
-        <el-pagination
-          background
-          layout="total, prev, pager, next"
-          :total="paging.dataTotal"
-          v-model:page-size="paging.perPage"
-          v-model:current-page="paging.currentPage">
-        </el-pagination>
       </el-row>
     </el-card>
 

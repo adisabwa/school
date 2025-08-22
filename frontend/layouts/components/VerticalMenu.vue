@@ -2,27 +2,28 @@
   <div class="">
     <div class="z-[99] h-[40px]">
       <div class="absolute sm:fixed z-[10] top-0 overflow-visible w-full max-w-[100vw] h-[30px]"> 
-        <div class="relative">
+        <div class="relative overflow-hidden w-full h-[70px]">
           <el-header class="bg-orange-300 h-[40px] w-full relative"></el-header>
           <div id="top" class="add-play bg-cover bg-bottom
             h-[70px] w-[1400px] absolute z-[51] top-[1px]
-            translate-x-[calc(50vw-50%)] sm:-translate-x-[calc(590px)]"
+            translate-x-[calc(50vw-50%)] sm:-translate-x-[calc(590px)]
+            translate-y-[-5px]"
               :style="`background-image:url('${$baseUrl}assets/images/top.png')`"></div>
         </div>
         <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'" height="80px" 
           @click="$router.push({name:defaultRoute})"
           class="pointer animate hover:scale-[0.8]
-          absolute z-[53] top-[5px]
+          absolute z-[53] top-0
           mt-2
           translate-x-[calc(50vw-50%)]
           sm:-translate-x-[calc(50%-110px)]"/>
       </div>
     </div>
-    <div id="menu-vertical" class="h-screen w-[--width-menu]
+    <div id="menu-vertical" class="h-screen w-[90%] sm:w-[--width-menu]
       animate
       -translate-x-full sm:translate-x-0
       fixed left-0 top-0
-      z-[50] sm:z-[1]
+      z-[2] sm:z-[1]
       flex flex-col justify-between
       bg-teal-700">
       <div class="absolute w-full h-full z-[-1]
@@ -129,6 +130,12 @@
         </div>
       </div>
     </div>
+    <div class="bg-white rounded-full w-[60px] h-[60px] opacity-50 hover:opacity-80
+      fixed z-[99999] bottom-5 right-5 flex items-center justify-center"
+      @click="handleSelect">
+      <icons icon="mdi:menu" class="text-4xl m-0 text-emerald-900
+        " />
+    </div>
   </div>
 </template>
 
@@ -177,7 +184,7 @@ export default {
       this.$emit('action', val)
     },
     handleSelect: function(action) {
-      this.addClass('.el-menu-vertical-demo','-translate-x-full sm:translate-x-0');
+      this.toggleClass('#menu-vertical','-translate-x-full sm:translate-x-0');
     },
   },
   updated: function() {

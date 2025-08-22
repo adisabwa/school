@@ -164,7 +164,7 @@ export default {
       pageSubTitle: 'pageSubTitle',
     }),
     MenuComponent(){
-      return this.isVertical == '1' ? VerticalMenu : HorizontalMenu
+      return this.isVertical == '1' || this.$windowWidth <= 600 ? VerticalMenu : HorizontalMenu
     },
   },
   methods: {

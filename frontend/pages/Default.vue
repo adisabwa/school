@@ -1,13 +1,13 @@
 
 <template>
 	<div class="[--color-border:theme(colors.cyan.400)]">
-		<div class="pt-32 bg-white/[0.8] mx-auto w-[80vw] md:w-[1000px] min-h-[calc(100vh-200px)]">
-      <div class="relative h-auto w-full pt-10 pb-20
+		<div class="md:pt-32 pt-[80px] bg-white/[0.8] mx-auto w-[90vw] md:w-[1000px] min-h-[calc(100vh-200px)]">
+      <div class="relative h-auto w-full pt-3 pb-10
         bg-scroll bg-repeat bg-top">
-        <div class="max-w-[80%] mx-auto
-          text-3xl text-center font-bold text-cyan-800">Sistem Informasi PPM Darul Arqam</div>
+        <div class="max-w-[80%] mx-auto leading-[1.2]
+          text-2xl text-center font-bold text-cyan-800">Sistem Informasi PPM Darul Arqam</div>
         <div v-if="!user.email"
-          class="text-center mt-8 *:w-[250px]
+          class="text-center mt-6 *:w-[250px]
             flex flex-col gap-3 items-center">
           <GoogleLogin :callback="doGLogin" prompt
             class="w-full" />
@@ -18,31 +18,33 @@
           </div> -->
         </div>
         <template v-else>
-          <div class="max-w-[80%] mx-auto relative
-            text-2xl text-center font-bold text-cyan-800 mt-5 mb-5">
-            Assalamualaikum, {{ user.nama }}
-            <div class="absolute right-0 top-0 text-[17px]
+          <div class="max-w-[80%] mx-auto relative leading-[1.3]
+            text-xl text-center font-bold text-cyan-800 mt-3 mb-5">
+            Assalamualaikum, <br/>{{ user.nama }}
+            <div class="text-[15px] w-fit mx-auto mt-1
+              md:absolute md:top-0 md:right-0
               flex items-center cursor-pointer
-              text-white bg-cyan-700 px-4 font-semibold"
+              text-white bg-cyan-700 px-4 py-1 font-semibold"
                 @click="doLogout">
               <icons class="text-[17px]" icon="mdi:logout"/>
               Keluar
             </div>
           </div>
-          <div class="max-w-[80%] mx-auto mt-6">
+          <div class="max-w-[90%] mx-auto mt-3">
             <el-input v-model="keyword" placeholder="Cari Aplikasi" 
-              class="w-full *:text-[16px]"
+              class="w-full *:text-[14px] *:px-1"
               :input-style="{
-                padding:'20px 5px',
+                padding:'10px 3px',
               }">
               <template #prefix>
                 <icons icon="mdi:search"
-                  class="text-[25px] px-1" />
+                  class="text-[25px] px-1 m-0" />
               </template>
             </el-input>
           </div>
-          <div class="grid grid-cols-[repeat(auto-fit,_minmax(100px,_150px))] gap-[calc(50px)] justify-center
-            max-w-[80%] mx-auto mt-10">
+          <div class="grid grid-cols-[repeat(auto-fit,_minmax(60px,_60px))] md:grid-cols-[repeat(auto-fit,_minmax(100px,_100px))]
+            gap-[calc(30px)] gap-y-[65px] justify-center
+            max-w-[90%] mx-auto mt-5">
             <template v-for="(menu, ind) in topMenuFilter">
               <div class="grid-item group/menu
               [--duration:0.5s]">
@@ -60,21 +62,21 @@
                     maskSize:'contain',
                     maskRepeat:'no-repeat',
                     backgroundImage:`url(${menu.image})`}">
-                    <icons class="text-[#f3b76f] text-[100px]" :icon="menu.icon" />
-                    <div class="absolute w-[90px] h-[200%] rotate-[-25deg] top-[-50%]
+                    <icons class="text-[#f3b76f] md:text-[90px] text-[60px]" :icon="menu.icon" />
+                    <div class="absolute w-[100%] h-[200%] rotate-[-25deg] top-[-50%]
                       bg-gradient-to-r from-transparent via-white/[0.5] to-transparent
-                      animate-[fly-in-absolute_5s_infinite_ease-in-out] [--from-left:-70%] [--left:350%] "
+                      animate-[fly-in-absolute_5s_infinite_ease-in-out] [--from-left:-100%] [--left:350%] "
                       :style="{animationDelay: ind + 's !important'}"/>
                   </div>
                 </div>
                 <div class="animate
-                  p-2 rounded-[10px]
+                  absolute left-1/2 -translate-x-1/2
+                  md:font-bold md:px-3 py-1 px-2 rounded-[5px]
                   bg-gradient-to-l from-[var(--color-form)] from-[50%] to-[var(--color-to)] to-[50%]
                   bg-[length:200%_200%] bg-right-bottom 
                   group-hover/menu:bg-left-top
-                  text-center mt-3 text-md text-[var(--color-text)]
-                  group-hover/menu:text-white
-                  font-bold"
+                  text-center mt-3 md:text-[15px] text-[13px] text-[var(--color-text)] leading-[1.2]
+                  group-hover/menu:text-white"
                   :style="{
                     '--color-form':getColor(menu.color),
                     '--color-to':getColor(menu.darkColor),
