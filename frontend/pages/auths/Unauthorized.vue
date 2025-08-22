@@ -4,8 +4,8 @@
 			<icons icon="solar:danger-bold" class="text-yellow-500 text-[100px] mb-4" />
 			<div class="text-3xl font-bold mb-2">Unauthorized Access</div>
 			<div class="text-gray-700 mb-7">You do not have permission to view this page.</div>
-			<el-button @click="$router.go(-1)" size="large" type="primary">
-				<icons icon="mdi:arrow-left"/>Go Back
+			<el-button @click="$router.push({name:'default'})" size="large" type="primary">
+				<icons icon="mdi:arrow-left"/>Home
 			</el-button>
 		</div>
 	</div>

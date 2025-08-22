@@ -55,6 +55,52 @@ const clickExcludeIdDirective = {
   }
 };
 
+function getScrollableParent(element) {
+  let parent = element.parentElement;
+
+  while (parent) {
+    const style = getComputedStyle(parent);
+    const overflowY = style.overflowY;
+    const isScrollable = /(auto|scroll)/.test(overflowY);
+
+    if (isScrollable && parent.scrollHeight > parent.clientHeight) {
+      return parent;
+    }
+
+    parent = parent.parentElement;
+  }
+
+  // fallback to window if no scrollable parent found
+  return window;
+}
+
+const fixedToPosition = {
+  beforeMount(el, binding) {
+    const distance = binding.value
+    const scrollParent = getScrollableParent(el);
+    let jqEl = jquery(el)
+    function setTop(){
+      // console.log('run', jqEl, window.scrollY, distance)
+      jqEl.css({
+        top: window.scrollY + distance,
+      })
+    }
+    // console.log('fixed', el, el.getBoundingClientRect(), scrollParent)
+    el.__fixedToPositionHandler__ = (event) => {
+      setTop()
+    }
+
+    setTop()
+    
+    scrollParent.addEventListener('scroll', el.__fixedToPositionHandler__, { passive: true })
+    // window.addEventListener('load', el.__fixedToPositionHandler__)
+  },
+  unmounted(el) {
+    const scrollParent = getScrollableParent(el);
+    scrollParent.removeEventListener('scroll', el.__fixedToPositionHandler__)
+    delete el.__fixedToPositionHandler__
+  }
+};
 // vue-drag-scroll.js
 const dragScroll = {
     mounted(el) {
@@ -240,6 +286,7 @@ const dragScroll = {
       app.directive('click-outside', clickOutsideDirective);
       app.directive('click-exclude-id', clickExcludeIdDirective);
       app.directive('drag-scroll', dragScroll);
+      app.directive('fixed-to-position',fixedToPosition)
       // Add more directives here if needed
     }
   };

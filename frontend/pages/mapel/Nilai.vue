@@ -1,41 +1,5 @@
 <template>
     <div id="nilai" class="py-2">
-      <div :class="[scrollY > 286 ? 'opacity-100' : 'opacity-0 w-0 h-0',
-        'animate fixed top-[50px] flex z-[9999] right-11 bg-white/[0.7]']">
-        <div class="text-right md:block hidden">
-          <el-button size="default" type="success" @click="downloadDinas">
-            <icons icon="ri:file-excel-2-fill" /> Template Dinas
-          </el-button>
-          <el-button size="default" type="primary" @click="promptDinas = true">
-            <icons icon="ic:twotone-create" /> Generate Raport Dinas
-          </el-button>
-          <el-divider direction="vertical" />
-          <el-button size="default" type="success" @click="saveScore">
-            <icons icon="fluent:save-20-filled" /> Simpan
-          </el-button>
-        </div>
-        <el-dropdown
-          trigger="click"
-          class="md:hidden block text-right">
-          <el-button class="" type="success" size="small">
-            Aksi <icons icon="mdi:arrow-down" class="m-0 ml-2"/>
-          </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item @click="downloadDinas">
-                <icons icon="ri:file-excel-2-fill" /> Template Dinas
-              </el-dropdown-item>
-              <el-dropdown-item @click="promptDinas = true">
-                <icons icon="ic:twotone-create" /> Generate Raport Dinas
-              </el-dropdown-item>
-              <el-dropdown-item @click="saveScore">
-                <icons icon="fluent:save-20-filled" /> Simpan
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </div>
-    <!-- <diV></diV> -->
       <el-card class="bg-white/[0.7] mb-2">
         <form-comp ref="formFilter"
           :key="formKey"
@@ -55,9 +19,9 @@
         </form-comp>
       </el-card>
       <el-card class="bg-white/[0.7]"
-        body-class="p-3">
-        <div :class="[scrollY > 286 ? 'opacity-0' : 'opacity-100'],
-          'animate'">
+        body-class="p-0">
+        <div :class="[scrollY > 286 ? 'opacity-0' : 'opacity-100',
+          'animate px-3 pt-3 pb-2']">
           <div class="text-right md:block hidden">
             <el-button size="default" type="success" @click="downloadDinas">
               <icons icon="ri:file-excel-2-fill" /> Template Dinas
@@ -121,57 +85,100 @@
             </template>
           </el-dialog>
         </teleport>
-        <div class="overflow-scroll bg-white">
-          <table id="table-freeze" class="table mt-1 md:text-[14px] text-[12px] leading-[1.5]">
-            <thead >
-              <tr>
-                <th rowspan="2" width="20px">No</th>
-                <th rowspan="2">Nama</th>
-                <th rowspan="2" class="text-center">Nilai Harian</th>
-                <th rowspan="2" class="text-center">UTS</th>
-                <th rowspan="2" class="text-center">UAS</th>
-                <th rowspan="2" class="text-center">Raport</th>
-                <th colspan="2" class="text-center">Raport Dinas</th>
-              </tr>
-              <tr>
-                <th class="text-center" nowrap>Nilai 1</th>
-                <th class="text-center" nowrap>Nilai 2</th>
-              </tr>
-            </thead>
-          </table>
-          <table id="table-base" class="table mt-1 md:text-[14px] text-[12px] leading-[1.5] w-[90%]">
-            <thead >
-              <tr>
-                <th rowspan="2" width="20px">No</th>
-                <th rowspan="2">Nama</th>
-                <th rowspan="2" class="text-center">Nilai Harian</th>
-                <th rowspan="2" class="text-center">UTS</th>
-                <th rowspan="2" class="text-center">UAS</th>
-                <th rowspan="2" class="text-center">Raport</th>
-                <th colspan="2" class="text-center">Raport Dinas</th>
-              </tr>
-              <tr>
-                <th class="text-center" nowrap>Nilai 1</th>
-                <th class="text-center" nowrap>Nilai 2</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(data, key) in dataNilai">
-                <td>{{ key + 1 }}</td>
-                <td>{{ data.nama }}</td>
-                <td v-for="ujian in ['nilai_harian','uts','uas']" class="text-center">
-                  <el-input v-model="data.nilai[ujian]" size="large"
-                    @focus="(event) => { console.log(event) }"
-                    @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 0, 100)
-                      countRapor(key);"
-                    class="w-[60px]" />
-                </td>
-                <td class="text-center">{{ data.nilai.nilai_rapor }}</td>
-                <td class="text-center">{{ data.nilai.katrol1 }}</td>
-                <td class="text-center">{{ data.nilai.katrol2 }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="relative bg-white">
+          <div :class="[scrollY > 286 ? 'opacity-100' : 'opacity-0',
+            'animate fixed right-0 z-[9999] bg-white/[0.7] h-fit',
+            'px-3 pt-3 pb-2']"
+            v-fixed-to-position="50">
+            <div class="text-right md:block hidden">
+              <el-button size="default" type="success" @click="downloadDinas">
+                <icons icon="ri:file-excel-2-fill" /> Template Dinas
+              </el-button>
+              <el-button size="default" type="primary" @click="promptDinas = true">
+                <icons icon="ic:twotone-create" /> Generate Raport Dinas
+              </el-button>
+              <el-divider direction="vertical" />
+              <el-button size="default" type="success" @click="saveScore">
+                <icons icon="fluent:save-20-filled" /> Simpan
+              </el-button>
+            </div>
+            <el-dropdown
+              trigger="click"
+              class="md:hidden block text-right">
+              <el-button class="" type="success" size="small">
+                Aksi <icons icon="mdi:arrow-down" class="m-0 ml-2"/>
+              </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="downloadDinas">
+                    <icons icon="ri:file-excel-2-fill" /> Template Dinas
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="promptDinas = true">
+                    <icons icon="ic:twotone-create" /> Generate Raport Dinas
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="saveScore">
+                    <icons icon="fluent:save-20-filled" /> Simpan
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
+          <div class="mx-3 overflow-x-hidden w-full h-full">
+            <table id="table-freeze" :class="[scrollY > 286 ? 'opacity-100' : 'opacity-0',
+              `table animate absolute z-[99999] mt-1 md:text-[14px] text-[12px] leading-[1.5]`]"
+              v-fixed-to-position="-286">
+              <thead class="bg-slate-100 [&_*]:border [&_*]:border-solid [&_*]:border-slate-300">
+                <tr>
+                  <th rowspan="2" width="20px">No</th>
+                  <th rowspan="2">Nama</th>
+                  <th rowspan="2" class="text-center">Nilai Harian</th>
+                  <th rowspan="2" class="text-center">UTS</th>
+                  <th rowspan="2" class="text-center">UAS</th>
+                  <th rowspan="2" class="text-center">Raport</th>
+                  <th colspan="2" class="text-center">Raport Dinas</th>
+                </tr>
+                <tr>
+                  <th class="text-center" nowrap>Nilai 1</th>
+                  <th class="text-center" nowrap>Nilai 2</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+          <div class="mx-3 overflow-x-auto">
+            <table id="table-base" class=" table mt-1 md:text-[14px] text-[12px] leading-[1.5]">
+              <thead class="bg-slate-100 [&_*]:border [&_*]:border-solid [&_*]:border-slate-300">
+                <tr>
+                  <th rowspan="2" width="20px">No</th>
+                  <th rowspan="2">Nama</th>
+                  <th rowspan="2" class="text-center">Nilai Harian</th>
+                  <th rowspan="2" class="text-center">UTS</th>
+                  <th rowspan="2" class="text-center">UAS</th>
+                  <th rowspan="2" class="text-center">Raport</th>
+                  <th colspan="2" class="text-center">Raport Dinas</th>
+                </tr>
+                <tr>
+                  <th class="text-center" nowrap>Nilai 1</th>
+                  <th class="text-center" nowrap>Nilai 2</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(data, key) in dataNilai">
+                  <td>{{ key + 1 }}</td>
+                  <td>{{ data.nama }}</td>
+                  <td v-for="ujian in ['nilai_harian','uts','uas']" class="text-center">
+                    <el-input v-model="data.nilai[ujian]" size="large"
+                      @focus="(event) => { console.log(event) }"
+                      @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 0, 100)
+                        countRapor(key);"
+                      class="w-[60px]" />
+                  </td>
+                  <td class="text-center">{{ data.nilai.nilai_rapor }}</td>
+                  <td class="text-center">{{ data.nilai.katrol1 }}</td>
+                  <td class="text-center">{{ data.nilai.katrol2 }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </el-card>
     </div>
@@ -316,6 +323,9 @@
           }
         }).then(result => {
           this.dataNilai = result.data
+          setTimeout(() => {
+            this.getFreezeHeader()
+          }, 300)
         })
       },
       countRapor(key){
@@ -379,6 +389,33 @@
           })
       },
       getFreezeHeader(){
+        let tBase = jquery('#table-base')
+        let tFreeze = jquery('#table-freeze')
+        let thFreeze = jquery('#table-freeze th')
+        let thBase = jquery('#table-base th')
+        tFreeze.width(tBase.width())
+        let keys = Object.keys(thBase)
+        for (let i = 0; i < keys.length; i++) {
+          const key = keys[i]
+          let elBase = jquery(thBase[key])
+          let elFreeze = jquery(thFreeze[key])
+          try {
+            let baseW = Math.ceil(elBase.width())
+            elFreeze.width(baseW)
+            // let baseF = Math.ceil(elFreeze.width())
+            // elBase.width(baseF)
+            console.log(elBase, elFreeze, baseW)
+            console.log(elBase.width(), elFreeze.width())
+          } catch(err) {
+            console.log(err)
+          }
+        }
+        // var targetOffset = tBase[0].getBoundingClientRect(); // relative to viewport
+        // tFreeze.css({
+        //   left: targetOffset.left + 'px'
+        // });
+      },
+      downloadDinas(){
         
       }
     },

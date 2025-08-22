@@ -18,19 +18,19 @@ class PenggunaModel extends BaseModel
       return $this->getOptionsData($where, function($d) { return "$d->prefix $d->nama $d->suffix"; });
     }
 
-    public function login($email = '')
+    public function login($email = '', $id = NULL)
     {
         if (empty($email)) $email = -1;
+        $where = empty($id) ? ['g.email' => $email] : ['g.id' => $id];
 
-          $data = $this->db->table('sch__guru g')
+        $data = $this->db->table('sch__guru g')
                         // ->select("*")
                           ->select("a.id id_akses, g.id, g.id id_guru, g.nama, g.email, k.id id_kelas, k.kelas, km.id id_kamar, CONCAT(km.rayon,' ',km.nomor) kamar")
                           ->join('sch__pengguna_akses a','a.id_guru=g.id',"LEFT")
                           ->join('sch__list_akses la',"a.id_akses=la.id","LEFT")
                           ->join('sch__kelas k','k.id_walas=g.id','left')
                           ->join('sch__kamar km','km.id_wali_kamar=g.id','left')
-                          ->where('g.email',$email)
-                          ->where('g.id IS NOT NULL')
+                          ->where($where)
                           ->groupBy('g.id')
                           ->get()
                           ->getRow();

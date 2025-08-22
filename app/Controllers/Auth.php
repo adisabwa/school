@@ -5,22 +5,28 @@ use App\Libraries\GoogleAuth;
 
 class Auth extends BaseController
 {
+    public $penggunaModel;
+
     public function __construct()
     {
-        
         $this->penggunaModel = model('PenggunaModel');
         // helper('auth');
     }
 
     public function g_login()
     {
-        $credential = $this->request->getPost('credential') ?? '';
+        $credential = $this->request->getGetPost('credential') ?? '';
+        $id = $this->request->getGetPost('id');
 
-        $google = new GoogleAuth();
-        $userData = $google->verifyToken($credential);
-        $email = $userData['email'] ?? $this->request->getGetPost('email') ?? '';
+        $email = $this->request->getGetPost('email');
 
-        $user = $this->penggunaModel->login($email);
+        if (!empty($credential)) {
+            $google = new GoogleAuth();
+            $userData = $google->verifyToken($credential);
+            $email = $userData['email'] ?? $email ?? '';
+        }
+
+        $user = $this->penggunaModel->login($email, $id);
         // var_dump($user);
         if ($user) {
             // Getting user positions

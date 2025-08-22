@@ -8,6 +8,9 @@ let listFunction = {
     dateNow() {
       return moment().format('yyyy-MM-DD');
     },
+    timeNow() {
+      return moment().format('HH:mm');
+    },
     dateData(string) {
       const formats = [
         'YYYY-MM-DD',

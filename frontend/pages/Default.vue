@@ -6,7 +6,7 @@
         bg-scroll bg-repeat bg-top">
         <div class="max-w-[80%] mx-auto leading-[1.2]
           text-2xl text-center font-bold text-cyan-800">Sistem Informasi PPM Darul Arqam</div>
-        <div v-if="!user.email"
+        <div v-if="!user.id"
           class="text-center mt-6 *:w-[250px]
             flex flex-col gap-3 items-center">
           <GoogleLogin :callback="doGLogin" prompt
@@ -18,7 +18,7 @@
           </div> -->
         </div>
         <template v-else>
-          <div class="max-w-[80%] mx-auto relative leading-[1.3]
+          <div class="mx-auto relative leading-[1.3]
             text-xl text-center font-bold text-cyan-800 mt-3 mb-5">
             Assalamualaikum, <br/>{{ user.nama }}
             <div class="text-[15px] w-fit mx-auto mt-1
@@ -30,7 +30,7 @@
               Keluar
             </div>
           </div>
-          <div class="max-w-[90%] mx-auto mt-3">
+          <div class="  mx-auto mt-3">
             <el-input v-model="keyword" placeholder="Cari Aplikasi" 
               class="w-full *:text-[14px] *:px-1"
               :input-style="{
@@ -61,7 +61,7 @@
                           md:text-[40px] text-[30px]
                           animate cursor-pointer hover:scale-[1.2]`,
                           menuFilter.fav ? 'text-yellow-500' : 'text-slate-300']"
-                        @click="addFavorites(menu.app)"/>
+                        @click="toggleFavorites(menu.app)"/>
                       <div class="relative animate pointer duration-500 group/app
                         hover:scale-90 " 
                         @click="goToRoute(menu)">
@@ -138,10 +138,10 @@ export default {
           datas:[],
           fav:true,
         },
-        recent: {
-          label: 'Recent Apps',
-          datas:[],
-        },
+        // recent: {
+        //   label: 'Recent Apps',
+        //   datas:[],
+        // },
         all: {
           label: 'Daftar Aplikasi',
           datas:[],
@@ -160,7 +160,6 @@ export default {
       useAuthStore().gLogin({credential:result.credential}, true)
         .then(res => {
           this.loading = false;
-          this.redirect();
         }).catch(err => {
           this.loading = false;
           console.log(err)
@@ -183,14 +182,19 @@ export default {
     goToRoute(menu){
       // this.resetStorage('recent-apps')
       let app = menu.app
-      this.recents.unshift(app);
+      // this.recents.unshift(app);
       this.saveToStorage('recent-apps', app)
       this.$router.push({name:menu.route[this.user.app_roles[menu.app] ?? this.user.app_roles.all]})
     },
-    addFavorites(app){
-      console.log(this.favorites)
-      this.favorites.unshift(app)
-      this.saveToStorage('favorite-apps', app)
+    toggleFavorites(app){
+      // console.log(this.favorites)
+      if (this.favorites.includes(app)) {
+        this.favorites.splice(this.favorites.findIndex(a => a == app), 1)
+        this.removeFromStorage('favorite-apps', app)
+      } else {
+        this.favorites.unshift(app)
+        this.saveToStorage('favorite-apps', app)
+      }
       this.getDataFilter()
     },
     getDataFilter(){
@@ -208,33 +212,40 @@ export default {
         menus = menus?.filter?.(d => {
             return d.label.toLowerCase().includes(q)
         })
-      this.menusFilter.recent.datas = []
+      // this.menusFilter.recent.datas = []
       this.menusFilter.all.datas = []
       this.menusFilter.fav.datas = []
+      let favApp = []
+      // let recentApp = []
       // console.log(menus)
       menus.forEach(d => {
-        if (this.favorites.includes(d.app))
+        if (this.favorites.includes(d.app)) {
           this.menusFilter.fav.datas.push(d)
+          favApp.push(d.app)
+        }
 
-        else if (this.recents.includes(d.app))
-          this.menusFilter.recent.datas.push(d)
-
-        this.menusFilter.all.datas.push(d)
+        // else if (this.recents.includes(d.app)) {
+        //   this.menusFilter.recent.datas.push(d)
+          // recentApp.push(d.app)
+        // }
       })
       this.menusFilter.fav.datas.splice(6)
-      this.menusFilter.recent.datas.splice(6)
-      // console.log(this.menusFilter)
+      // this.menusFilter.recent.datas.splice(6)
+      this.menusFilter.all.datas = menus.filter(d => {
+        return !favApp.includes(d.app) 
+          // && !recentApp.includes(d.app)
+      })
     }
   },
   mounted(){
-    this.recents = this.getDataFormStorage('recent-apps');
-    if (this.isEmpty(this.recents))
-      this.recents = []
+    // this.recents = this.getDataFormStorage('recent-apps');
+    // if (this.isEmpty(this.recents))
+    //   this.recents = []
     this.favorites = this.getDataFormStorage('favorite-apps')
     if (this.isEmpty(this.favorites))
       this.favorites = []
     this.getDataFilter()
-    console.log(localStorage, 'recents', this.recents, this.favorites)
+    // console.log(localStorage, 'recents', this.recents, this.favorites)
   }
 	
 }

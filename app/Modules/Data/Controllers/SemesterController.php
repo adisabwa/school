@@ -14,4 +14,10 @@ class SemesterController extends BaseDataController
         
         $this->model = model('DataSemesterModel');
     }
+
+    public function semester_now()
+    {
+        $data = $this->model->get_semester_now();
+        return $this->respond($data);
+    }
 }
