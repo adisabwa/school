@@ -75,8 +75,8 @@ function css_tag($entry)
 function get_manifest()
 {
     $content = is_development() ?
-        file_get_contents(APPPATH . '../public/assets/vue/manifest.json') :
-        file_get_contents(APPPATH . '../../../httpdocs/diarimu/assets/vue/.vite/manifest.json') ;
+        file_get_contents(APPPATH . '../public/assets/vue/manifest.jnpson') :
+        file_get_contents(APPPATH . '../../../httpdocs'.env('VITE_BASE_URL_PROD').'assets/vue/.vite/manifest.json') ;
 
     return json_decode($content, true);
 }

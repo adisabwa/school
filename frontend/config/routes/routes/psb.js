@@ -72,6 +72,7 @@ let routes = [
               component: MainLayout,
               meta: {
                 requiresAuth: true,
+                allowedRoles:['admin'],
                 enterFromClass : "scale-0 opacity-50",
                 enterToClass : "opacity-100",
                 leaveFromClass : "opacity-100",

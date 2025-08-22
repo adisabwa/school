@@ -22,14 +22,14 @@ let listFunction = {
       ]
     
       const date = moment(string, formats, true)
-    
+      // console.log(date)
       if (date.isValid()) {
         return date.format('YYYY-MM-DD')
       } else {
         return 'Invalid date'
       }    
     },
-    formatDate(date, format){
+    formatDate(date, format = 'YYYY-MM-DD'){
       return moment(date).format(format);
     },
     dayIndo(date) {
@@ -61,8 +61,12 @@ let listFunction = {
     dateTimeIndo(datetime) {
       return moment(datetime).format('dddd, DD MMMM YYYY HH:mm');
     },
-    timeIndo(datetime) {
-      return moment(datetime).format('HH:mm');
+    timeIndo(datetime, retry = true) {
+      console.log(datetime)
+      let time = moment(datetime).format('HH:mm');
+      if (time == 'Invalid date' && retry)
+        time = this.timeIndo(this.dateNow() + ' ' + datetime, false)
+      return time
     },
     monthOnly(date) {
       return moment(date).format('MMMM');
@@ -116,6 +120,16 @@ let listFunction = {
       }
   
       return result;
+    },
+    setLastDateOfMonth(val) {
+      if (this.isEmpty(val))
+        return ''
+      const date = new Date(val)
+      const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+      const yyyy = lastDay.getFullYear()
+      const mm = String(lastDay.getMonth() + 1).padStart(2, '0')
+      const dd = String(lastDay.getDate()).padStart(2, '0')
+      return `${yyyy}-${mm}-${dd}`
     },
   }
   

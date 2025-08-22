@@ -15,6 +15,7 @@ class ValidationFilter implements FilterInterface
     {
         if (is_array($params)){
             $table = $params[0];
+            $multiple = $params[1] ?? false;
         }
 
         $validation = Services::validation();
@@ -23,54 +24,81 @@ class ValidationFilter implements FilterInterface
 
         $datas = $model->getAll($table);
         // $koloms = [];
-        $postData = $request->getPost();
-        $id = $postData['id'] ?? -1;
-        unset($postData['id']);
-        $files_data = $_FILES;
-        $folders = [];
-        $validationRule = [];
+        $posts = $request->getPost();
+        if (isset($posts['json'])) {
+            $posts = json_decode($posts['json'], true);
+        } else {
+            $posts = $request->getPost();
+        }
+        $errors = [];
 
-        $validationRule = $this->setValidation('', $datas, $postData, $files_data, $model, $id, $validationRule);
+        if (!$multiple) {
+            $posts = [$posts];
+        }
 
-        // var_dump($validationRule);
-            // return failValidationErrors([]);
-        if (empty($validationRule))
-            return TRUE;
+        $new_post = [];
+        // var_dump($posts);
+        foreach ($posts as $key => $postData) {
+            $oldPost = $postData;
+            $id = $postData['id'] ?? -1;
+            unset($postData['id']);
+            $files_data = $_FILES;
+            $folders = [];
+            $validationRule = [];
 
-        if (!$validation->setRules($validationRule)->run($postData)) {
+            $validationRule = $this->setValidation('', $datas, $postData, $files_data, $model, $id, $validationRule);
+
+            // var_dump($validationRule);
+                // return failValidationErrors([]);
+            if (empty($validationRule))
+                return TRUE;
+
+            if (!$validation->setRules($validationRule)->run($postData)) {
+                $errors[$key] = $validation->getErrors();
+                continue;
+            }
+
+            $postData = $this->groupingData($datas, $oldPost, $model, $folders);
+            
+            // var_dump($postData);
+            
+            foreach ($_FILES as $inputName => $fileData) {
+                // Get the file object
+                $file = $request->getFile($inputName);
+                if ($file->isValid() && !$file->hasMoved()) {
+                    $uploadPath = WRITEPATH . "uploads/$folders[$inputName]";// Ensure this directory exists with the correct permissions
+                    // Move the file to the upload folder
+                    $newName = $file->getRandomName(); // Generates a unique name
+                    $file->move($uploadPath, $newName);
+                    $postData[$inputName] = base_url('/get-files?file=uploads/'.$folders[$inputName])."/$newName";
+                } else {
+                    var_dump($file->getErrorString());
+                }
+            }
+            // var_dump($id);
+            $postData['id'] = $id;
+
+            $new_post[$key] = $postData;
+        }
+        
+        $posts = $new_post;
+        // var_dump($posts, $multiple);
+        if (!$multiple) {
+            $posts = $posts[0] ?? [];
+            $errors = $errors[0] ?? [];
+        }
+        if (!empty($errors)) {
             return Services::response()->setJSON([
                 'status' => '400',
                 'error' => '400',
-                'messages' => $validation->getErrors()
+                'messages' => $errors
             ])->setStatusCode(400); // Bad Request
         }
-
-        $postData = $request->getPost();
-        $postData = $this->groupingData($datas, $postData, $model, $folders);
-        
-        // var_dump($folders);
-        
-        foreach ($_FILES as $inputName => $fileData) {
-            // Get the file object
-            $file = $request->getFile($inputName);
-            if ($file->isValid() && !$file->hasMoved()) {
-                $uploadPath = WRITEPATH . "uploads/$folders[$inputName]";// Ensure this directory exists with the correct permissions
-                // Move the file to the upload folder
-                $newName = $file->getRandomName(); // Generates a unique name
-                $file->move($uploadPath, $newName);
-                $postData[$inputName] = base_url('/get-files?file=uploads/'.$folders[$inputName])."/$newName";
-            } else {
-                var_dump($file->getErrorString());
-            }
-        }
-        
-        $postData['id'] = $id;
         // array_walk($postData, function(&$value) {
         //     if (empty($value))
         //         $value = NULL;
         // });
-        $newRequest = $request->setGlobal('post', $postData);
-        // var_dump($postData);
+        $newRequest = $request->setGlobal('post', $posts);
         return $newRequest;
     }
 
@@ -102,10 +130,10 @@ class ValidationFilter implements FilterInterface
                          // 'rules' => 'even'
                          'rules' => ($data->required == '1' ? 'required' : 'permit_empty').(empty($data->rules) ? '' : '|'.$data->rules),
                      ]; 
-                     // var_dump("{id}",$id,$validationRule[$nama]['rules']);
+                    //  var_dump("{id}",$id,$validationRule[$nama]['rules']);
                      // $koloms[] = $data;
-                    $validationRule[$nama_rule]['rules'] = str_replace("{id}", $id,$validationRule[$nama_rule]['rules']);
-                    $validationRule[$nama_rule]['rules'] = str_replace("{field}", $nama_rule,$validationRule[$nama_rule]['rules']);
+                    $validationRule[$nama_rule]['rules'] = str_replace("{id}", is_array($id) ? implode(',', $id) : $id,$validationRule[$nama_rule]['rules']);
+                    $validationRule[$nama_rule]['rules'] = str_replace("{field}", $nama_rule, $validationRule[$nama_rule]['rules']);
                  }
             } else if (isset($files_data[$nama])) {
                  $validationRule[$nama_rule] = [
@@ -146,6 +174,8 @@ class ValidationFilter implements FilterInterface
                     foreach ($postData[$nama] as $ind => &$elements) {
                         $elements = $this->groupingData($kolom_child, $elements, $model, $folders);
                     }
+                 } else if ($postData[$nama] == '') {
+                    unset($postData[$nama]);
                  } else {
                      if (str_contains($data->input,'select-double'))
                          $double_input[$nama] = $postData[$nama];
@@ -167,21 +197,26 @@ class ValidationFilter implements FilterInterface
             $postData[$nama_kolom] = $f($postData[$nama_kolom]);
         }
 
+        var_dump($double_input);
         foreach ($double_input as $nama_kolom => $data) {
             $koloms = explode('-', $nama_kolom);
             $datas = explode('-', $data);
+            var_dump('double', $koloms, $datas, !in_array($nama_kolom, $koloms));
             foreach ($koloms as $key => $kolom) {
                 $postData[$kolom] = $datas[$key] ?? '';
             }
-            unset($postData[$nama_kolom]);
+            if (!in_array($nama_kolom, $koloms))
+                unset($postData[$nama_kolom]);
         }
         
+        // var_dump($tables);
         foreach ($tables as $nama_kolom => $data) {
             $postData['tables'][$nama_kolom] = $data;
             $postData['nama_fk'][$nama_kolom] = $nama_fk[$nama_kolom];
             unset($postData[$nama_kolom]);
         }
 
+        // var_dump($input_only);
         foreach ($input_only as $nama_kolom => $data) {
             unset($postData[$nama_kolom]);
         }

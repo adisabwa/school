@@ -83,3 +83,10 @@ function get_date_interval($start, $end)
 
     return $interval->d;
 }
+
+
+function get_hari($tanggal){
+    $haris = ['ahad','senin','selasa','rabu','kamis','jumat','sabtu'];
+    $day = date('w', strtotime($tanggal));
+    return $haris[$day];
+}

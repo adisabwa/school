@@ -20,11 +20,11 @@
               class="el-menu-demo bg-transparent
                 h-full
                 justify-end
-                w-full
                 border-0
+                min-w-[50vw]
                 max-w-[calc(100vw-500px)]">
               <template v-for="menu in menus">
-                <template v-if="menu.type == 'submenu' && (isEmpty(menu.roles) || menu?.roles?.includes(user.role))">
+                <template v-if="menu.type == 'submenu' && (isEmpty(menu.roles) || menu?.roles?.includes(role))">
                   <el-sub-menu :index="menu.index" class="menu-item-custom title">
                     <template #title>
                       <icons v-if="!isEmpty(menu.icon)" class="mr-2" :icon="menu.icon" />
@@ -32,7 +32,7 @@
                     </template>
                     <template v-for="child in menu.children">
                       <el-menu-item @click="$router.push({name:menu.route, params: menu.params})"
-                        v-if="(isEmpty(child.roles) || child?.roles?.includes(user.role))"
+                        v-if="(isEmpty(child.roles) || child?.roles?.includes(role))"
                         :index="child.index" class="pl-6 menu-item-custom title">
                         <icons v-if="!isEmpty(child.icon)" class="mr-2" :icon="child.icon" />
                         <span class="">{{ child.label }}</span>
@@ -40,7 +40,7 @@
                     </template>
                   </el-sub-menu>
                 </template>
-                <template v-else-if="(isEmpty(menu.roles) || menu?.roles?.includes(user.role))">
+                <template v-else-if="(isEmpty(menu.roles) || menu?.roles?.includes(role))">
                   <el-menu-item @click="isEmpty(menu.route) ?
                     $emit('function', menu.function) :
                     $router.push({name:menu.route, params: menu.params})"
@@ -86,7 +86,7 @@
                     <div class="text-xl font-semibold truncate">{{ user.nama }}</div>
                     <div class="text-md font-semibold truncate">{{ user.unit_kerja }}</div>
                     <div class="mt-1 mb-2 text-md leading-[1] cursor-pointer">
-                        {{ ucFirst(user.role) }}
+                        {{ ucFirst(role) }}
                     </div>
                     <div class="border border-solid border-teal-700/[0.2]
                       mt-1">
@@ -115,20 +115,23 @@
                           <div>Masuk Sebagai</div>
                         </template>
                         <el-radio-group class="flex flex-col gap-2"
-                          v-model="role">
-                          <el-radio-button v-for="rl in user.allowed_roles"
-                            :value="rl" class="
+                          v-model="selectedRole">
+                          <el-radio-button v-for="rl in [...user.akses.all, ...(user.akses[$route?.meta?.app] ?? [])]"
+                            :value="rl.role" class="
                             border border-solid border-teal-700/[0.5]
                             text-teal-800 
                             [&_*]:w-full w-full
                             [&_*]:border-0">
-                            {{ ucFirst(rl) }}</el-radio-button>
+                            {{ ucFirst(rl.role) }}</el-radio-button>
                         </el-radio-group>
                         <template #footer>
                           <div class="dialog-footer flex justify-between">
                             <el-button @click="showRole = false">Batal</el-button>
                             <el-button type="primary" @click="showRole = false;
-                              authStore.changeRole({role:role})"
+                              authStore.changeRole({
+                                app:$route?.meta?.app ?? 'all',
+                                role:selectedRole
+                              })"
                               class="bg-teal-700 border-0">
                               Ubah
                             </el-button>
@@ -200,17 +203,21 @@ export default {
   },
   data: function() {
     return {
-      role:'',
+      selectedRole:'',
       showRole:false,
       showAccount:false,
     };
   },
   watch: {
+    showRole(val){
+      this.selectedRole = this.role
+    }
 
   },
   computed: {
     ...mapState(useAuthStore, {
       user: 'loggedUser',
+      role:'role',
     }),
   },
   methods: {
@@ -234,11 +241,11 @@ export default {
   :deep(.el-menu) {
     @apply bg-transparent !important;
   }
-  :deep(.menu-item-custom), .menu-item-custom {
+  :deep(.menu-item-custom), .menu-item-custom, :deep(.el-menu) .el-sub-menu{
 		@apply 
       bg-teal-700
       transition-all ease-in-out duration-300
-      bg-gradient-to-l from-transparent from-50% to-teal-100 to-50%
+      bg-gradient-to-l from-transparent from-[51%] to-teal-100 to-[51%]
       bg-[length:200%_200%] bg-right-bottom 
       text-[15px]
       leading-[0]
@@ -248,7 +255,7 @@ export default {
       hover:bg-left-top
 		!important;
 	}
-  :deep(.menu-item-custom.is-active), .menu-item-custom.is-active  {
+  :deep(.menu-item-custom.is-active), .menu-item-custom.is-active, :deep(.el-menu) .el-sub-menu.is-active  {
     * {
       @apply text-teal-700 !important;
     }
@@ -256,7 +263,7 @@ export default {
       bg-teal-50
     !important;
   }
-  :deep(.menu-item-custom), .menu-item-custom  {
+  :deep(.menu-item-custom), .menu-item-custom, :deep(.el-menu) .el-sub-menu  {
     li, span, div {
       @apply 
         text-white
@@ -266,7 +273,7 @@ export default {
       @apply fill-current text-white !important;
     }
   }
-  :deep(.menu-item-custom):hover, .menu-item-custom:hover {
+  :deep(.menu-item-custom):hover, .menu-item-custom:hover, :deep(.el-menu) .el-sub-menu:hover {
     .el-menu {
       @apply text-slate-500 bg-teal-700 !important;
     }
@@ -275,7 +282,7 @@ export default {
         text-teal-700
       !important;
     }
-    > svg {
+    svg {
       @apply fill-teal-700 text-teal-700 !important;
     }
   }

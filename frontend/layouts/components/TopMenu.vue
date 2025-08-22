@@ -88,7 +88,7 @@ export default {
     doLogout: function() {
       this.$store.dispatch('logout')
         .then(res => {
-          this.$router.replace({ name: 'login' });
+          this.$router.replace({ name: 'default' });
         })
         .catch(err => {
           this.$notify({

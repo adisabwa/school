@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+use App\Libraries\GoogleAuth;
 
 class Auth extends BaseController
 {
@@ -11,20 +12,23 @@ class Auth extends BaseController
         // helper('auth');
     }
 
-    public function login($username = NULL, $password = null)
+    public function g_login()
     {
-        $username = $username ?? $this->request->getPost('username');
-        $password = $password ?? $this->request->getPost('password');
+        $credential = $this->request->getPost('credential') ?? '';
 
-        $user = $this->penggunaModel->login($username, md5($password));
-        
+        $google = new GoogleAuth();
+        $userData = $google->verifyToken($credential);
+        $email = $userData['email'] ?? $this->request->getGetPost('email') ?? '';
+
+        $user = $this->penggunaModel->login($email);
+        // var_dump($user);
         if ($user) {
             // Getting user positions
             set_userdata($user);
             return $this->respondCreated($user);
         } else {
             return $this->respond([
-                'message' => 'Maaf akun Anda belum terdaftar.',
+                'email' => $email,
             ], 401);
         }
 
@@ -55,7 +59,21 @@ class Auth extends BaseController
         return $this->respondCreated();
     }
 
-    
+    public function change_role()
+    {
+        $app = $this->request->getGetPost('app');
+        $role = $this->request->getGetPost('role');
+
+        $user = userdata();
+        if (isset($user->app_roles['all']))
+            $user->app_roles['all'] = $role;
+        if ($app)
+            $user->app_roles[$app] = $role;
+        
+        set_userdata($user);
+        return $this->respondCreated($user);
+    }
+
     public function reset()
     {
         $user = userdata();

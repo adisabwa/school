@@ -22,29 +22,18 @@ class BaseDataController extends BaseController
     {
         $where = $this->request->getGetPost('where') ?? [];
         $in = $this->request->getGetPost('in') ?? [];
-        $or = $this->request->getGetPost('or') ?? ['1=1' => NULL];
+        $or = $this->request->getGetPost('or') ?? [];
+        $inOr = $this->request->getGetPost('in_or') ?? [];
         $order = $this->request->getGetPost('order') ?? [];
-        $limit = $this->request->getGetPost('limit') ?? 5;
+        $limit = $this->request->getGetPost('limit') ?? 0;
         $offset = $this->request->getGetPost('offset') ?? 0;
 
         $order = implode(",", $order);
 
-        $data = $this->model->builder()
-                            ->where($where);
+        // var_dump($where);
+        $data = $this->model->getAll(whereAnd: $where, whereOr: $or, whereIn: $in, orWhereIn: $inOr, 
+            order: $order, limit: $limit, offset: $offset);
         
-        foreach ($in as $key => $value) {
-            $data->whereIn($key, $value);
-        }
-
-        $data = $data->groupStart()
-                    ->orWhere($or)
-                    ->groupEnd()
-                    ->orderBy($order)
-                    ->limit($limit, $offset)
-                    ->get()
-                    ->getResult();
-        // var_dump($data);
-        // var_dump($this->model->getLastQuery());exit;
         foreach ($data as $key => $d) {
             $d->checked = false;
         }
@@ -54,7 +43,6 @@ class BaseDataController extends BaseController
     public function get()
     {
         $id = $this->request->getGet('id');
-
         return $this->respondCreated(method_exists($this->model, 'getData') ? $this->model->getData($id) : $this->model->find($id));
     }
 
@@ -86,6 +74,7 @@ class BaseDataController extends BaseController
     public function options()
     {
         $where = $this->request->getGet('where') ?? [];
+        // var_dump($where);
         return $this->respondCreated($this->model->getOptions($where));
     }
 
@@ -97,7 +86,6 @@ class BaseDataController extends BaseController
         // return $this->failServerError();
         $data = $posted_data;
         unset($data['id']);
-        $data["created_by"] = userdata()->id ?? 0;
         $child_key = $data['nama_fk'] ?? [];
         $child_table = $data['tables'] ?? [];
         unset($data['nama_fk']);
@@ -106,14 +94,17 @@ class BaseDataController extends BaseController
         // Start the transaction
 
         $this->model->transBegin();
-        if ($posted_data['id'] > 0) {
-            $save = $this->model->update($posted_data['id'], $data);
-        } else {
-            $save = $this->model->insert($data, TRUE);
-            $posted_data['id'] = $this->model->insertID();
+        // var_dump($data);
+        if (!empty($data)) {
+            if ($posted_data['id'] > 0) {
+                $save = $this->model->update($posted_data['id'], $data);
+            } else {
+                $save = $this->model->insert($data, TRUE);
+                $posted_data['id'] = $this->model->insertID();
+            }
         }
         // // var_dump($posted_data);
-        // var_dump( $this->model->error());
+        var_dump( $posted_data, $this->model->error());
         // Append ID to data
         foreach ($child_table as $table => $values) {
             $fk = $child_key[$table];
@@ -137,6 +128,60 @@ class BaseDataController extends BaseController
         } else {
             $this->model->transCommit();
             return $this->respondCreated($posted_data);
+        }
+    }
+
+    
+    public function store_many()
+    {
+        // exit;
+        $posted = $this->request->getPost();
+        // var_dump($posted);
+        // return $this->failServerError();
+        $this->model->transBegin();
+
+        foreach ($posted as $key => $posted_data) {
+            $data = $posted_data;
+            unset($data['id']);
+            $child_key = $data['nama_fk'] ?? [];
+            $child_table = $data['tables'] ?? [];
+            unset($data['nama_fk']);
+            unset($data['tables']);
+
+            // Start the transaction
+
+            if ($posted_data['id'] > 0) {
+                $save = $this->model->update($posted_data['id'], $data);
+            } else {
+                $save = $this->model->insert($data, TRUE);
+                $posted_data['id'] = $this->model->insertID();
+            }
+            var_dump($posted_data);
+            var_dump( $this->model->error());
+            // Append ID to data
+            foreach ($child_table as $table => $values) {
+                $fk = $child_key[$table];
+                $id = $posted_data['id'];
+                $model = $this->kolomClass->getModelFromTable($table);
+                if ($model) {
+                    $model->where([$fk => $posted_data['id']])->delete();
+                    array_walk($values, function(&$value) use ($fk, $id) {
+                        $value[$fk] = $id;
+                    });
+                    $model->insertBatch($values);
+                //     var_dump( $model->error());
+                }
+            }
+
+            $newRequest = $this->request->setGlobal('post', $posted_data);
+        }
+
+        if ($this->model->transStatus() === false) {
+            $this->model->transRollback();
+            return $this->failServerError();
+        } else {
+            $this->model->transCommit();
+            return $this->respondCreated($posted);
         }
     }
 

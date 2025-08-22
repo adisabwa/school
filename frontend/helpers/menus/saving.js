@@ -1,16 +1,10 @@
 let saving = [
   {
-    index:'data',
-    icon:'fluent:clipboard-data-bar-24-filled',
-    label:'Pengolahan Data',
-    type:'submenu',
-    children: [
-      {
-        index:'santri-list',
-        route: 'santri-list',
-        label:'Data Santri',
-      },
-    ]
+    index: 'kas-saving',
+    route: 'kas-saving',
+    icon:'map:book-store',
+    label:'Data Kas',
+    type:'menu',
   },
   {
     index: 'admin-saving',

@@ -5,9 +5,6 @@
       <div class="flex flex-col items-center align-middle">
         <div class="p-5 pt-36 
           text-center">
-          <img id="logo" :src="$baseUrl + 'assets/images/vector.png'" height="220px" 
-            class="my-2 mt-0
-              "/>
           <!-- Error message -->
           <h2 class="mt-0 mb-0 text-center text-[22px]
             font-[600] font-montserrat ">Masuk Sekarang</h2>
@@ -52,13 +49,6 @@
               :loading="loading" 
               class="mt-1 w-full bg-teal-700 h-fit
                 py-2 text-[14px] font-bold">Masuk</el-button>
-            <div class="w-full text-center mt-2">
-              Belum punya akun?
-              <a @click="$router.push({name:'register'})" 
-                class="p-0 w-auto pointer
-                text-emerald-800 font-bold
-                active:text-emerald-600">Buat Akun Baru</a>
-            </div>
           </div>
         </div>
       </div>
@@ -95,7 +85,6 @@ export default {
     },
     doLogin() {
       this.loading = true;
-      console.log(this.authStore)
       this.authStore.login(this.form, this.saveAuth)
         .then(res => {
           this.loading = false;
@@ -123,7 +112,7 @@ export default {
         if (this.nextUrl) {
           this.$router.replace({ path: this.nextUrl });
         } else {
-          this.$router.replace({ name: 'dashboard' });
+          this.$router.replace({ name: this.defaultRoute });
         }
       }
     }
@@ -131,6 +120,8 @@ export default {
   created() {
     // this.initial();
     this.nextUrl = this.$route.query.nextUrl;
+            // useDataStore().setFilter({key:'email', val:'adi.sabwa@gmail.com'})
+            // this.$router.push({name:'register'})
     // this.redirect();
   }
 };

@@ -36,7 +36,7 @@
     <el-container>
       <el-main class="p-0 px-3 pb-3 overflow-visible
         sm:px-5 sm:mt-[20px]
-        min-h-[calc(100vh-110px)] 
+        min-h-[calc(100vh-110px)] max-w-[100vw]
         relative
         flex flex-col">
         <div class="fixed w-screen h-screen left-0 top-0
@@ -105,6 +105,7 @@
 import { mapState } from 'pinia';
 import VerticalMenu from './components/VerticalMenu.vue';
 import HorizontalMenu from './components/HorizontalMenu.vue';
+import { useAuthStore } from '../config/store/authStore';
 
 export default {
   name: 'default-layout',
@@ -163,7 +164,7 @@ export default {
       pageSubTitle: 'pageSubTitle',
     }),
     MenuComponent(){
-      return this.isVertical == '1' ? VerticalMenu : HorizontalMenu
+      return this.isVertical == '1' || this.$windowWidth <= 600 ? VerticalMenu : HorizontalMenu
     },
   },
   methods: {
@@ -188,10 +189,13 @@ export default {
       this.activeMenu = index
     },
     async getMenus(app = 'admin'){
+      this.resetStorage('menu')
+      this.saveToStorage('menu',app)
+      console.log(app);
       // let index = vm.coalesce([vm.$route.meta.app, 'default'])
       await import(`@/helpers/menus/${app}.js`)
         .then(res => {
-          // console.log(res.default)
+          console.log(res.default)
           this.menus = res.default
           this.setActiveMenu()
         })
@@ -223,7 +227,7 @@ export default {
     doLogout: function() {
       useAuthStore().logout()
         .then(res => {
-          this.$router.replace({ name: 'login' });
+          this.$router.replace({ name: 'default' });
         })
         .catch(err => {
           this.$notify({
@@ -238,10 +242,12 @@ export default {
       this.resetStorage('vertical-menu')
       this.saveToStorage('vertical-menu',to);
       this.isVertical = to
+      // useDataStore().filters.isVertical = to
     }
   },
   created: async function() {
-    this.getMenus(this.$route?.meta?.app ?? 'admin')
+    // this.resetStorage('menu')
+    this.getMenus(useAuthStore().getApp())
     this.scrollPosition = window.scrollY;
     this.mainMenus.logout.function = this.doLogout
     this.isVertical = this.getDataFormStorage('vertical-menu') ?? '1';

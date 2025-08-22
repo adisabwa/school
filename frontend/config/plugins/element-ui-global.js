@@ -6,10 +6,16 @@ import id from 'moment/src/locale/id';
 import GetIcon from '@/components/Icon.vue'
 import Loading from '@/components/Loading.vue'
 import File from '@/components/File.vue'
-import Form from '@/components/Form.vue'
 import Star from '@/components/Star.vue'
-import DateWheelPicker from '@/components/form-components/DateWheelPicker.vue'
-import FloatingSelect from '@/components/form-components/FloatingSelect.vue'
+import Form from '@/components/form/Form.vue'
+import DateWheelPicker from '@/components/form/DateWheelPicker.vue'
+import FloatingSelect from '@/components/form/FloatingSelect.vue'
+import TableData from '@/components/table/TableData.vue'
+import colors from '@/helpers/tailwindcolors'
+
+function getColor(code) {
+  return colors[code]
+}
 
 export default {
   install: (app) => {
@@ -22,10 +28,12 @@ export default {
     app.component('date-wheel-picker', DateWheelPicker)
     app.component('floating-select', FloatingSelect)
     app.component('form-comp', Form)
+    app.component('table-data', TableData)
     app.config.globalProperties.$notify = ElNotification
     app.config.globalProperties.$msgbox = ElMessageBox
     app.config.globalProperties.$alert = ElMessageBox.alert
     app.config.globalProperties.$confirm = ElMessageBox.confirm
     app.config.globalProperties.$propmt = ElMessageBox.prompt
+    app.config.globalProperties.getColor = getColor
   }
 }

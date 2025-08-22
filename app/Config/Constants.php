@@ -100,6 +100,9 @@ define('AUTH_SESS_NAME', 'logged_in');
 define('AUTH_VISIT_SESS_NAME', 'visited_url');
 define('AUTH_BASE_ACCOUNT', 'base_account');
 
-define('TB_PENGGUNA', 'pengguna');
-define('TB_SANTRI', 'santri');
-define('TB_FINANCE', 'finance');
+define('BASE_ACCESS', serialize([
+    [
+        'app' => 'nilai',
+        'role' => 'guru',
+    ]
+]));

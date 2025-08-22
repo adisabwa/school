@@ -1,14 +1,14 @@
 <template>
   <div id="penghasilan-list" class="pt-1" v-loading="loading">
     <table-data ref="tableData" :fields="fields" href="data/penghasilan"
-      :checked="true" :upload="false" :pass-columns="[]"
+      :checked="true"  :pass-columns="[]"
       :params="tableParams">
     </table-data>
   </div>
 </template>
   
   <script>
-    import TableData from '@/components/TableData.vue'
+    
     import { reactive } from 'vue';
     import { mapActions, mapState } from 'pinia';
   
@@ -26,7 +26,7 @@
       },
     },
     components: {
-      TableData,
+      
     },
     data: function() {
       return {

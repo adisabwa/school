@@ -1,84 +1,78 @@
 <?php
 
-namespace App\Models;
+namespace Modules\Data\Models;
 
-use CodeIgniter\Model;
+use App\Models\BaseModel;
 
-class PenggunaModel extends Model
+class PenggunaModel extends BaseModel
 {
-    protected $table         = 'sch_pengguna';
-    protected $primaryKey = 'id';
-
-    protected $useAutoIncrement = true;
-    // protected $returnType    = \App\Entities\Pengguna::class;
-    protected $returnType    = 'object';
-
-    protected $protectFields = false;
-    protected $useTimestamps = true;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-
-    // protected $db;
-
-    protected function initialize()
+    public function __construct()
     {
-        // $this->db = $this->builder();
-    }
-    
-    public function getTableName()
-    {
-        return $this->table;
+        parent::__construct();
+
+        $this->table = 'sch__guru';
     }
 
-    public function login($username = '', $password = '')
+    public function getOptions($where = [])
     {
-        $data = $this->db->table('sch_pengguna p')
-                     ->select("p.*, GROUP_CONCAT(la.app) as app")
-                     ->join('sch_pengguna_akses a','a.id_pengguna=p.id','left')
-                     ->join('sch_list_akses la','a.id_akses=la.id','left')
-                     ->where('p.username', $username)
-                     ->where('p.password', $password)
-                     ->groupBy('p.id')
-                     ->get()
-                     ->getRow();
+      return $this->getOptionsData($where, function($d) { return "$d->prefix $d->nama $d->suffix"; });
+    }
+
+    public function login($email = '')
+    {
+        if (empty($email)) $email = -1;
+
+          $data = $this->db->table('sch__guru g')
+                        // ->select("*")
+                          ->select("a.id id_akses, g.id, g.id id_guru, g.nama, g.email, k.id id_kelas, k.kelas, km.id id_kamar, CONCAT(km.rayon,' ',km.nomor) kamar")
+                          ->join('sch__pengguna_akses a','a.id_guru=g.id',"LEFT")
+                          ->join('sch__list_akses la',"a.id_akses=la.id","LEFT")
+                          ->join('sch__kelas k','k.id_walas=g.id','left')
+                          ->join('sch__kamar km','km.id_wali_kamar=g.id','left')
+                          ->where('g.email',$email)
+                          ->where('g.id IS NOT NULL')
+                          ->groupBy('g.id')
+                          ->get()
+                          ->getRow();
+        // var_dump($data, $this->db->getLastQuery());
 
         if (empty($data)) return;
         
-        $data->app = explode(',', $data->app ?? '');
-        $data->akses = $this->db->table('sch_pengguna_akses a')
-                ->select("la.*")
-                ->join('sch_list_akses la','a.id_akses=la.id')
-                ->where(['a.id_pengguna' => $data->id])
+        $data->app_roles = [];
+        $data->akses = [];
+        $where = [
+          "a.id_guru = '$data->id'" => NULL,
+          "((a.id_guru = '0' OR a.id_guru IS NULL) AND a.role = 'guru')" => NULL,
+        ];
+        if ($data->id_kelas)
+          $where["((a.id_guru = '0' OR a.id_guru IS NULL) AND a.role = 'walas')" ] = NULL;
+        if ($data->id_kamar)
+          $where["((a.id_guru = '0' OR a.id_guru IS NULL) AND a.role = 'wamar')" ] = NULL;
+
+        $akses = $this->db->table('sch__pengguna_akses a')
+                ->select("la.*, a.*")
+                ->join('sch__list_akses la','a.id_akses=la.id')
+                ->orWhere($where)
                 ->get()
                 ->getResult();
         
+        // var_dump($this->db->getLastQuery());
+        foreach ($akses as $key => $value) {
+          $data->app_roles[$value->app] = $value->role;
+          $data->akses[$value->app][] = $value;
+        }
         return $data;
     }
-    
-    public function getOptions($where = [])
+  
+    public function getAll(array $whereAnd = [], array $whereOr = [], array $whereIn = [], array $orWhereIn = [], string $order = '', int $limit = 0, int $offset = 0, $relations = [])
     {
-      $options = [];
-      $data = $this->where($where)
-                    ->get()
-                    ->getResult();
-                    
-      foreach ($data as $key => $d) {
-        $options[] = (object)[
-          'value' => "$d->id",
-          'label' => "$d->nama"
-        ];
-      }
-      return $options;
-    }
+      $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
 
-    public function getAll($where = [], $order = '')
-    {
-      $data = $this->db->table('sch_pengguna p')
-                    ->select("p.*, GROUP_CONCAT(la.nama_app SEPARATOR ',    ') app")
-                    ->join('sch_pengguna_akses a','a.id_pengguna=p.id','left')
-                    ->join('sch_list_akses la','a.id_akses=la.id','left')
-                    ->where($where)
+      $data = $this->db->table('sch__guru p')
+                    ->select("p.*, GROUP_CONCAT(la.nama_app,' ( ',a.role,' ) ' SEPARATOR ',    ') app")
+                    ->join('sch__pengguna_akses a','a.id_guru=p.id')
+                    ->join('sch__list_akses la','a.id_akses=la.id')
+                    ->where($whereAnd)
                     ->groupBy('p.id')
                     ->orderBy($order)
                     ->get()
@@ -90,19 +84,19 @@ class PenggunaModel extends Model
     
     public function getData($id)
     {
-      $key = 'sch_pengguna_akses-id_akses';
-      $data = $this->db->table('sch_pengguna p')
-                    ->select("p.*, GROUP_CONCAT(a.id_akses) as '$key'")
-                    ->join('sch_pengguna_akses a','a.id_pengguna=p.id','left')
-                    ->join('sch_list_akses la','a.id_akses=la.id','left')
+      $data = $this->db->table('sch__guru p')
+                    ->select("p.*, GROUP_CONCAT(a.id_akses) as id_akses")
+                    ->join('sch__pengguna_akses a','a.id_guru=p.id','left')
+                    ->join('sch__list_akses la','a.id_akses=la.id','left')
                     ->where('p.id',$id)
                     ->groupBy('p.id')
                     ->get()
                     ->getRow();
-                    
-      $d = $data->{$key};
+      
+      if (empty($data)) return;
+      $d = $data->id_akses;
       $d = empty($d) ? [] : explode(',', $d);
-      $data->{$key} = $d;
+      $data->id_akses = $d;
       return $data;
     }
 }

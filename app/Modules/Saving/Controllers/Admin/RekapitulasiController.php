@@ -69,17 +69,19 @@ class RekapitulasiController extends BaseController
         $saldo = $this->model->getSaldo($start);
         $result = [];
         foreach ($saldo as $key => $d) {
-            $ind = $group ? $d->kelas : $d->id_santri;
+            $ind = $group ? $d->kelas ?? 'Kas' : $d->id_santri;
             if (empty($result[$ind])) {
                 $santri = new \StdClass;
+                $santri->sumber = $d->sumber;
                 if ($group) {
                     $santri->id_santri = '';
-                    $santri->kelas = $d->kelas;
-                    $santri->text = $d->kelas;
+                    $santri->kelas = $d->kelas ?? 'Kas';
+                    $santri->text = $d->kelas ?? 'Kas';
                 } else {
                     $santri->id_santri = $d->id_santri;
+                    $santri->id_kas = $d->id_kas;
                     $santri->kelas = '';
-                    $santri->text = "$d->kelas - $d->nama";
+                    $santri->text = $d->id_santri ? "$d->kelas - $d->nama_santri" : $d->nama_kas;
                 }
                 $santri->column = array_map(function ($object) { return clone $object; }, $column);
                 $santri->total = 0;
@@ -100,14 +102,16 @@ class RekapitulasiController extends BaseController
             $ind = $group ? $d->kelas : $d->id_santri;
             if (empty($result[$ind])) {
                 $santri = new \StdClass;
+                $santri->sumber = $d->sumber;
                 if ($group) {
                     $santri->id_santri = '';
-                    $santri->kelas = $d->kelas;
-                    $santri->text = $d->kelas;
+                    $santri->kelas = $d->kelas ?? 'Kas';
+                    $santri->text = $d->kelas ?? 'Kas';
                 } else {
                     $santri->id_santri = $d->id_santri;
+                    $santri->id_kas = $d->id_kas;
                     $santri->kelas = '';
-                    $santri->text = "$d->kelas - $d->nama";
+                    $santri->text = $d->id_santri ? "$d->kelas - $d->nama_santri" : $d->nama_kas;
                 }
                 $santri->column = array_map(function ($object) { return clone $object; }, $column);
                 $santri->total = 0;

@@ -38,7 +38,7 @@
         </div>
       </div>
       <el-row>
-        <div class="w-full">
+        <div :class="getDataFormStorage('vertical-menu') == '1' ? 'max-w-[calc(100vw-85px-var(--width-menu))]' : 'max-w-[calc(100vw-95px)]'">
           <loading v-if="loading" title="Mengambil data..."
             subtitle="Silahkan tunggu, sedang mengambil data." />
           <loading v-else-if="searching" title="Mencari data..."
@@ -53,7 +53,7 @@
                 <div class="bg-red-50 py-2 px-3">Pemasukan</div>
               </div>
             </div>
-            <div class="my-5 overflow-x-scroll w-full">
+            <div class="my-5 overflow-x-scroll">
               <table class="table border align-top fixed-column w-max min-w-full">
                 <thead class="bg-sky-900">
                   <tr>
@@ -227,7 +227,12 @@ export default {
     };
   },
   watch: {
-    
+    filter:{
+      deep:true,
+      handler(val){
+        this.getFinance();
+      }
+    }
 
   },  
   computed: {      
@@ -353,11 +358,6 @@ export default {
           });
 
     },
-    onUpdated(){
-      this.showAdd = false;
-      this.showUpload = false;
-      this.getFinance();
-    },
     getFixedColumn() {
       let vm = this;
       vm.jquery('table.fixed-column-generate').remove();
@@ -385,6 +385,12 @@ export default {
         vm.jquery(e).parent().prepend(clone);
       });
     },
+  },
+  updated(){
+    console.log('updated')
+    this.showAdd = false;
+    this.showUpload = false;
+    this.getFinance();
   },
   created: function() {
     this.getInitial();

@@ -249,5 +249,20 @@ export default {
       let ind = keys[i]
       app.config.globalProperties[ind] = listFunction[ind]
     }
+    
+    app.config.globalProperties.$windowWidth = window.innerWidth
+    app.config.globalProperties.$windowHeight = window.innerHeight
+    
+    const updateSize = () => {
+      app.config.globalProperties.$windowWidth = window.innerWidth
+      app.config.globalProperties.$windowHeight = window.innerHeight
+    }
+
+    window.addEventListener('resize', updateSize)
+
+    // Cleanup if needed
+    app.provide('removeWindowResizeListener', () => {
+      window.removeEventListener('resize', updateSize)
+    })
   }
 }

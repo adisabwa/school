@@ -2,27 +2,28 @@
   <div class="">
     <div class="z-[99] h-[40px]">
       <div class="absolute sm:fixed z-[10] top-0 overflow-visible w-full max-w-[100vw] h-[30px]"> 
-        <div class="relative">
+        <div class="relative overflow-hidden w-full h-[70px]">
           <el-header class="bg-orange-300 h-[40px] w-full relative"></el-header>
           <div id="top" class="add-play bg-cover bg-bottom
             h-[70px] w-[1400px] absolute z-[51] top-[1px]
-            translate-x-[calc(50vw-50%)] sm:-translate-x-[calc(590px)]"
+            translate-x-[calc(50vw-50%)] sm:-translate-x-[calc(590px)]
+            translate-y-[-5px]"
               :style="`background-image:url('${$baseUrl}assets/images/top.png')`"></div>
         </div>
         <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'" height="80px" 
           @click="$router.push({name:defaultRoute})"
           class="pointer animate hover:scale-[0.8]
-          absolute z-[53] top-[5px]
+          absolute z-[53] top-0
           mt-2
           translate-x-[calc(50vw-50%)]
           sm:-translate-x-[calc(50%-110px)]"/>
       </div>
     </div>
-    <div id="menu-vertical" class="h-screen w-[--width-menu]
+    <div id="menu-vertical" class="h-screen w-[90%] sm:w-[--width-menu]
       animate
       -translate-x-full sm:translate-x-0
       fixed left-0 top-0
-      z-[50] sm:z-[1]
+      z-[2] sm:z-[1]
       flex flex-col justify-between
       bg-teal-700">
       <div class="absolute w-full h-full z-[-1]
@@ -40,7 +41,7 @@
           <div class="mt-1 text-md leading-[1] cursor-pointer"
             @click="showRole = true">
             <span class="el-dropdown-link text-white flex items-end gap-1">
-              {{ ucFirst(user.role) }}
+              {{ ucFirst(role) }}
               <icons icon="fe:arrow-down" class="text-[90%]" />
             </span>
           </div>
@@ -51,20 +52,23 @@
                 <div>Masuk Sebagai</div>
               </template>
               <el-radio-group class="flex flex-col gap-2"
-                v-model="role">
-                <el-radio-button v-for="rl in user.allowed_roles"
-                  :value="rl" class="
+                v-model="selectedRole">
+                <el-radio-button v-for="rl in [...user.akses.all, ...(user.akses[$route?.meta?.app] ?? [])]"
+                  :value="rl.role" class="
                   border border-solid border-teal-700/[0.5]
                   text-teal-800 
                   [&_*]:w-full w-full
                   [&_*]:border-0">
-                  {{ ucFirst(rl) }}</el-radio-button>
+                  {{ ucFirst(rl.role) }}</el-radio-button>
               </el-radio-group>
               <template #footer>
                 <div class="dialog-footer flex justify-between">
                   <el-button @click="showRole = false">Batal</el-button>
                   <el-button type="primary" @click="showRole = false;
-                    authStore.changeRole({role:role})"
+                    authStore.changeRole({
+                      app:$route?.meta?.app ?? 'all',
+                      role:selectedRole
+                    })"
                     class="bg-teal-700 border-0">
                     Ubah
                   </el-button>
@@ -80,7 +84,7 @@
           w-full h-full
           pt-4 ">
         <template v-for="menu in menus">
-          <template v-if="menu.type == 'submenu' && (isEmpty(menu.roles) || menu?.roles?.includes(user.role))">
+          <template v-if="menu.type == 'submenu' && (isEmpty(menu.roles) || menu?.roles?.includes(role))">
             <el-sub-menu :index="menu.index" class="pl-5 [&>*]:p-0 text-left menu-item-custom title">
               <template #title>
                 <icons v-if="!isEmpty(menu.icon)" class="mr-2" :icon="menu.icon" />
@@ -88,7 +92,7 @@
               </template>
               <template v-for="child in menu.children">
                 <el-menu-item @click="$router.push({name:child.route, params: child.params})"
-                  v-if="(isEmpty(child.roles) || child?.roles?.includes(user.role))"
+                  v-if="(isEmpty(child.roles) || child?.roles?.includes(role))"
                   :index="child.index" class="pl-6 menu-item-custom title">
                   <icons v-if="!isEmpty(child.icon)" class="mr-2" :icon="child.icon" />
                   <span class="">{{ child.label }}</span>
@@ -96,7 +100,7 @@
               </template>
             </el-sub-menu>
           </template>
-          <template v-else-if="(isEmpty(menu.roles) || menu?.roles?.includes(user.role))">
+          <template v-else-if="(isEmpty(menu.roles) || menu?.roles?.includes(role))">
             <el-menu-item @click="isEmpty(menu.route) ?
               $emit('function', menu.function) :
               $router.push({name:menu.route, params: menu.params})"
@@ -126,6 +130,12 @@
         </div>
       </div>
     </div>
+    <div class="bg-white rounded-full w-[60px] h-[60px] opacity-50 hover:opacity-80
+      fixed z-[99999] bottom-5 right-5 flex items-center justify-center"
+      @click="handleSelect">
+      <icons icon="mdi:menu" class="text-4xl m-0 text-emerald-900
+        " />
+    </div>
   </div>
 </template>
 
@@ -154,16 +164,19 @@ export default {
   },
   data: function() {
     return {
-      role:'',
+      selectedRole:'',
       showRole:false
     };
   },
   watch: {
-
+    showRole(val){
+      this.selectedRole = this.role
+    }
   },
   computed: {
     ...mapState(useAuthStore, {
       user: 'loggedUser',
+      role: 'role',
     }),
   },
   methods: {
@@ -171,7 +184,7 @@ export default {
       this.$emit('action', val)
     },
     handleSelect: function(action) {
-      this.addClass('.el-menu-vertical-demo','-translate-x-full sm:translate-x-0');
+      this.toggleClass('#menu-vertical','-translate-x-full sm:translate-x-0');
     },
   },
   updated: function() {

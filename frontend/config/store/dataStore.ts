@@ -86,7 +86,8 @@ export const useDataStore = defineStore('data', {
       }); 
     },
     setFilter({ key, val}){
-      this.filter[key] = val
+      // console.log(this.filter)
+      this.filters[key] = val
     }
   },
 })

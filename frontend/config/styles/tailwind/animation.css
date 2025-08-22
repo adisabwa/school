@@ -176,7 +176,7 @@
 		@apply top-[50%] -translate-y-[50%];
 	}
 
-	.animate, .animate * {
+	.animate {
 		@apply transition-all duration-[var(--duration,1s)] !important;
 		@apply transform ease-in-out;
 	}

@@ -24,11 +24,13 @@ function convertHundreds(num) {
 
 let listFunction = {
   toIDR: function(number) {
+    // console.log(number, typeof number)
     if (number == null || number == undefined) return 'Rp. 0,00';
     number = Math.round(number);
     return "Rp " + number.toString().replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1\.") + ",00";
   },
   setCurrency: function(number) {
+    // console.log('curr', number, typeof number)
     number = listFunction.toNumber(number)
     return number.toString().replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1\.");
   },
@@ -68,6 +70,23 @@ let listFunction = {
 
     // Hilangkan spasi ekstra di akhir
     return words.trim();
+  },
+  checkMinMax(val, min, max){
+    val = parseFloat(val)
+    min = parseFloat(min)
+    max = parseFloat(max)
+    console.log(val)
+    if (val < min) return min
+    else if (val > max) return max
+    return val
+  },
+  rounding(val, number = 0){
+    let ex = 1;
+    for (let i = 0; i < number; i++) {
+      ex *= 10      
+    }
+    val = parseFloat(val)
+    return Math.round(val * ex) / ex
   }
 }
 

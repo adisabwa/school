@@ -6,7 +6,9 @@
         :label-position="labelPosition"
         class="mt-2"
         label-width="180px"
-        :pass-columns="['start','end']"
+        :pass-columns="['start','end',
+          filter.sumber == 'kas' ? 'kelas' : ''
+        ]"
         v-model:form-value="filter"
         :show-submit="false"
         text-submit="Cari"
@@ -20,7 +22,7 @@
               <el-date-picker
                 v-model="form.start"
                 type="month"
-                value-format="YYYY-MM-DD"
+                value-format="YYYY-MM-01"
                 format="MMMM YYYY"
                 placeholder="Pilih Bulan Mulai"
                 size="large"
@@ -43,9 +45,18 @@
         :show-search="false"
         :title="'Data Tabungan Santri'"
         v-model:checked-id="ids"
+        v-model:form-value="formValue"
         :fields="fields"
-        :pass-columns="['jenis','nominal']"
+        :pass-columns="['jenis','nominal','id_santri','id_kas']"
+        :pass-columns-input="passColumnsInput"
         class="p-0">
+        <template #before-keterangan>
+          <el-table-column label="Nama" width="200" align="left">
+            <template #default="scope">
+              {{ scope.row.sumber == 'kas' ? scope.row.nama_kas : scope.row.kelas + ' - ' + scope.row.nama_santri }}
+            </template>
+          </el-table-column>
+        </template>
         <el-table-column label="Pemasukan" width="150" align="center">
           <template #default="scope">
             {{ scope.row.jenis == '1' ? toIDR(scope.row.nominal) : '-' }}
@@ -68,21 +79,33 @@
 
 <script>
 import { mapState } from 'pinia';
-import TableData from '@/components/TableData.vue'
+
+import { filter } from 'lodash';
 
 export default {
   name: "iqab",
   components: {
-    TableData,
+    
   },
   data: function() {
     return {
       loading: false,
       showAdd: false,
       filterFields: {
+        'sumber' : {
+          nama_kolom:'sumber',
+          label:'Pemilik Tabungan',
+          input:'select',
+          options: [
+            {value:'',label:'Semua'},
+            {value:'kas',label:'Kas'},
+            {value:'santri',label:'Santri'},
+          ],
+        },
         'nama' : {
           nama_kolom:'nama',
-          label:'Nama Santri'
+          label:'Nama',
+          placeholder:'Ketikkan Nama yang dicari',
         },
         'start' : {
           nama_kolom:'start',
@@ -101,39 +124,65 @@ export default {
       },
       fields:{},
       filter:{
+        sumber:'',
         nama:'',
         kelas:'',
         start:'',
         end:'',
       },
-      params:{
-        nama:'-1',
-        kelas:'-1',
-        start:'',
-        end:'',
-      },
+      params:{},
       editId:-1,
       ids:[],
-      sizeWindow:window.innerWidth,
+      formValue: {},
     };
   },
   watch: {
-    'paging.currentPage': function(val) {
-      this.paging.offset = val * this.paging.perPage - this.paging.perPage;
-    },
+    'formValue.sumber': function(val) {
+      // console.log(val);
+      if (val == 'kas') {
+        this.fields.id_santri = 0;
+      } else {
+        this.fields.id_kas = 0;
+      }
+    }
   },  
   computed: {
     ...mapState(useAuthStore, {
       user: 'loggedUser',
     }),
     labelPosition(){
-      return this.sizeWindow < 800 ? 'top' : 'left'
+      return this.$windowWidth < 800 ? 'top' : 'left'
+    },
+    passColumnsInput(){
+      if (this.formValue.sumber == 'kas') {
+        return ['id_santri'];
+      } else {
+        return ['id_kas'];
+      }
     }
   },
   methods: {
     searchData(){
-      this.resetObjectValue(this.params)
-      this.fillObjectValue(this.params, this.filter)
+      // console.log(this.filter)
+      this.params = {
+        where: {
+          'tanggal >= ' : this.filter.start,
+          'tanggal <= ' : this.setLastDateOfMonth(this.filter.end),
+        },
+        or: {},
+        order:['tanggal desc'],
+      }
+      if (this.filter.sumber) 
+        this.params.where.sumber = this.filter.sumber
+
+      if (this.filter.kelas) 
+        this.params.where.id_kelas = this.filter.kelas
+
+      if (this.filter.nama) {
+        this.params.or[`nama_santri LIKE '%${this.filter.nama}%'`] = ''
+        this.params.or[`nama_kas LIKE '%${this.filter.nama}%'`] = ''
+      }
+      console.log(this.params)
     },
     getInitial: async function() {
         this.loading = true;
@@ -143,7 +192,7 @@ export default {
             this.fields = this.fillAndAddObjectValue(this.fields, res)
             this.loading = false
           });
-        await this.$http.get('/data/santri/kelas')
+        await this.$http.get('/data/kelas/options')
           .then(result => {
             var res = result.data;
             this.filterFields.kelas.options = res
@@ -152,20 +201,15 @@ export default {
       },
   },
   created: function() {
-    let filter = useDataStore().filter
-    this.filter.nama =  filter?.nama ?? ''
-    this.filter.kelas =   filter?.kelas ?? ''
-    this.filter.start =   filter?.start ?? ''
-    this.filter.end = filter?.end ?? ''
+    let filter = useDataStore().filters
+    this.filter.nama =  filter?.nama ?? null
+    this.filter.kelas =   filter?.kelas ?? null
+    this.filter.start =   filter?.start ?? null
+    this.filter.end = filter?.end ?? this.setLastDateOfMonth(this.dateNow())
     this.getInitial()
-    // console.log(this.$router);
+    console.log(this.setLastDateOfMonth(this.dateNow()));
   },
   mounted: function() {
-    let vm = this
-    vm.sizeWindow = window.innerWidth
-    window.addEventListener('resize', () => {
-      vm.sizeWindow = window.innerWidth
-    });
     this.searchData()
   },
 }

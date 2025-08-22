@@ -13,9 +13,6 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default ({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   // console.log(env)
-  // const baseUrl = mode == 'production' 
-  //                   ? env.VITE_BASE_URL_PROD
-  //                   : env.VITE_BASE_URL
 
   const folder = 'assets/vue'
   const outDir = `./public/${folder}/`
@@ -62,8 +59,8 @@ export default ({ command, mode }) => {
           enabled: true
         },
         manifest: {
-          "name": "Sistem Catatan Ibadah Muhammadiyah Kendal",
-          "short_name": "Diari-Mu",
+          "name": "Sistem Informasi Darul Arqom Patean",
+          "short_name": "SIM-PPMDA",
           "start_url": baseUrl + "index.php",
           "scope": baseUrl,
           "display": "standalone",
