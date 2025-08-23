@@ -206,6 +206,53 @@ let listFunction = {
     // console.log(element, coordinate, scroll)
     scrollToCoordinate(element, coordinate, duration, scroll, rerun, onDone)
   },
+  
+  removeColumnByClass(tbl, cls, excludeCls){
+    let targetCols = [];
+    let colTracker = []; // tracks rowspan usage across rows
+
+    // Step 1: map header into absolute column indexes
+    jquery(tbl).find("thead tr").each(function () {
+      let colIndex = 0;
+
+      jquery(this).find("th").each(function () {
+        // Skip over columns already occupied by rowspan above
+        while (colTracker[colIndex] > 0) {
+          colTracker[colIndex]--;
+          colIndex++;
+        }
+
+        let colspan = parseInt(jquery(this).attr("colspan") || 1, 10);
+        let rowspan = parseInt(jquery(this).attr("rowspan") || 1, 10);
+
+        // console.log(cls, excludeCls, jquery(this).attr("class"), jquery(this).hasClass(cls), !jquery(this).hasClass(excludeCls))
+        if (jquery(this).hasClass(cls) || !jquery(this).hasClass(excludeCls)) {
+          for (let k = 0; k < colspan; k++) {
+            targetCols.push(colIndex + k);
+          }
+          jquery(this).remove(); // remove header cell
+        }
+
+        // reserve cells for future rows if rowspan > 1
+        for (let r = 0; r < colspan; r++) {
+          colTracker[colIndex + r] = (colTracker[colIndex + r] || 0) + (rowspan - 1);
+        }
+
+        colIndex += colspan;
+      });
+    });
+
+    // Step 2: deduplicate + sort descending (so index removal doesn't shift)
+    targetCols = [...new Set(targetCols)].sort((a, b) => b - a);
+
+    console.log("Removing columns at indexes:", targetCols);
+    // Step 3: remove body cells at those indexes
+    jquery(tbl).find("tbody tr").each(function () {
+      targetCols.forEach(i => {
+        jquery(this).find("td").eq(i).remove();
+      });
+    });
+  },
   toggleClass(el, cls, delay = 0){
     // console.log(el)
     window.setTimeout(function () {

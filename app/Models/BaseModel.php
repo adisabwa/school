@@ -55,7 +55,9 @@ class BaseModel extends Model
           'value' => "$d->id",
           'label' => $concatFunc($d) ?? $d->nama
         ];
-        $option = $addOptions($option, $d);
+        if ($addOptions && is_callable($addOptions)) {
+            $option = $addOptions($option, $d);
+        }
         $options[] = $option;
       }
       return $options;

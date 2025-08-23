@@ -19,7 +19,7 @@ let mapel = [
     index: 'penjadwalan-mapel',
     route: 'penjadwalan-mapel',
     icon:'dashicons:schedule',
-    label:'Penjadwalan Pembelajaran',
+    label:'Jadwal Pelajaran',
     type:'menu',
     roles:['admin'],
   },

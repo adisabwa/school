@@ -1,10 +1,9 @@
 
 <template>
 	<div class="[--color-border:theme(colors.cyan.400)]">
-		<div class="md:pt-32 pt-[80px] bg-white/[0.8] mx-auto w-[90vw] md:w-[1000px] min-h-[calc(100vh-200px)]">
-      <div class="relative h-auto w-full pt-3 pb-24
-        bg-scroll bg-repeat bg-top">
-        <div class="max-w-[80%] mx-auto leading-[1.2]
+		<div class="relative md:pt-32 pt-[80px] bg-white/[0.8] mx-auto w-[90vw] md:w-[1000px] min-h-[calc(100vh-200px)]">
+        <div class="max-w-[95%] md:max-w-[80%] mx-auto relative h-auto w-full pt-3 pb-24 ">
+        <div class=" mx-auto leading-[1.2]
           text-2xl text-center font-bold text-cyan-800">Sistem Informasi PPM Darul Arqam</div>
         <div v-if="!user.id"
           class="text-center mt-6 *:w-[250px]

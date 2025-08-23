@@ -20,8 +20,6 @@ let topMenu = [
     label:"Presensi Guru",
     route:{
       admin:'kmi-presensi',
-      kmi:'kmi-presensi',
-      guru:'guru-presensi',
     },
     color:'orange-100',
     darkColor:'orange-500',
@@ -66,6 +64,7 @@ let topMenu = [
     label:"Manajemen Data",
     route:{
       admin:'user-management',
+      walas:'santri-list',
     },
     color:'rose-100',
     darkColor:'rose-500',

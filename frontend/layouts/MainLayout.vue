@@ -183,7 +183,7 @@ export default {
             index = vm.checkIndex(vm.$route, m)
         }
       })
-      console.log(index)
+      // console.log(index)
       if (!index) index = ''
       
       this.activeMenu = index
@@ -191,11 +191,11 @@ export default {
     async getMenus(app = 'admin'){
       this.resetStorage('menu')
       this.saveToStorage('menu',app)
-      console.log(app);
+      // console.log(app);
       // let index = vm.coalesce([vm.$route.meta.app, 'default'])
       await import(`@/helpers/menus/${app}.js`)
         .then(res => {
-          console.log(res.default)
+          // console.log(res.default)
           this.menus = res.default
           this.setActiveMenu()
         })
@@ -207,7 +207,7 @@ export default {
     checkIndex(route, menu){
       // console.log(route, menu)
       if (route.name == menu.route) {
-        console.log(route.params, menu.params)
+        // console.log(route.params, menu.params)
         if (this.isEmpty(menu.params))
           return menu.index
         else {
