@@ -159,9 +159,11 @@ class BaseModel extends Model
     }
     
     public function getData($id)
-    {
+    {   
+        // var_dump($id);
         $data = $this->getAll(whereAnd: ['id' => $id]);
-        
+
+        // var_dump($this->db->getLastQuery());
         if ($data) {
             return $data[0];
         } else {

@@ -2,79 +2,49 @@
 
 namespace Modules\Psb\Models;
 
-use CodeIgniter\Model;
+use App\Models\BaseModel;
 
-class PsbModel extends Model
+class PsbModel extends BaseModel
 {
-    protected $table      = 'sch_psb';
-    protected $primaryKey = 'id';
-
-    protected $useAutoIncrement = true;
-
-    protected $protectFields = false;
-    protected $returnType    = 'object';
-
-    protected $useTimestamps = true;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-
-    protected function initialize()
+    public function __construct()
     {
-
-    }
-
-    public function getData($whereAnd = [], $whereOr = [])
-    {
-        $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
-        $whereOr = empty($whereOr) ? '1=1' : $whereOr;
-        $data = $this->db->table('sch_psb p')
-                    ->select("p.*,
-                    pe1.label ayah_peng_label, pe1.dari ayah_peng_dari, pe1.hingga ayah_peng_hingga,
-                    pe2.label ibu_peng_label, pe2.dari ibu_peng_dari, pe2.hingga ibu_peng_hingga,
-                    pe3.label wali_peng_label, pe3.dari wali_peng_dari, pe3.hingga wali_peng_hingga")
-                    ->join('sch__penghasilan pe1','pe1.id=p.ayah_penghasilan','left')
-                    ->join('sch__penghasilan pe2','pe2.id=p.ibu_penghasilan','left')
-                    ->join('sch__penghasilan pe3','pe3.id=p.wali_penghasilan','left')
-                    ->where($whereAnd)
-                    ->groupStart()
-                        ->orWhere($whereOr)
-                    ->groupEnd()
-                    ->get()
-                    ->getResultObject();
-
-        if (empty($data)) return $data;
-        else $data = $data[0];
-
-        $data->ayah_penghasilan_label = empty($data->ayah_penghasilan) ? "-" : "$data->ayah_peng_label ( Rp. ".number_format($data->ayah_peng_dari, 2, ',', '.')." - Rp. ".number_format($data->ayah_peng_hingga, 2, ',', '.')." )";
-        $data->ibu_penghasilan_label = empty($data->ibu_penghasilan) ? "-" : "$data->ibu_peng_label ( Rp. ".number_format($data->ibu_peng_dari, 2, ',', '.')." - Rp. ".number_format($data->ibu_peng_hingga, 2, ',', '.')." )";
-        $data->wali_penghasilan_label = empty($data->wali_penghasilan) ? "-" : "$data->wali_peng_label ( Rp. ".number_format($data->wali_peng_dari, 2, ',', '.')." - Rp. ".number_format($data->wali_peng_hingga, 2, ',', '.')." )";
-        return $data;
-    }
-
-    
-    public function getAll($whereAnd = [], $whereOr = [], $order)
-    {
-        $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
-        $whereOr = empty($whereOr) ? '1=1' : $whereOr;
-
-        $data = $this->db->table('sch_psb p')
-                    ->select("p.*,
-                    pe1.label ayah_peng_label, pe1.dari ayah_peng_dari, pe1.hingga ayah_peng_hingga,
-                    pe2.label ibu_peng_label, pe2.dari ibu_peng_dari, pe2.hingga ibu_peng_hingga,
-                    pe3.label wali_peng_label, pe3.dari wali_peng_dari, pe3.hingga wali_peng_hingga")
-                    ->join('sch__penghasilan pe1','pe1.id=p.ayah_penghasilan','left')
-                    ->join('sch__penghasilan pe2','pe2.id=p.ibu_penghasilan','left')
-                    ->join('sch__penghasilan pe3','pe3.id=p.wali_penghasilan','left')
-                    ->where($whereAnd)
-                    ->groupStart()
-                        ->orWhere($whereOr)
-                    ->groupEnd()
-                    ->orderBy($order)
-                    ->get()
-                    ->getResultObject();
-
-        return $data;
+        parent::__construct();
+        $this->table = 'sch_psb';
+        $this->relations = [
+            'ayah_penghasilan' => [
+                'foreign_key' => 'ayah_penghasilan',
+                'table' => 'sch__penghasilan',
+                'alias' => 'pel1',
+                'type' => 'left',
+                'selects' => [
+                    'label ayah_peng_label', 
+                    'dari ayah_peng_dari', 
+                    'hingga ayah_peng_hingga',
+                ]
+            ],
+            'ibu_penghasilan' => [
+                'foreign_key' => 'ibu_penghasilan',
+                'table' => 'sch__penghasilan',
+                'alias' => 'pel2',
+                'type' => 'left',
+                'selects' => [
+                    'label ibu_peng_label', 
+                    'dari ibu_peng_dari', 
+                    'hingga ibu_peng_hingga',
+                ]
+            ],
+            'wali_penghasilan' => [
+                'foreign_key' => 'wali_penghasilan',
+                'table' => 'sch__penghasilan',
+                'alias' => 'pel3',
+                'type' => 'left',
+                'selects' => [
+                    'label wali_peng_label', 
+                    'dari wali_peng_dari', 
+                    'hingga wali_peng_hingga',
+                ]
+            ],
+        ];
     }
 
     public function getSummary()

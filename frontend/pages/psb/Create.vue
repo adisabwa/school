@@ -31,7 +31,8 @@
             <form-comp ref="formPsb"
               :fields="fields" 
               :key="'from'+active"
-              :id="dataId"
+              v-model:id="dataId"
+              v-model:form-value="formValue"
               :label-position="labelPosition"
               class="mt-6"
               label-width="250px"
@@ -92,7 +93,7 @@
         loading:true,
         dataId:'-1',
         saving:false,
-        sizeWindow:'',
+        formValue:{}
       };
     },
     watch: {
@@ -106,6 +107,15 @@
       },
       dataId(val){
         console.log(val)
+      },
+      'formValue.nisn'(val){
+        if (this.isEmpty(val))
+          return
+        let timeout = ''
+        clearTimeout(timeout)
+        timeout = setTimeout(() => {
+          this.$refs.formPsb.searchData('nisn')
+        }, 2000) // delay 500ms
       }
     },  
     computed: {
@@ -114,7 +124,7 @@
         user: 'loggedUser',
       }),
       labelPosition(){
-        return this.sizeWindow < 800 ? 'top' : 'left'
+        return this.$windowWidth < 800 ? 'top' : 'left'
       }
     },
     methods: {
@@ -129,7 +139,7 @@
           });
       },
       submitted(psb){
-        // this.saving = false
+        this.saving = false
         this.dataId = psb.id
         let a = this.active + 1;
         if (this.groups[a] == undefined) {
@@ -148,11 +158,7 @@
       // console.log(this.$router);
     },
     mounted: function() {
-      let vm = this
-      vm.sizeWindow = window.innerWidth
-      window.addEventListener('resize', () => {
-        vm.sizeWindow = window.innerWidth
-      });
+      
     },
     beforeRouteEnter(to, from, next) {
       // Redirect to another route when this page is accessed after a refresh

@@ -24,8 +24,15 @@ class PdfBuilder
         $render = $dompdf->render();
         
         if ($stream) {
+            
+            // Hapus semua output sebelumnya
+            ob_end_clean();
+
+            header_remove();
+            
             // Output the generated PDF to Browser
             $dompdf->stream("document.pdf", ["Attachment" => false]); // Change to true to force download
+            exit();
         } else {
             return $render;
         }

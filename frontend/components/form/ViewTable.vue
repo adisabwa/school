@@ -73,10 +73,6 @@ export default {
       type:String,
       default: '',
     },
-    searchColumns:{
-      type:[Array,Object],
-      default:[],
-    },
     empty:{
       type:Boolean,
       default:false,
@@ -147,7 +143,7 @@ export default {
     getData(params, from = 'parent'){
       if (this.isEmpty(params))
         return this.emptyData()
-      
+      console.log(params)
       this.getLoading(from, true)
       this.$http.get(this.hrefGet,
         {

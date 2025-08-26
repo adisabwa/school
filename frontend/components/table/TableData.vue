@@ -98,6 +98,7 @@
               <slot :name="field.nama_kolom+'-inside'" :scope="scope" :field="field"></slot>
             </template>
           </el-table-column>
+          <slot :name="'after-'+field.nama_kolom" :field="field"></slot>
         </template>
         <slot></slot>
         <el-table-column v-if="showDropdown"

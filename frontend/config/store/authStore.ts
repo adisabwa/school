@@ -29,7 +29,7 @@ export const useAuthStore = defineStore('auth', {
       return new Promise((resolve, reject) => {
         axios({
           method: "POST",
-          url: siteUrl + "/auth/login",
+          url: siteUrl + "/auth/g_login",
           data: jsonToFormData(payload),
         }).then(response => {
           deleteCookie(COOKIE_NAME)

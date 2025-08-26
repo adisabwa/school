@@ -2,7 +2,7 @@ import { isArray } from "lodash";
 
 let listFunction = {
   isEmpty(str) {
-    return (!str || 0 === str.length || str === undefined || str === '0000-00-00');
+    return (!str || 0 === str.length || str === undefined || str === '0000-00-00' );
   },
   ucFirst: str => str ? str[0].toUpperCase() + str.slice(1) : str,
   capitalizeEachWord(str) {

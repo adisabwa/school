@@ -9,9 +9,9 @@
   }
 </style>
 <template>
-  <div id="psb" class="flex flex-col justify-center max-w-[1100px] mx-6 md:mx-auto">
+  <div id="psb" class="flex flex-col justify-center max-w-[1100px] mx-6 <md>:mx-auto ">
     <div class="flex flex-col items-center align-middle bg-white bg-opacity-[0.8]
-      h-full pt-48 pb-20 flex-1 px-5 md:px-0
+      h-full pt-36 pb-20 flex-1 px-5 md:px-10
       text-center text-[20px]">
       <div class="text-4xl md:text-5xl font-[500] text-emerald-800 leading-[1.3]">
         Pendaftaran Peserta Didik Baru
@@ -22,7 +22,7 @@
       </div>
       <div class="mt-8 text-[13px] md:text-[18px] text-emerald-800 leading-[1.8]
         px-0 md:px-12">
-        Visi dan Misi Sekolah
+        Membentuk Generasi yang Kaffah,Unggul dalam Ketakwaan, Kemandirian dan Kepeloporan dan <br/>Semangat Amar Ma’ruf Nahi Mungkar Yang Berdasarkan Al Quran dan As Sunnah.
       </div>
       <el-button size="large"
         class="m-0 mt-8 button-menu"

@@ -43,7 +43,7 @@
           </div>
           <div class="flex flex-col gap-y-8 mt-5">
             <template v-for="menuFilter in menusFilter">
-              <div v-if="menuFilter?.datas?.length > 0" class="w-full max-w-[90%] mx-auto">
+              <div v-if="menuFilter?.datas?.length > 0" class="w-full mx-auto">
                 <div class="text-center bg-orange-100
                   text-cyan-800 font-bold md:text-xl
                   md:py-1 md:mb-3 py-[2px] mb-3 " >{{ menuFilter?.label }}</div>
@@ -159,6 +159,7 @@ export default {
       useAuthStore().gLogin({credential:result.credential}, true)
         .then(res => {
           this.loading = false;
+          this.getDataFilter()
         }).catch(err => {
           this.loading = false;
           console.log(err)
@@ -199,7 +200,10 @@ export default {
     getDataFilter(){
       let q = this.keyword?.toLowerCase()
       let menus = this.topMenu.filter((d) => {
-        let role = this.user.app_roles[d.app] ?? this.user.app_roles.all
+        console.log(this.user)
+        if (!this.user.app_roles)
+          return false
+        let role = this.user?.app_roles[d.app] ?? this.user.app_roles.all
         // console.log(app, role)
         if (d.route[role]) {
           return true

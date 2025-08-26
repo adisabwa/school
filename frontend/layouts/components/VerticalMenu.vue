@@ -130,7 +130,7 @@
         </div>
       </div>
     </div>
-    <div class="bg-white rounded-full w-[60px] h-[60px] opacity-50 hover:opacity-80
+    <div class="bg-white rounded-full w-[60px] h-[60px] opacity-50 hover:opacity-80 md:hidden
       fixed z-[99999] bottom-5 right-5 flex items-center justify-center"
       @click="handleSelect">
       <icons icon="mdi:menu" class="text-4xl m-0 text-emerald-900

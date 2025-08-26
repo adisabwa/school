@@ -15,15 +15,15 @@
           <template #label v-if="showLabel">
             <span :class="[field.required == '1' ? 'required' : '','leading-[1.5] mt-2', labelClass]"> {{ field.label }} </span>
           </template>
-          <div class="flex gap-x-3 w-full">
-            <el-select v-if="showOriginal" v-model="original[field.nama_kolom]" class="w-[130px] grow-0 shrink-0" size="large" @change="changedValue(field.nama_kolom)">
+          <div class="flex flex-wrap gap-x-3 w-full">
+            <el-select v-if="showOriginal" v-model="original[field.nama_kolom]" class="w-[110px] grow-0 shrink-0" size="large" @change="changedValue(field.nama_kolom)">
               <el-option :value="true" label="Nilai Asli"></el-option>
               <el-option :value="false" label="Berubah"></el-option>
             </el-select>
             <template v-if="field.input == 'input' || isEmpty(field.input)">
               <el-input v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
-                :class="['w-full',inputClass]" 
-                @change="searchData(ind); changedValue(field.nama_kolom)" @input="form[field.nama_kolom] = runFunction({
+                :class="['w-full flex-1',inputClass]" 
+                @change="changedValue(field.nama_kolom)" @input="form[field.nama_kolom] = runFunction({
                   func:field.function_input, 
                   data:form[field.nama_kolom]
                 })"
@@ -34,9 +34,9 @@
                 <template #apppend v-if="!isEmpty(field.apppend)"> {{ field.append }}</template>  
               </el-input>
             </template> 
-              <template v-else-if="field.input == 'password'">
+            <template v-else-if="field.input == 'password'">
               <el-input v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
-                :class="['w-full in-password',inputClass]" 
+                :class="['w-full in-password flex-1',inputClass]" 
                 type="password" show-password
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
@@ -50,14 +50,14 @@
             <template v-else-if="field.input == 'input-number'">
               <el-input-number v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
                 @change="changedValue(field.nama_kolom)"
-                :class="['w-full',inputClass]" 
+                :class="['w-full flex-0',inputClass]" 
                 :size="size"
                 :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}"/>
             </template>
             <template v-else-if="field.input == 'number'">
               <el-input v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
-                :class="['w-full',inputClass]" 
+                :class="['w-full flex-1',inputClass]" 
                 type="number"
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
@@ -66,7 +66,7 @@
             </template>
             <template v-else-if="field.input == 'textarea'">
               <el-input v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
-                :class="['w-full',inputClass]" 
+                :class="['w-full flex-1',inputClass]" 
                 type="textarea" row="3"
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
@@ -77,7 +77,7 @@
               <floating-select v-model:value="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Pilih ${field.label}`" 
                 :filterable="field?.filterable ?? true" :clearable="field?.clearable ?? true"
                 :allow-create="field.allow_create"
-                :class="['w-full',inputClass]" 
+                :class="['w-full flex-1',inputClass]" 
                 :size="size"
                 :readonly="field.readonly"
                 :empty-value="field.emptyValue"
@@ -118,7 +118,7 @@
             <template v-else-if="field.input.includes('select-double')">
               <!-- {{ field }} -->
               <floating-select v-model:value="field.parentSelect" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Pilih ${field.label1}`" 
-                :class="['w-full',inputClass]" 
+                :class="['w-full flex-1',inputClass]" 
                 :filterable="field?.filterable ?? true" :clearable="field?.clearable ?? true"
                 @change="form[field.nama_kolom] = null; changedValue(field.nama_kolom)"
                 :size="size"
@@ -131,7 +131,7 @@
               </floating-select>
               <floating-select v-model:value="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Pilih ${field.label2}`" 
                 :filterable="field?.filterable ?? true" :clearable="field?.clearable ?? true"
-                :class="['w-full',inputClass]" 
+                :class="['w-full flex-1',inputClass]" 
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
                 :readonly="field.readonly"
@@ -182,9 +182,20 @@
                 </template>
               </el-radio-group>
             </template>
+            <template v-else-if="field.input=='switch'">
+              <el-switch v-model="form[field.nama_kolom]"
+                active-value="1" inactive-value="0"
+                :size="size"
+                :class="[inputClass]" 
+                :readonly="field.readonly"
+                :disabled="field.disabled"
+                @change="changedValue(field.nama_kolom)"
+                :style="{width:field.width_input + ' !important'}"/>
+              <span></span>
+            </template>
             <template v-if="field.input == 'date-wheel'">
               <date-wheel-picker
-                :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`" :class="['w-full',inputClass]" 
+                :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`" :class="['w-full flex-1',inputClass]" 
                 v-model:value="form[field.nama_kolom]"
                 value-format="YYYY-MM-DD"
                 format="DD MMMM YYYY"
@@ -198,7 +209,7 @@
             <template v-else-if="field.input == 'date'">
               <el-date-picker
                 :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
-                :class="['w-full',inputClass]" 
+                :class="['w-full flex-1',inputClass]" 
                 v-model="form[field.nama_kolom]"
                 :clearable="field?.clearable ?? true" 
                 value-format="YYYY-MM-DD"
@@ -210,7 +221,7 @@
                 :style="{width:field.width_input + ' !important'}"/>
             </template>
             <template v-else-if="field.input == 'file'">
-              <div  :class="['w-full',inputClass]" 
+              <div  :class="['w-full flex-1',inputClass]" 
                 :style="{width:field.width_input + ' !important'}">
                 <div v-if="!isEmpty(links[field.nama_kolom])">
                   <el-checkbox v-model="field.change">Upload Ulang</el-checkbox>
@@ -353,6 +364,10 @@ export default {
       default: '',
     },
     hrefGet:{
+      type:String,
+      default: '',
+    },
+    hrefSearch:{
       type:String,
       default: '',
     },
@@ -529,15 +544,20 @@ export default {
       }   
     },
     async getData(where, changeId){
+      if (this.showOriginal) return
       // console.log('get-data', this.initial)
       await this.settingFields();
       if (this.hrefGet == '') 
         return
       this.saving = true
+      // let formData = window.jsonToFormData(where);
       await this.$http.get(this.hrefGet,
         {
-          params:where
+          params:{
+            where:where
+          }
         }
+        // formData,
       )
         .then(result => {
           this.saving = false;
@@ -662,7 +682,7 @@ export default {
             // console.log(d.nama_kolom, d.default, d.input)
             vm.form[d.nama_kolom] = vm.isEmpty(d.default) ? (d.input == 'array' ? [] : '') : d.default;
             vm.errors[d.nama_kolom] = d.input == 'array' ? [] : '';
-            vm.original[d.nama_kolom] = false;
+            vm.original[d.nama_kolom] = this.showOriginal;
             if (d.input == 'file') {
               vm.links[d.nama_kolom] = '';
             }

@@ -23,14 +23,14 @@
         <div :class="[scrollY > showHidden ? 'opacity-0' : 'opacity-100',
           'animate px-3 pt-3 pb-2']">
           <div class="text-right md:block hidden">
-            <el-button size="default" type="success" @click="downloadDinas">
+            <el-button size="small" type="success" @click="downloadDinas">
               <icons icon="ri:file-excel-2-fill" /> Template Dinas
             </el-button>
-            <el-button size="default" type="primary" @click="promptDinas = true">
+            <el-button size="small" type="primary" @click="promptDinas = true">
               <icons icon="ic:twotone-create" /> Generate Raport Dinas
             </el-button>
             <el-divider direction="vertical" />
-            <el-button size="default" type="success" @click="saveScore">
+            <el-button size="small" type="success" @click="saveScore">
               <icons icon="fluent:save-20-filled" /> Simpan
             </el-button>
           </div>
@@ -91,14 +91,14 @@
             'px-3 pt-3 pb-2']"
             v-fixed-to-position="50">
             <div class="text-right md:block hidden">
-              <el-button size="default" type="success" @click="downloadDinas">
+              <el-button size="small" type="success" @click="downloadDinas">
                 <icons icon="ri:file-excel-2-fill" /> Template Dinas
               </el-button>
-              <el-button size="default" type="primary" @click="promptDinas = true">
+              <el-button size="small" type="primary" @click="promptDinas = true">
                 <icons icon="ic:twotone-create" /> Generate Raport Dinas
               </el-button>
               <el-divider direction="vertical" />
-              <el-button size="default" type="success" @click="saveScore">
+              <el-button size="small" type="success" @click="saveScore">
                 <icons icon="fluent:save-20-filled" /> Simpan
               </el-button>
             </div>
@@ -129,7 +129,11 @@
             <div class="text-[18px]">Tidak ada data nilai</div>
           </div>
           <div v-else>
-            <div id="freeze-container" class="mx-3 overflow-x-hidden w-full h-full">
+            <!-- <div class="mx-3">
+              <el-switch />
+              <b class="ml-3">Wali Kelas dan Admin boleh mengedit nilai</b>
+            </div> -->
+            <div id="freeze-container-" class="mx-3 overflow-x-hidden w-full h-full">
             </div>
             <div class="mx-3 overflow-x-auto" @scroll="(event) => {
               let tFreezeHead = jquery('#table-freeze-head')
@@ -141,17 +145,13 @@
               <table id="table-base" class=" table mt-1 md:text-[14px] text-[12px] leading-[1.5]">
                 <thead class="bg-slate-100 [&_*]:border [&_*]:border-solid [&_*]:border-slate-300">
                   <tr>
-                    <th rowspan="2" width="20px" class="fixed-col">No</th>
-                    <th rowspan="2" class="fixed-col">Nama</th>
-                    <th rowspan="2" class="text-center">Nilai Harian</th>
-                    <th rowspan="2" class="text-center">UTS</th>
-                    <th rowspan="2" class="text-center">UAS</th>
-                    <th rowspan="2" class="text-center">Raport</th>
-                    <th colspan="2" class="text-center">Raport Dinas</th>
-                  </tr>
-                  <tr>
-                    <th class="text-center" nowrap>Nilai 1</th>
-                    <th class="text-center" nowrap>Nilai 2</th>
+                    <th width="20px" class="fixed-col">No</th>
+                    <th class="fixed-col">Nama</th>
+                    <th class="text-center">Nilai Harian</th>
+                    <th class="text-center">UTS</th>
+                    <th class="text-center">UAS</th>
+                    <th class="text-center">Raport</th>
+                    <th class="text-center">Raport Dinas</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -159,15 +159,18 @@
                     <td>{{ key + 1 }}</td>
                     <td>{{ data.nama }}</td>
                     <td v-for="ujian in ['nilai_harian','uts','uas']" class="text-center">
-                      <el-input v-model="data.nilai[ujian]" size="large"
+                      <el-input v-if="allowEdit[ujian]"
+                        v-model="data.nilai[ujian]" size="large"
                         @focus="(event) => {  }"
                         @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 0, 100)
                           countRapor(key);"
-                        class="w-[60px]" />
+                        class="w-[50px]" />
+                      <span v-else>
+                        {{ data.nilai[ujian] }}
+                      </span>
                     </td>
                     <td class="text-center">{{ data.nilai.nilai_rapor }}</td>
                     <td class="text-center">{{ data.nilai.katrol1 }}</td>
-                    <td class="text-center">{{ data.nilai.katrol2 }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -258,7 +261,8 @@ import { mapState } from 'pinia';
         nilaiMin:78,
         nilaiMax:0,
         showHidden: 286,
-        // role:'walas',
+        PembagianMapel:{},
+        // role:'guru',
       };
     },
     watch: {
@@ -274,7 +278,6 @@ import { mapState } from 'pinia';
         this.filter.id_pembagian_mapel = Object.values(this.filterFields.id_pembagian_mapel.options)[0]?.value
       },
       'filter.id_pembagian_mapel' (val) {
-        console.log('id',val)
         this.getData()
       },
       promptDinas(val){
@@ -299,6 +302,16 @@ import { mapState } from 'pinia';
       showLabel(){
         return this.$windowWidth > 800
       },
+      allowEdit(){
+        let access = (this.role == 'guru' || this.PembagianMapel.allow_access == '1')
+        let data = {
+          nilai_harian: (access && this.PembagianMapel['lock_nilai_harian']) == '0',
+          uts: (access && this.PembagianMapel['lock_uts']) == '0',
+          uas: (access && this.PembagianMapel['lock_uas']) == '0',
+        }
+        // console.log(data)
+        return data
+      }
     },
     methods: {
       searchData(){
@@ -308,7 +321,7 @@ import { mapState } from 'pinia';
       },
       getInitial: async function() {
           this.loading = true;
-          console.log(this.storeFilters)
+          // console.log(this.storeFilters)
           let where = {}
           switch (this.role) {
             case 'guru':
@@ -337,6 +350,14 @@ import { mapState } from 'pinia';
             })
         },
       getData(){
+        this.$http.get('mapel/pembagian/get',{
+          params: {
+            id: this.filter.id_pembagian_mapel
+          }
+        }).then(result => {
+          this.PembagianMapel = result.data
+          // console.log(this.PembagianMapel)
+        })
         this.$http.get('mapel/nilai',{
           params: {
             id_pembagian_mapel: this.filter.id_pembagian_mapel
@@ -378,7 +399,7 @@ import { mapState } from 'pinia';
       saveScore() {
         let form = []
         this.dataNilai.forEach(d => {
-          console.log(d)
+          // console.log(d)
           form.push({
             id:d.id,
             id_pembagian_mapel: d.id_pembagian_mapel,
@@ -479,9 +500,9 @@ import { mapState } from 'pinia';
         trBodyFreezeBody.each((index, tr) => {
           let trF = jquery(jquery(tr).find('td')[0])
           let trB = jquery(jquery(trBaseBody[index]).find('td')[0])
-          console.log(trF, trB)
+          // console.log(trF, trB)
           trF.height(trB.height())
-          console.log(trF.height(), trB.height())
+          // console.log(trF.height(), trB.height())
         })
           // var targetOffset = tBase[0].getBoundingClientRect(); // relative to viewport
           // tFreeze.css({
@@ -538,7 +559,7 @@ import { mapState } from 'pinia';
           val:val
         })
       )
-      console.log('change-filter', dataStore.filters)
+      // console.log('change-filter', dataStore.filters)
     },
   }
   </script>

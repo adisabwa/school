@@ -49,7 +49,7 @@
           :title="'Data Calon Santri'"
           v-model:checked-id="ids"
           :fields="fields"
-          class="p-0">
+          class="p-0 mt-3">
           <template #nama-inside="el">
             {{ el.scope.row.nama  }} <br/>
             {{ el.scope.row.nisn  }} 
@@ -76,7 +76,7 @@
                 <template #dropdown>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item 
-                      :command="{action: 'edit', nisn: scope.row.nisn}">
+                      :command="{action: 'edit', nisn: scope.row.nisn, id: scope.row.id}">
                       <icons icon="material-symbols:edit-outline"/> Ubah</el-dropdown-item>
                     <el-dropdown-item 
                       :command="{action: 'delete', id: scope.row.id}">
@@ -149,10 +149,7 @@
           nama:'',
           nomor:'',
         },
-        params:{
-          nama:'-1',
-          nomor:'-1',
-        },
+        params:{},
         editId:-1,
         ids:[],
         sizeWindow:window.innerWidth,
@@ -163,10 +160,10 @@
     },
     watch: {
       'filter.nama': function(val) {
-        useDataStore().saveFilter({key:nama, val:val})
+        useDataStore().setFilter({key:nama, val:val})
       },
       'filter.nomor': function(val) {
-        useDataStore().saveFilter({key:nomor, val:val})
+        useDataStore().setFilter({key:nomor, val:val})
       },
       'paging.currentPage': function(val) {
         this.paging.offset = val * this.paging.perPage - this.paging.perPage;
@@ -182,8 +179,20 @@
     },
     methods: {
       searchData(){
-        this.resetObjectValue(this.params)
-        this.fillObjectValue(this.params, this.filter)
+        this.params = {
+          where: {
+          }
+        }
+        console.log(this.filter)
+        if (!this.isEmpty(this.filter.nama)) {
+          let nama = "nama LIKE '%"+this.filter.nama+"%'"
+          this.params.where[nama] = ''
+        }
+        if (!this.isEmpty(this.filter.nomor)) {
+          let nomor = "(nisn LIKE '%"+this.filter.nomor+"%' OR nik LIKE '%"+this.filter.nomor+"%'' OR ayah_nik LIKE '%"+this.filter.nomor+"%' OR ibu_nik LIKE '%"+this.filter.nomor+"%' OR wali_nik LIKE '%"+this.filter.nomor+"%')"
+          this.params.where[nomor] = ''
+        }
+        // console.log(this.params)
       },
       getFilter(filter){
         this.fillObjectValue(this.filter, filter)
@@ -195,8 +204,8 @@
         var status = obj.status;
         var index = obj.index;
         if (action == 'edit') {
-          this.$router.push({name:'psb-view'})
-          useDataStore().saveFilter({key:'keyword', val:nisn})
+          this.$router.push({name:'psb-create', query:{id:dataId}})
+          useDataStore().setFilter({key:'keyword', val:nisn})
         } else if (action == 'pay') {
           this.statusPsb(id, status);
         } else  if (action == 'pay-many') {
