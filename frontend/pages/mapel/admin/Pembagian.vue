@@ -20,7 +20,7 @@
         :title="'Data Mata Pelajaran'"
         v-model:checked-id="ids"
         :fields="fields"
-        :pass-columns="['id_semester']"
+        :pass-columns="['id_semester','lock_nilai_harian','lock_uts','lock_uas']"
         :default-value="[
          {
           key:'id_semester',
@@ -33,6 +33,20 @@
           <el-button type="primary" class="float-right h-full" size="small"
             @click="searchData"
             ><icons icon="mdi:search"/>Cari</el-button>
+        </template>
+        <template #after-jam="{field}">
+          <el-table-column
+            label="Kunci Data"
+            width="120"
+            align="center">
+            <template #default="scope">
+              <div class="text-center">
+                <div>NH : {{  scope.row.lock_nilai_harian == '1' ? 'Terkunci' : 'Bisa diedit' }}</div>
+                <div>UTS : {{  scope.row.lock_uts == '1' ? 'Terkunci' : 'Bisa diedit' }}</div>
+                <div>UAS : {{  scope.row.lock_uas == '1' ? 'Terkunci' : 'Bisa diedit' }}</div>
+              </div>
+            </template>
+          </el-table-column>
         </template>
       </table-data>
     </el-card>

@@ -45,15 +45,17 @@
                   enter-to-class="opacity-50"
                   leave-from-class="opacity-50"
                   leave-to-class="-translate-x-full opacity-0">
+
                 <view-table ref="viewPsb"
                   :fields="fields" 
                   :key="'from'+active"
-                  :keyword="inputKeyword"
+                  :params="params"
                   :label-position="labelPosition"
                   class="mt-6"
                   label-width="250px"
                   href-get="/psb/search"
-                  :search-columns="['nisn','ayah_nik','ibu_nik','wali_nik']"
+                  :set-status-text="setStatusText"
+                  :set-status-type="setStatusType"
                   @saved="submitted"  
                   @change-id="changeId"
                   v-model:empty="empty"
@@ -112,7 +114,10 @@
       </el-card>
     </div>
 </template>
-  
+
+<script setup>
+  import { setStatusText, setStatusType } from '@/helpers/psb'
+</script>
 <script>
   import { mapState } from 'pinia';
   import ViewTable from '@/components/form/ViewTable.vue'
@@ -134,6 +139,7 @@
         keyword:'',
         empty: true,
         loading:false,
+        params:{},
       };
     },
     watch: {
@@ -142,23 +148,38 @@
         this.scrollElement("#steps", "#step" + val) 
         this.scrollToElement("#psb")
       },
+      dataId(val){
+        this.getParams()
+      },
       inputKeyword(val){
-        console.log('cek', val)
+        this.getParams()
       }
     },  
     computed: {
-      
       ...mapState(useAuthStore, {
         user: 'loggedUser',
       }),
       labelPosition(){
-        return this.sizeWindow < 800 ? 'top' : 'left'
+        return this.$windowWidth < 800 ? 'top' : 'left'
       }
     },
     methods: {
+      getParams(){
+        if (!this.isEmpty(this.inputKeyword))
+          this.params = {
+            or: {
+              nisn: this.inputKeyword,
+              wali_nik: this.inputKeyword,
+              ayah_nik: this.inputKeyword,
+              ibu_nik: this.inputKeyword,
+            }
+          }
+        if (!this.isEmpty(this.dataId) && this.dataId != -1)
+          this.params.where.id = this.dataId
+      },
       getInitial: async function() {
         this.loading = true
-        await this.$http.get('/kolom/preparation?table=da_psb&input=0')
+        await this.$http.get('/kolom/preparation?table=sch_psb&input=0')
           .then(result => {
             var res = result.data;
             this.groups = Object.values(res)
@@ -186,16 +207,15 @@
     },
     mounted: function() {
       let vm = this
-      vm.sizeWindow = window.innerWidth
-      window.addEventListener('resize', () => {
-        vm.sizeWindow = window.innerWidth
-      });
-      let filter = useDataStore().filter
+      let filter = useDataStore().filters
+      console.log('filter', filter)
       this.inputKeyword = this.isEmpty(filter.keyword) ? '' : filter.keyword
+      if (!this.isEmpty(filter.id))
+        this.dataId = this.filter.id
     },
     beforeRouteLeave(){
       console.log('leave')
-      useDataStore().saveFilter({key:'keyword', val:''})
+      useDataStore().setFilter({key:'keyword', val:''})
     }
   }
   </script>

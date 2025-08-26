@@ -54,20 +54,8 @@ class BaseDataController extends BaseController
         $order = $this->request->getGetPost('order') ?? [];
         $order = implode(",", $order);
 
-        // var_dump(method_exists($this->model, 'getWhere'));
-        if ( method_exists($this->model, 'getWhere') ) {
-            $data = $this->model->getWhere($where, $or, $order);
-        } else {
-            $data = $this->model->builder()
-                                ->where($where)
-                                ->groupStart()
-                                    ->orWhere($or)
-                                ->groupEnd()
-                                ->orderBy($order)
-                                ->get()
-                                ->getRowObject();
-        }
-        // var_dump($this->model->getLastQuery());   
+        $data = $this->model->getDataWhere(whereAnd: $where, whereOr: $or, order: $order);
+        // var_dump($this->model->getLastQuery());
         return $this->respondCreated($data);
     }
 

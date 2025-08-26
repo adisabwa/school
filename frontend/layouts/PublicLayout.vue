@@ -10,12 +10,14 @@
           w-full 
           bg-cover bg-bottom
           absolute z-[5] top-0
-          animate in [--transY:-50px]"
+          animate in [--transY:-40px]"
           :style="`background-image:url('${$baseUrl}assets/images/top-2.png')`"></div>
         <div id="top" class="add-play bg-cover bg-bottom
-          h-[100px] md:h-[150px] w-[300%] md:w-full absolute z-[-1]
-          [--toTransX:-50%] left-1/2
-          animate in [--transY:-75px]"
+          h-[100px] md:h-[150px] w-[300%] md:w-[150%] 
+          absolute z-[-1]
+          left-1/2 [--toTransX:-50%] [--transX:-50%]
+          
+          animate in md:[--transY:-75px] [--transY:-40px]"
           :style="`background-image:url('${$baseUrl}assets/images/top.png')`"></div>
         <img id="logo" :src="$baseUrl + 'assets/images/logo-color.png'"
           class="add-play animate zoom
@@ -24,7 +26,7 @@
         <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'"
           class="remove-play animate zoom play
             absolute top-[10px] left-1/2 -translate-x-1/2 z-10
-            md:h-[160px] h-[130px]"/>
+            md:h-[100px] h-[80px]"/>
       </el-header>
     </div>
       
@@ -78,7 +80,7 @@ export default {
   data: function() {
     return {
       activeMenu: '',
-      bigs:['default','psb-start','login','account','unauthorized',this.defaultRoute],
+      bigs:['default','login','account','unauthorized', this.defaultRoute],
     };
   },
   watch: {

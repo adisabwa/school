@@ -20,6 +20,8 @@ $routes->group('mapel', [
         $routes->add('store_many', [MapelNilai::class, 'store_many']);
     });
 
+    //------------------------------------- Data Pembagian Mapel -----------------------------------------------
+    $routes->add('pembagian/get', [MapelPembagianAdmin::class, 'get']);
 
 });
 

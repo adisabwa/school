@@ -4,7 +4,8 @@
     "type": "project",
     "require": {
         "google/apiclient": "*",
-        "google/apiclient-services": "*"
+        "google/apiclient-services": "*",
+        "dompdf/dompdf": "^3.1"
     },
     "minimum-stability": "stable",
     "prefer-stable": true

@@ -1,5 +1,6 @@
 
 export function setStatusType(status){
+    console.log('psb',status);
     if (status == '0') return 'warning'
     else if (status == '1') return 'primary'
     else if (status == '2') return 'success'

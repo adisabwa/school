@@ -48,7 +48,7 @@ class ValidationFilter implements FilterInterface
 
             $validationRule = $this->setValidation('', $datas, $postData, $files_data, $model, $id, $validationRule);
 
-            // var_dump($validationRule);
+            // var_dump($datas, $validationRule);
                 // return failValidationErrors([]);
             if (empty($validationRule))
                 return TRUE;
@@ -197,7 +197,7 @@ class ValidationFilter implements FilterInterface
             $postData[$nama_kolom] = $f($postData[$nama_kolom]);
         }
 
-        var_dump($double_input);
+        // var_dump($double_input);
         foreach ($double_input as $nama_kolom => $data) {
             $koloms = explode('-', $nama_kolom);
             $datas = explode('-', $data);

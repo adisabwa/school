@@ -62,7 +62,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          :width="$windowWidth > 600 ? 60 : 40" label="No" align="center">
+          :width="$windowWidth > 600 ? 50 : 30" label="No" align="center">
           <template #default="scope">
             {{ scope.$index + 1 + paging.offset }}
           </template>
@@ -70,7 +70,7 @@
         <template v-for="(field, ind) in fields">
           <slot :name="'before-'+field.nama_kolom" :field="field"></slot>
           <el-table-column v-if="showColumns.length > 0 ? showColumns.includes(field.nama_kolom) : !passColumns.includes(field.nama_kolom)"
-            :width="field.width" :align="field.align" :min-width="field.min_width">
+            :width="field.width" :align="field.align" :min-width="field.min_width" :max-width="field.max_width">
             <template #header="scope">
               <div class="flex items-center pointer"
                 @click="changeSort(ind, field.sort)"
@@ -98,6 +98,7 @@
               <slot :name="field.nama_kolom+'-inside'" :scope="scope" :field="field"></slot>
             </template>
           </el-table-column>
+          <slot :name="'after-'+field.nama_kolom" :field="field"></slot>
         </template>
         <slot></slot>
         <el-table-column v-if="showDropdown"
@@ -131,7 +132,7 @@
       <el-row type="flex" justify="space-between" class="mt-3 gap-y-2" v-if="paging.dataTotal > paging.perPage">
         <el-pagination
           background
-          pager-count="3"
+          :pager-count="3"
           size="small"
           layout="prev, pager, next, total"
           :total="paging.dataTotal"
