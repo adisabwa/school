@@ -144,8 +144,8 @@ class BaseDataController extends BaseController
                 $save = $this->model->insert($data, TRUE);
                 $posted_data['id'] = $this->model->insertID();
             }
-            var_dump($posted_data);
-            var_dump( $this->model->error());
+            // var_dump($posted_data);
+            // var_dump( $this->model->error());
             // Append ID to data
             foreach ($child_table as $table => $values) {
                 $fk = $child_key[$table];
