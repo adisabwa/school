@@ -72,7 +72,8 @@ class MapelRecordPembelajaranController extends BaseDataController
             'id_penjadwalan' => $id_penjadwalan,
         ]);
 
-        // var_dump($jadwal_detail);
+        var_dump($jadwal_detail);
+        var_dump($this->jadwalDetailModel->getLastQuery());
         $datas = [];
         foreach ($jadwal_detail as $detail) {
             $datas[] = [

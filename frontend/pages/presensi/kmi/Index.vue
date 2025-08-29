@@ -216,7 +216,8 @@
       getInitial: async function() {
           // this.loading = true;
         let date = this.dateNow()
-        let time = this.timeNow()
+        // let time = this.timeNow()
+        let time = '07:40'
         this.filter.komplek = 'putra'
         await this.$http.get('data/semester/options')
           .then(result => {
