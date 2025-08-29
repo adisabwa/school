@@ -179,7 +179,7 @@ class BaseModel extends Model
 
     public function applyJoin(object $builder, $relations = NULL)
     {
-        // var_dump($relations);
+        // var_dump($this->relations);
         // exit;
         if ($relations === NULL) {
             $relations = array_keys($this->relations);
@@ -211,7 +211,7 @@ class BaseModel extends Model
 
                 $text_table = $alias ? "$table $alias" : $table;
                 // var_dump($condition, $text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
-                // var_dump(implode(" AND ", $condition), $text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
+                // var_dump($condition, implode(" AND ", $condition), $rel['condition'] ?? '',$text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
                 $builder->join($text_table, implode(" AND ", $condition), $rel['type'] ?? 'inner');
                 if ($rel['order'] ?? false) {
                     if (!is_array($rel['order'])) {
@@ -235,6 +235,7 @@ class BaseModel extends Model
     
     public function addRelations($relations)
     {
+        // var_dump($relations);
         foreach ($relations as $key => $relation) {
             if ($this->relations[$key] ?? false){
                 foreach($relation as $index => $value) {
@@ -242,7 +243,7 @@ class BaseModel extends Model
                 }
             }
         }
-
+        // var_dump($key, $this->relations[$key]);
         return $this;
     }
     

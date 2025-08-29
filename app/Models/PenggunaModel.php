@@ -63,8 +63,17 @@ class PenggunaModel extends BaseModel
         }
         return $data;
     }
-  
-    public function getAll(array $whereAnd = [], array $whereOr = [], array $whereIn = [], array $orWhereIn = [], string $order = '', int $limit = 0, int $offset = 0, $relations = [])
+
+    public function getAll(
+        array $whereAnd = [], 
+        array $whereOr = [], 
+        array $whereIn = [], 
+        array $orWhereIn = [], 
+        array $groupBy = [], 
+        string $order = '', 
+        int $limit = 0, 
+        int $offset = 0,  
+        $relations = NULL)
     {
       $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
 

@@ -133,7 +133,7 @@
               <el-switch />
               <b class="ml-3">Wali Kelas dan Admin boleh mengedit nilai</b>
             </div> -->
-            <div id="freeze-container-" class="mx-3 overflow-x-hidden w-full h-full">
+            <div id="freeze-container" class="mx-3 overflow-x-hidden w-full h-full">
             </div>
             <div class="mx-3 overflow-x-auto" @scroll="(event) => {
               let tFreezeHead = jquery('#table-freeze-head')
