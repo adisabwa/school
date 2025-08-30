@@ -44,6 +44,30 @@ class Psb extends BaseDataController
             return $this->failServerError();
     }
 
+    
+    public function status_many()
+    {
+        $ids = $this->request->getPostGet('id') ?? -1;
+        $status = $this->request->getPostGet('status') ?? 0;
+        
+        $data = [];
+        foreach($ids as $key => $id) {
+            $data[] = [
+                'id' => $id,
+                'status' => $status,
+                'no_pendaftaran' => $status == '2' ? getNomorPendaftaran($key) : '',
+            ];
+        }
+        // var_dump($data);
+        $save = $this->model->where('status', $status - 1)
+                            ->updateBatch($data,'id');
+        // var_dump($this->model->getLastQuery());
+        if ($save)
+            return $this->respondCreated();
+        else
+            return $this->failServerError();
+    }
+
     public function download($id)
     {
         $PdfBuilder = new PdfBuilder();

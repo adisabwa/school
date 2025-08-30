@@ -37,7 +37,7 @@
               </el-steps>
             </div>
             <div class="p-5 border-solid border-2 border-gray-200 max-w-[700px] mx-auto">
-              <h2 class="text-center m-0">{{ !this.isEmpty(groups[active]) ? groups[active].label : '' }}</h2>
+              <h2 class="text-center m-0">{{ !isEmpty(groups[active]) ? groups[active].label : '' }}</h2>
               <transition name="slide-in" mode="out-in"
                   enter-active-class="transition-all ease-in-out duration-[400ms]"
                   leave-active-class="transition-all ease-in-out duration-[400ms]"
@@ -175,7 +175,11 @@
             }
           }
         if (!this.isEmpty(this.dataId) && this.dataId != -1)
-          this.params.where.id = this.dataId
+          this.params = {...this.params, ...{
+            where:{
+              id:this.dataId
+            }
+          }}
       },
       getInitial: async function() {
         this.loading = true

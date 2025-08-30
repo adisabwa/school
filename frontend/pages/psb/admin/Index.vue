@@ -4,7 +4,8 @@
         <form-comp ref="formFilter"
           :fields="filterFields"
           :label-position="labelPosition"
-          class="mt-6"
+          class="mt-3"
+          form-item-class="mb-2"
           label-width="250px"
           @form-value="getFilter"
           :show-submit="false"
@@ -76,12 +77,21 @@
                 <template #dropdown>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item 
+                      :command="{action: 'view', nisn: scope.row.nisn, id: scope.row.id}">
+                      <icons icon="lsicon:view-filled"/> Lihat Data</el-dropdown-item>
+                    <el-dropdown-item 
                       :command="{action: 'edit', nisn: scope.row.nisn, id: scope.row.id}">
                       <icons icon="material-symbols:edit-outline"/> Ubah</el-dropdown-item>
-                    <el-dropdown-item 
+                    <el-dropdown-item v-if="scope.row.status == '0'"
                       :command="{action: 'delete', id: scope.row.id}">
                       <icons icon="material-symbols:delete-outline"/> Hapus</el-dropdown-item>
-                    <el-dropdown-item
+                    <el-dropdown-item class="text-green-600" v-if="scope.row.status == '0'"
+                      :command="{action: 'pay', status:'1'}">
+                      <icons icon="mdi:money"/> Sudah Dibayar</el-dropdown-item>
+                    <el-dropdown-item class="text-sky-600"  v-if="scope.row.status == '1'"
+                      :command="{action: 'pay', status:'2'}">
+                      <icons icon="mdi:check"/> Verifikasi</el-dropdown-item>
+                    <el-dropdown-item v-if="scope.row.status == '1'"
                       :command="{action: 'download', id:scope.row.id}" >
                       <icons icon="mdi:download"/> Unduh Kartu Pendaftaran</el-dropdown-item>
                   </el-dropdown-menu>
@@ -91,21 +101,31 @@
           </el-table-column>
         </table-data>
       </el-card>
+      <teleport to="body">
+        <el-dialog 
+          v-model="showView"
+          class="p-7 w-fit min-w-[50vw] my-10"
+          :close-on-click-modal="false">
+          <PsbView />
+        </el-dialog>
+      </teleport>
     </div>
 </template>
   
-  <script>
-   import { mapState } from 'pinia';
+<script>
+  import { mapState } from 'pinia';
   import { setStatusText, setStatusType } from '@/helpers/psb'
+  import PsbView from '../View.vue'
   
   
   export default {
     name: "psb",
     components: {
-      
+      PsbView,
     },
     data: function() {
       return {
+        showView:false,
         loading: false,
         filterFields: [
           {
@@ -152,7 +172,6 @@
         params:{},
         editId:-1,
         ids:[],
-        sizeWindow:window.innerWidth,
         setStatusText: setStatusText,
         setStatusType: setStatusType,
         hrefData:'psb/admin',
@@ -174,7 +193,7 @@
         user: 'loggedUser',
       }),
       labelPosition(){
-        return this.sizeWindow < 800 ? 'top' : 'left'
+        return this.$windowWidth < 800 ? 'top' : 'left'
       },
     },
     methods: {
@@ -203,9 +222,11 @@
         var nisn = obj.nisn;
         var status = obj.status;
         var index = obj.index;
+        useDataStore().setFilter({key:'keyword', val:nisn})
         if (action == 'edit') {
-          this.$router.push({name:'psb-create', query:{id:dataId}})
-          useDataStore().setFilter({key:'keyword', val:nisn})
+          this.$router.push({name:'psb-create', query:{id:id}})
+        } else if (action == 'view') {
+          this.showView = true
         } else if (action == 'pay') {
           this.statusPsb(id, status);
         } else  if (action == 'pay-many') {
@@ -312,11 +333,6 @@
       // console.log(this.$router);
     },
     mounted: function() {
-      let vm = this
-      vm.sizeWindow = window.innerWidth
-      window.addEventListener('resize', () => {
-        vm.sizeWindow = window.innerWidth
-      });
       this.searchData()
     },
   }

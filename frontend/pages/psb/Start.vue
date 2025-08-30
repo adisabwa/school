@@ -9,16 +9,16 @@
   }
 </style>
 <template>
-  <div id="psb" class="flex flex-col justify-center max-w-[1100px] mx-6 <md>:mx-auto ">
+  <div id="psb" class="flex flex-col justify-center max-w-[1100px] mx-6 md:mx-auto ">
     <div class="flex flex-col items-center align-middle bg-white bg-opacity-[0.8]
       h-full pt-36 pb-20 flex-1 px-5 md:px-10
       text-center text-[20px]">
       <div class="text-4xl md:text-5xl font-[500] text-emerald-800 leading-[1.3]">
-        Pendaftaran Peserta Didik Baru
+        Pendaftaran Santri Baru
       </div>
       <div class="text-sm md:text-2xl font-[500] text-emerald-800
         mt-2 ">
-        Tahun Ajaran 2025 / 2026
+        Tahun Ajaran 2026 / 2027
       </div>
       <div class="mt-8 text-[13px] md:text-[18px] text-emerald-800 leading-[1.8]
         px-0 md:px-12">

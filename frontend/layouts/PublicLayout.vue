@@ -80,7 +80,7 @@ export default {
   data: function() {
     return {
       activeMenu: '',
-      bigs:['default','login','account','unauthorized', this.defaultRoute],
+      bigs:['default','psb-start','login','account','unauthorized', this.defaultRoute],
     };
   },
   watch: {

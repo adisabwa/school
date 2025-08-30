@@ -14,7 +14,7 @@
             <el-collapse-item  name="1" >
                 <template #title>
                     <div class="text-xl font-semibold text-center">
-                        <span>Brosur Pendaftaran Santri Baru 2024/2025</span>
+                        <span>Brosur Pendaftaran Santri Baru 2026/2027</span>
                     </div>
                 </template>
                 <div class="overflow-x-auto">

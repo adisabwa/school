@@ -4,10 +4,12 @@
         <form-comp ref="formFilter"
           :key="formKey"
           :fields="filterFields"
+          size="default"
           label-position="left"
           :show-label="showLabel"
           class="max-sm:mt-4"
           form-class="m-0"
+          form-item-class="mb-2"
           label-width="150px"
           v-model:form-value="filter"
           :pass-columns="[]"
@@ -133,7 +135,7 @@
               <el-switch />
               <b class="ml-3">Wali Kelas dan Admin boleh mengedit nilai</b>
             </div> -->
-            <div id="freeze-container-" class="mx-3 overflow-x-hidden w-full h-full">
+            <div id="freeze-container" class="mx-3 overflow-x-hidden w-full h-full">
             </div>
             <div class="mx-3 overflow-x-auto" @scroll="(event) => {
               let tFreezeHead = jquery('#table-freeze-head')
@@ -304,12 +306,13 @@ import { mapState } from 'pinia';
       },
       allowEdit(){
         let access = (this.role == 'guru' || this.PembagianMapel.allow_access == '1')
+        // console.log(access)
         let data = {
-          nilai_harian: (access && this.PembagianMapel['lock_nilai_harian']) == '0',
-          uts: (access && this.PembagianMapel['lock_uts']) == '0',
-          uas: (access && this.PembagianMapel['lock_uas']) == '0',
+          nilai_harian: access && this.PembagianMapel['lock_nilai_harian'] == '0',
+          uts: access && this.PembagianMapel['lock_uts'] == '0',
+          uas: access && this.PembagianMapel['lock_uas'] == '0',
         }
-        // console.log(data)
+        console.log(data)
         return data
       }
     },
@@ -432,9 +435,11 @@ import { mapState } from 'pinia';
           })
       },
       getFreezeHeader(){
+        console.log('freeze-header')
         let tBase = jquery('#table-base')
         let tFreezeContainer = jquery('#freeze-container')
-        tFreezeContainer.empty()
+        tFreezeContainer.empty() 
+        // console.log(tBase, tFreezeContainer)
 
         let tBodyFreeze = tBase.clone(true)
         this.removeColumnByClass(tBodyFreeze, [], 'fixed-col')

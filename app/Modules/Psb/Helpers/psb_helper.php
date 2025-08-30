@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\PsbModel;
+use Modules\Psb\Models\PsbModel;
 
 function setStatusText($value) {
     if ($value == '0') return 'Terdaftar';
@@ -23,6 +23,6 @@ function getNomorPendaftaran($plus = 0) {
     $data = $psb->where(['status' => '2'])->findAll();
     $count = count($data) + 1 + $plus;
 
-    return 'simak000'.$count;
+    return 'PPMDA000'.$count;
 
 }
