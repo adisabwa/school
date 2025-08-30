@@ -43,6 +43,7 @@ class BaseDataController extends BaseController
     public function get()
     {
         $id = $this->request->getGet('id');
+        // var_dump($id);
         return $this->respondCreated(method_exists($this->model, 'getData') ? $this->model->getData($id) : $this->model->find($id));
     }
 
