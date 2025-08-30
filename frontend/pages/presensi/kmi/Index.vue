@@ -15,101 +15,95 @@
           :show-required-text="false"
           >
         </form-comp>
-        <teleport to="body">
-          <div :class="[scrollY > 286 ? 'opacity-100' : 'opacity-0',
-            'animate fixed top-[50px] flex z-[9999] right-11 bg-white/[0.7]']">
-            <div class="py-2 px-4">
-              <el-button size="default" type="success" @click="downloadDinas">
-                <icons icon="ri:file-excel-2-fill" /> Template Dinas
-              </el-button>
-              <el-button size="default" type="primary" @click="promptDinas = true">
-                <icons icon="ic:twotone-create" /> Generate Raport Dinas
-              </el-button>
-              <el-divider direction="vertical" />
-              <el-button size="default" type="success" @click="saveScore">
+      <el-card class="shadow-none  " 
+        body-class="px-2 py-0 relative" 
+        >   
+          <div :class="[scrollY > showHidden ? 'opacity-100' : 'opacity-0',
+            'animate fixed right-0 z-[9999] bg-white/[0.7] h-fit',
+            'px-3 pt-3 pb-2']"
+            v-fixed-to-position="100">
+            <div class="text-right md:block hidden">
+              <el-button size="small" type="success" @click="savePresensi">
                 <icons icon="fluent:save-20-filled" /> Simpan
               </el-button>
             </div>
           </div>
-        </teleport>
-        <el-card class="shadow-none">
-          <div :class="[scrollY > 286 ? 'opacity-0' : 'opacity-100'],
-            'animate'">
-            <div class="text-right">
-              <el-button size="default" type="success" @click="downloadDinas">
-                <icons icon="ri:file-excel-2-fill" /> Template Dinas
-              </el-button>
-              <el-button size="default" type="primary" @click="promptDinas = true">
-                <icons icon="ic:twotone-create" /> Generate Raport Dinas
-              </el-button>
-              <el-divider direction="vertical" />
-              <el-button size="default" type="success" @click="saveScore">
-                <icons icon="fluent:save-20-filled" /> Simpan
-              </el-button>
+          <div v-if="dataPresensi.length == 0"
+            class="text-center text-gray-500 text-lg p-5">
+            <icons icon="mdi:alert" class="text-[50px] mb-3" />
+            <div class="text-[18px]">Data Jadwal belum dimasukkan</div>
+          </div>
+          <div v-else class="relative">
+            <div id="freeze-container" class="mx-3 overflow-x-hidden w-full h-full">   
+            </div>
+            <div class="mx-3 overflow-x-auto" @scroll="(event) => {
+              let tFreezeHead = jquery('#table-freeze-head')
+              let target = event.target
+              let scrollLeft = target.scrollLeft
+              let left = scrollLeft - 13
+              tFreezeHead.css({left: -left + 'px'})
+            }" >
+              <table id="table-base" class="table [&_*]:text-[13px] sm:[&_*]:text-[14px] table-fixed">
+                <thead class="bg-slate-100">
+                  <tr>
+                    <th width="20px" class="">No</th>
+                    <th class="text-center " width="30px">Kelas</th>
+                    <th class="">Guru / Mapel</th>
+                    <th class="text-center w-[200px]" width="200px">Kejadian</th>
+                    <th width="50px" class="text-center">Tugas</th>
+                    <th class="text-center w-[150px]" >
+                      Keterlambatan / <br/>
+                      Keluar Lebih Awal
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(data, key) in dataPresensi">
+                    <td class="align-top">{{ key + 1 }}</td>
+                    <td class="text-center align-top">{{ data.kelas }}</td>
+                    <td class="align-top">
+                      <div>{{ data.nama_guru }}</div>
+                      <div>{{ data.nama_mapel }}</div>
+                    </td>
+                    <td class="align-top">
+                      <el-select v-model="data.kehadiran"
+                        class="w-[200px]"
+                        size="large" clearable filterable>
+                        <el-option v-for="opt in (fields?.kehadiran?.options ?? [])" 
+                          :value="opt.value"
+                          :label="opt.label"
+                          />
+                      </el-select>
+                      <el-input v-if="data.kehadiran == 'lainnya'"
+                        v-model="data.lainnya" 
+                        size="large" class="mt-2"
+                        placeholder="Masukkan keterangan lainnya"/>
+                      <el-input v-if="data.kehadiran != 'hadir'"
+                        type="textarea" v-model="data.alasan" 
+                        size="large" class="mt-2" :rows="3"
+                        placeholder="Masukkan alasan ketidak hadiran"/>
+                    </td>
+                    <td class="text-center align-top">
+                      <el-checkbox v-if="data.kehadiran != 'hadir'"
+                        v-model="data.tugas" />
+                    </td>
+                    <td class="align-top">
+                      <template v-if="['terlambat','terlambat dengan izin','keluar sebelum bel'].includes(data.kehadiran)">
+                        <el-input type="number" v-model="data.keterlambatan" 
+                          size="large" placeholder="Waktu"
+                          class="[&_.el-input-group\_\_append]:px-2">
+                          <template #append>Menit</template>
+                        </el-input>
+                        <el-input type="textarea" v-model="data.alasan_keterlambatan" 
+                          size="large" class="mt-2" :rows="3"
+                          placeholder="Masukkan alasan keterlambatan"/>
+                      </template>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-          <teleport to="body">
-            <el-dialog  
-              v-model="promptDinas"
-              class="p-7 w-[400px]"
-              :close-on-click-modal="true">
-              <template #header>
-                <b>Setting Raport Dinas</b>
-              </template>
-              <b>Masukkan presensi minimal dan presensi maksimal terlebih dahulu</b>
-              <div class="flex gap-4 mt-4">
-                <div class="flex flex-col">
-                  <label class="font-semibold mb-1">presensi Minimal</label>
-                  <el-input size="large" v-model="presensiMin"
-                    placeholder="presensi Terkecil" />
-                </div>
-                <div class="flex flex-col">
-                  <label class="font-semibold mb-1">presensi Maksimal</label>
-                  <el-input size="large" v-model="presensiMax"
-                    placeholder="presensi Terbesar" />
-                </div>
-              </div>
-              <template #footer>
-                <el-button @click="promptDinas = false">Batal</el-button>
-                <el-button 
-                  type="success" 
-                  @click="generateDinas()" :icon="saving ? 'el-icon-loading' : ''" 
-                  :disabled="saving">Generate</el-button>
-              </template>
-            </el-dialog>
-          </teleport>
-          <!-- <table class="table  mt-3">
-            <thead>
-              <tr>
-                <th rowspan="2" width="20px">No</th>
-                <th rowspan="2">Nama</th>
-                <th rowspan="2" width="80px" class="text-center">presensi Harian</th>
-                <th rowspan="2" width="80px" class="text-center">UTS</th>
-                <th rowspan="2" width="80px" class="text-center">UAS</th>
-                <th rowspan="2" width="80px" class="text-center">Raport</th>
-                <th colspan="2" class="text-center">presensi Raport Dinas</th>
-              </tr>
-              <tr>
-                <th width="80px" class="text-center">presensi 1</th>
-                <th width="80px" class="text-center">presensi 2</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(data, key) in datapresensi">
-                <td>{{ key + 1 }}</td>
-                <td>{{ data.nama }}</td>
-                <td v-for="ujian in ['presensi_harian','uts','uas']">
-                  <el-input v-model="data.presensi[ujian]" size="large"
-                    @change="data.presensi[ujian] = checkMinMax(rounding(data.presensi[ujian],2), 0, 100)
-                      countRapor(key);"
-                    class="w-full" />
-                </td>
-                <td class="text-center">{{ data.presensi.presensi_rapor }}</td>
-                <td class="text-center">{{ data.presensi.katrol1 }}</td>
-                <td class="text-center">{{ data.presensi.katrol2 }}</td>
-              </tr>
-            </tbody>
-          </table> -->
         </el-card>
       </el-card>
     </div>
@@ -163,11 +157,12 @@
         editId:-1,
         ids:[],
         formKey:0,
-        datapresensi:[],
+        dataPresensi:[],
         scrollY:0,
         promptDinas:false ,
         presensiMin:78,
         presensiMax:0,
+        showHidden: 286,
         // role:'walas',
       };
     },
@@ -187,7 +182,7 @@
       promptDinas(val){
         if (val) {
           let max = 0
-          this.datapresensi.forEach(d => {
+          this.dataPresensi.forEach(d => {
             let rap = d.presensi.presensi_rapor
             if (rap > max) max = rap
           })
@@ -216,7 +211,8 @@
       getInitial: async function() {
           // this.loading = true;
         let date = this.dateNow()
-        let time = this.timeNow()
+        // let time = this.timeNow()
+        let time = '07:40'
         this.filter.komplek = 'putra'
         await this.$http.get('data/semester/options')
           .then(result => {
@@ -251,31 +247,144 @@
           catch(err => {
             console.error('Error fetching semester options:', err);
           });
+        await this.$http.get('/kolom/preparation?table=sch_aka_record_pembelajaran&grouping=0&input=0')
+            .then(result => {
+              var res = result.data;
+              this.fields = res
+            });
         console.log('filter', this.filter)
       },
       getData(){
         this.$http.get('mapel/kmi/record',{
           params: this.filter
         }).then(result => {
-          this.datapresensi = result.data
+          this.dataPresensi = result.data
+          setTimeout(() => {
+            this.getFreezeHeader()
+          }, 300)
+        })
+      },
+      getFreezeHeader(){
+        let tBase = jquery('#table-base')
+        let tFreezeContainer = jquery('#freeze-container')
+        tFreezeContainer.empty()
+
+        let tBodyFreeze = tBase.clone(true)
+        this.removeColumnByClass(tBodyFreeze, [], 'fixed-col')
+        tBodyFreeze.attr('id', 'table-freeze-body')
+        tBodyFreeze.appendTo(tFreezeContainer)
+        tBodyFreeze.css({position:'fixed'})
+
+        let tHeadFreeze = tBase.clone(true).find('tbody').remove().end()
+        tHeadFreeze.attr('id', 'table-freeze-head')
+        tHeadFreeze.appendTo(tFreezeContainer) 
+        tHeadFreeze.css({position:'fixed'})
+
+        let tHeadBodyFreeze = tBodyFreeze.clone().find('tbody').remove().end()
+        tHeadBodyFreeze.attr('id', 'table-freeze-head-body')
+        tHeadBodyFreeze.appendTo(tFreezeContainer) 
+        tHeadBodyFreeze.css({position:'fixed'})
+        // console.log(tBodyFreeze)
+        // console.log(tHeadFreeze.width(), tBase.width())
+
+        let thBase = tBase.find('th')
+        let trBaseHead = tBase.find('thead tr')
+        let trBaseBody = tBase.find('tbody tr')
+        let thBodyFreeze = tBodyFreeze.find('th')
+        
+        let thFreeze = tHeadFreeze.find('th')
+        let thHeadBodyFreeze = tHeadBodyFreeze.find('th')
+        // // console.log(tHeadFreeze, tBase, tFreeze, thFreeze)
+        let trBodyFreezeHead = tBodyFreeze.find('thead tr')
+        let trBodyFreezeBody = tBodyFreeze.find('tbody tr')
+
+        let keys = Object.keys(thFreeze)
+        
+        for (let i = 0; i < keys.length; i++) {
+          const key = keys[i]
+          let elBase = jquery(thBase[key])
+          let elFreeze = jquery(thFreeze[key])
+          let elBodyFreeze = jquery(thBodyFreeze[key])
+          let elHeadBodyFreeze = jquery(thHeadBodyFreeze[key])
+          // console.log(elBase, elFreeze)
+          // continue;
+          try {
+            // console.log(elBase.width(), elFreeze.width())
+            elFreeze.width(elBase.width())
+            elBodyFreeze.width(elBase.width())
+            elHeadBodyFreeze.width(elBase.width())
+            
+            // jquery(elFreeze).width(elBase.width)
+        //     elFreeze.style.width = elBase.outerWidth + 'px'
+        //     // let baseF = Math.ceil(elFreeze.width)
+        //     // elBase.width(baseF)
+        //     console.log(elBase.width, elFreeze.width)
+          } catch(err) {
+            // console.log(err)
+          }
+        }
+
+        trBodyFreezeHead.each((index, tr) => {
+          let trF = jquery(jquery(tr).find('th')[0])
+          let trB = jquery(jquery(trBaseHead[index]).find('th')[0])
+          trF.height(trB.height()) 
+        })
+
+        trBodyFreezeBody.each((index, tr) => {
+          let trF = jquery(jquery(tr).find('td')[0])
+          let trB = jquery(jquery(trBaseBody[index]).find('td')[0])
+          // console.log(trF, trB)
+          trF.height(trB.height())
+          // console.log(trF.height(), trB.height())
+        })
+          // var targetOffset = tBase[0].getBoundingClientRect(); // relative to viewport
+          // tFreeze.css({
+          //   left: targetOffset.left + 'px'
+          // });
+        this.addStyletoHeader()
+        
+      },
+      addStyletoHeader(){
+        let tHeadFreeze = jquery('#table-freeze-head')
+        let tHeadBodyFreeze = jquery('#table-freeze-head-body')
+        let tBase = jquery('#table-base')
+        let tBodyFreeze = jquery('#table-freeze-body')
+        tBodyFreeze.css({
+          zIndex: 9997,
+          width: 'auto',
+          height: 'auto',
+          // height: tBase.height() + 'px',
+        })
+        tHeadFreeze.css({
+          zIndex: 9998,
+          top: (this.scrollY - 20) + 'px',
+          width: tBase.width() + 'px',
+          opacity: this.scrollY < this.showHidden ? 0 : 1,
+        })
+        tHeadBodyFreeze.css({
+          zIndex: 9999,
+          top: (this.scrollY - 20) + 'px',
+          width: tBodyFreeze.width() + 'px',
+          height: tHeadFreeze.height() + 'px',
+          opacity: this.scrollY < this.showHidden ? 0 : 1,
         })
       },
       // countRapor(key){
-      //   let presensi = this.datapresensi[key].presensi
-      //   this.datapresensi[key].presensi.presensi_rapor = Math.round((presensi.presensi_harian + presensi.uts * 2 + presensi.uas * 3) / 6 * 100)  / 100
+      //   let presensi = this.dataPresensi[key].presensi
+      //   this.dataPresensi[key].presensi.presensi_rapor = Math.round((presensi.presensi_harian + presensi.uts * 2 + presensi.uas * 3) / 6 * 100)  / 100
       // },
       // generateDinas(){
       //   let max = this.presensiMax
       //   let min = this.presensiMin
       //   let real_min = 999
       //   let real_max = -1
-      //   this.datapresensi.forEach(d => {
+      //   this.dataPresensi.forEach(d => {
       //     let rap = d.presensi.presensi_rapor
       //     if (rap < real_min) real_min = rap
       //     if (rap > real_max) real_max = rap
       //   })
 
-      //   this.datapresensi.forEach(d => {
+      //   this.dataPresensi.forEach(d => {
       //     let rap = d.presensi.presensi_rapor
       //     let katrol1 = min + ( ( rap - real_min ) / ( real_max - real_min ) * ( max - min ) )
       //     let katrol2 = katrol1 + 1
@@ -285,41 +394,47 @@
 
       //   this.promptDinas = false
       // },
-      // saveScore() {
-      //   let form = []
-      //   this.datapresensi.forEach(d => {
-      //     console.log(d)
-      //     form.push({
-      //       id:d.id,
-      //       id_pembagian_mapel: d.id_pembagian_mapel,
-      //       id_santri: d.id_santri,
-      //       presensi_harian: d.presensi.presensi_harian,
-      //       uts: d.presensi.uts,
-      //       uas: d.presensi.uas,
-      //       presensi_rapor: d.presensi.presensi_rapor,
-      //       katrol1: d.presensi.katrol1,
-      //       katrol2: d.presensi.katrol2,
-      //     })
-      //   })
-      //   form = window.jsonToFormData(form)
-      //   this.$http.post('mapel/presensi/store_many', form)
-      //     .then(res => {
-      //       this.getData()
-      //       this.$notify.success({
-      //         title: 'Berhasil',
-      //         message: 'presensi berhasil disimpan',
-      //         position: 'bottom-right'
-      //       });
-      //     })
-      //     .catch(err => {
-      //       console.log(err)
-      //       this.$notify.error({
-      //         title: 'Gagal',
-      //         message: 'presensi tidak berhasil disimpan',
-      //         position: 'bottom-right'
-      //       });
-      //     })
-      // }
+      savePresensi() {
+        let form = []
+        this.dataPresensi.forEach(d => {
+          // console.log(d)
+          form.push({
+            id:d.id,
+            'id_semester' : d.id_semester,
+            'id_sesi' : d.id_sesi,
+            'tanggal' : d.tanggal,
+            'id_kelas' : d.id_kelas,
+            'id_mapel' : d.id_mapel,
+            'id_guru' : d.id_guru,
+            'kode_mapel' : d.kode_mapel,
+            'kehadiran' : d.kehadiran,
+            'lainnya' : d.lainnya,
+            'keterlambatan' : d.keterlambatan,
+            'alasan_keterlambatan' : d.alasan_keterlambatan,
+            'tugas' : d.tugas,
+            'alasan' : d.alasan,
+            'seragam' : d.seragam,
+          })
+        })
+        form = window.jsonToFormData(form)
+        this.$http.post('mapel/kmi/record/store_many', form)
+          .then(res => {
+            this.getData()
+            this.$notify.success({
+              title: 'Berhasil',
+              message: 'presensi berhasil disimpan',
+              position: 'bottom-right'
+            });
+          })
+          .catch(err => {
+            console.log(err)
+            this.$notify.error({
+              title: 'Gagal',
+              message: 'presensi tidak berhasil disimpan',
+              position: 'bottom-right'
+            });
+          })
+      }
     },
     created: function() {
       this.getInitial()
@@ -328,6 +443,7 @@
     mounted(){
       window.addEventListener('scroll', () => {
         this.scrollY = window.scrollY
+        this.addStyletoHeader()
         // console.log(this.scrollY)
       })
     },
@@ -344,3 +460,8 @@
   }
   </script>
   
+<style lang="postcss" scoped>
+  :deep(.el-checkbox__inner) {
+    @apply border border-solid border-cyan-700;
+  }
+</style>

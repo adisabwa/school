@@ -30,7 +30,7 @@ class BaseModel extends Model
         parent::__construct();
 
         helper('auth');
-        $this->userId = userdata()->id_guru ?? (userdata()->id ?? 0) * -1; // adjust if using another auth system
+        $this->userId = userdata()->id ?? -1; // adjust if using another auth system
     }
 
     protected function initialize()
@@ -43,21 +43,17 @@ class BaseModel extends Model
         return $this->table;
     }
     
-    public function getOptionsData($where = [], ?callable $concatFunc = null, ?callable $addOptions = null)
+    public function getOptionsData(array $where = [], ?callable $concatFunc = null, ?callable $addOptions = null)
     {
       $options = [];
-      $data = $this->where($where)
-                    ->get()
-                    ->getResult();
-                    
+      $data = $this->getAll(whereAnd: $where, groupBy: ['id']);
+        // var_dump($data);
       foreach ($data as $key => $d) {
         $option = (object)[
           'value' => "$d->id",
-          'label' => $concatFunc($d) ?? $d->nama
+          'label' => $concatFunc ? $concatFunc($d) : $d->nama,
         ];
-        if ($addOptions && is_callable($addOptions)) {
-            $option = $addOptions($option, $d);
-        }
+        $option = $addOptions ? $addOptions($option, $d) : $option;
         $options[] = $option;
       }
       return $options;
@@ -89,19 +85,29 @@ class BaseModel extends Model
         return $data;
     }
 
-    public function addTableBefore(string $table, $attr)
+    public function addTableBefore(string $table, $attr, $is_key = FALSE)
     {
         $attr = is_array($attr) ? $attr : explode(',', $attr);
         $new_attr = [];
         foreach ($attr as $key => $value) {
+            $old_value = $value;
             if (empty($value))
                 continue;
+
+            $value = $is_key ? $key : $value;
+            $no_line = strpos($value, '{n}');
             $pos = strpos($value, '{f}');
-            if ($pos !== false) {
-                $new_attr[] = str_replace('{f}',$table, $value);
+            if ($no_line !== false) {
+                $new = str_replace('{n}','', $value);
+            } else if ($pos !== false) {
+                $new = str_replace('{f}',$table, $value);
             } else {
-                $new_attr[] = "$table.$value";
+                $new = "$table.$value";
             }
+            if ($is_key)
+                $new_attr[$new] = $old_value;
+            else
+                $new_attr[] = $new;
         }
         return $new_attr;
     }
@@ -111,32 +117,34 @@ class BaseModel extends Model
         array $whereOr = [], 
         array $whereIn = [], 
         array $orWhereIn = [], 
+        array $groupBy = [], 
         string $order = '', 
         int $limit = 0, 
         int $offset = 0,  
         $relations = NULL)
     {
-        $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
-        $whereOr = empty($whereOr) ? '1=1' : $whereOr;
+        $whereAnd = empty($whereAnd) ? '1=1' : $this->addTableBefore($this->table, $whereAnd, TRUE);
+        $whereOr = empty($whereOr) ? '1=1' : $this->addTableBefore($this->table, $whereOr, TRUE);
         
         // var_dump($whereAnd, $relations);
         $data = $this->db->table($this->table)
                     ->select("{$this->table}.*")
                     ->select($this->addTableBefore($this->table, $this->selects))
                     ->orderBy($order)
-                    ->having($whereAnd)
-                    ->havingGroupStart()
-                        ->orHaving($whereOr)
-                    ->havingGroupEnd();
+                    ->where($whereAnd)
+                    ->groupStart()
+                        ->orWhere($whereOr)
+                    ->groupEnd()
+                    ->groupBy($groupBy);
 
         $this->applyJoin($data, $relations);
 
         foreach ($whereIn as $key => $value) {
-            $data->havingIn($key, $value);
+            $data->whereIn($key, $value);
         }
         
         foreach ($orWhereIn as $key => $value) {
-            $data->orHavingIn($key, $value);
+            $data->orWhereIn($key, $value);
         }
 
         $data->limit($limit, $offset);
@@ -159,11 +167,9 @@ class BaseModel extends Model
     }
     
     public function getData($id)
-    {   
-        // var_dump($id);
+    {
         $data = $this->getAll(whereAnd: ['id' => $id]);
-
-        // var_dump($this->db->getLastQuery());
+        
         if ($data) {
             return $data[0];
         } else {
@@ -173,7 +179,7 @@ class BaseModel extends Model
 
     public function applyJoin(object $builder, $relations = NULL)
     {
-        // var_dump($relations);
+        // var_dump($this->relations);
         // exit;
         if ($relations === NULL) {
             $relations = array_keys($this->relations);
@@ -205,7 +211,7 @@ class BaseModel extends Model
 
                 $text_table = $alias ? "$table $alias" : $table;
                 // var_dump($condition, $text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
-                // var_dump(implode(" AND ", $condition), $text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
+                // var_dump($condition, implode(" AND ", $condition), $rel['condition'] ?? '',$text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
                 $builder->join($text_table, implode(" AND ", $condition), $rel['type'] ?? 'inner');
                 if ($rel['order'] ?? false) {
                     if (!is_array($rel['order'])) {
@@ -229,6 +235,7 @@ class BaseModel extends Model
     
     public function addRelations($relations)
     {
+        // var_dump($relations);
         foreach ($relations as $key => $relation) {
             if ($this->relations[$key] ?? false){
                 foreach($relation as $index => $value) {
@@ -236,7 +243,7 @@ class BaseModel extends Model
                 }
             }
         }
-
+        // var_dump($key, $this->relations[$key]);
         return $this;
     }
     

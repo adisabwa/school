@@ -423,6 +423,7 @@ export default {
       errors:{},
       original:{},
       fieldsData:{},
+      files:{},
       dataId:null,
       // initial:true,
     };
@@ -604,8 +605,8 @@ export default {
       return (file, fileList) => {
         const rawFile = file.raw; // Access the raw file
         const refInstance = this.$refs[refName]; // Get the ref instance
-
-        this.form[refName] = rawFile
+        
+        this.files[refName] = rawFile
       };
     },
     resetOptions(ind, link){
@@ -628,6 +629,10 @@ export default {
       form.id = this.dataId
       form = this.convertNullToEmptyString(form)
       var formData = window.jsonToFormData(form); 
+
+      Object.keys(this.files).forEach(key => {
+        formData.set(key, this.files[key]);
+      });
 
       this.$http.post(this.href, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -675,6 +680,7 @@ export default {
         vm.links = {};
         vm.original = {};
         vm.fieldsData = {};
+        vm.files = {}
 
         Object.values(vm.fields).forEach(d => {
           if (d.from_user == '1' || d.from_user == undefined) {
