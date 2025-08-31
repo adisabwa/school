@@ -12,6 +12,8 @@ $routes->group('presensi/admin', [
         $routes->add('/', [PresensiKelas::class,'index']);
         $routes->add('get', [PresensiKelas::class, 'get']);
         $routes->add('delete/(:any)', [PresensiKelas::class,'delete/$1']);
+        $routes->add('store', [PresensiKelas::class, 'store']);
+        $routes->add('store_many', [PresensiKelas::class, 'store_many']);
         $routes->add('delete_many', [PresensiKelas::class,'delete_many']);
         $routes->add('download/(:any)', [PresensiKelas::class,'download/$1']);
         $routes->add('download_many', [PresensiKelas::class,'download_many']);

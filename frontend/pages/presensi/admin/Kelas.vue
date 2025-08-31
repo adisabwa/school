@@ -30,7 +30,7 @@
         <div :class="[scrollY > showHidden ? 'opacity-100' : 'opacity-0',
           'animate absolute right-0 z-[9999] bg-white/[0.7] h-fit',
           'px-3 pt-3 pb-2']"
-          v-fixed-to-position:1="0">
+          v-fixed-to-position="(this.scrollY - this.showHidden) ">
           <div class="text-right md:block hidden">
             <el-button size="small" type="success" @click="savePresensi">
               <icons icon="fluent:save-20-filled" /> Simpan
@@ -52,57 +52,70 @@
             let left = scrollLeft - 13
             tFreezeHead.css({left: -left + 'px'})
           }">
-            <table id="table-base" class=" table mt-1 md:text-[14px] text-[12px] leading-[1.5] table-fixed min-w-[550px]">
-              <thead class="bg-slate-100 [&_*]:border [&_*]:border-solid [&_*]:border-slate-300">
-                <tr>
-                  <th width="20px" class="">No</th>
-                  <th class="text-center " width="30px">Kelas</th>
-                  <th class="">Guru / Mapel</th>
-                  <th class="text-center w-[200px]" width="200px">Kejadian</th>
-                  <th width="50px" class="text-center">Tugas</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(data, key) in dataPresensi">
-                  <td class="align-top">{{ key + 1 }}</td>
-                  <td class="text-center align-top">{{ data.kelas }}</td>
-                  <td class="align-top">
-                    <div class="">{{ data.nama_guru }}</div>
-                    <div>{{ data.nama_mapel }}</div>
-                  </td>
-                  <td class="align-top" width="200px">
-                    <el-select v-model="data.kehadiran"
-                      class=""
-                      size="large" clearable filterable>
-                      <el-option v-for="opt in (fields?.kehadiran?.options ?? [])" 
-                        :value="opt.value"
-                        :label="opt.label"
-                        />
-                    </el-select>
-                    <el-input v-if="data.kehadiran == 'lainnya'"
-                      v-model="data.lainnya" 
-                      size="large" class="mt-2"
-                      placeholder="Masukkan keterangan lainnya"/>
-                    <template v-if="['terlambat','terlambat dengan izin','keluar sebelum bel'].includes(data.kehadiran)">
-                      <el-input type="number" v-model="data.keterlambatan" 
-                        size="large" placeholder="Waktu"
-                        class="mt-2 [&_.el-input-group\_\_append]:px-2">
-                        <template #append>Menit</template>
-                      </el-input>
-                    </template>
-                    <el-input v-if="!['hadir','tanpa keterangan'].includes(data.kehadiran)"
-                      type="textarea" v-model="data.alasan" 
-                      size="large" class="mt-2" :rows="3"
-                      :placeholder="'Masukkan alasan ' + (['terlambat','terlambat dengan izin','keluar sebelum bel'].includes(data.kehadiran) ? 
-                      'keterlambatan' : 'ketidak hadiran')"/>
-                  </td>
-                  <td class="text-center align-top">
-                    <el-checkbox v-if="data.kehadiran != 'hadir'"
-                      v-model="data.tugas" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="min-w-[600px]"> 
+              <table id="table-base" class=" table mt-1 md:text-[14px] text-[12px] leading-[1.5]">
+                <thead class="bg-slate-100 [&_*]:border [&_*]:border-solid [&_*]:border-slate-300">
+                  <tr>
+                    <th width="15px" class="fixed-col">No</th>
+                    <th class="text-center fixed-col" width="30px">Kelas</th>
+                    <th class="">Guru / Mapel</th>
+                    <th class="text-center w-[180px]" width="180px">Kejadian</th>
+                    <th width="150px" class="text-center">Tugas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(data, key) in dataPresensi"">
+                    <td class="align-top">{{ key + 1 }}</td>
+                    <td class="text-center align-top">{{ data.kelas }}</td>
+                    <td class="align-top">
+                      <div class="">{{ data.nama_guru }}</div>
+                      <div>{{ data.nama_mapel }}</div>
+                    </td>
+                    <td class="align-top" width="180px">
+                      <el-select v-model="data.kehadiran"
+                        class=""
+                        size="large" clearable filterable>
+                        <el-option v-for="opt in (fields?.kehadiran?.options ?? [])" 
+                          :value="opt.value"
+                          :label="opt.label"
+                          />
+                      </el-select>
+                      <el-input v-if="data.kehadiran == 'lainnya'"
+                        v-model="data.lainnya" 
+                        size="large" class="mt-2"
+                        placeholder="Masukkan keterangan lainnya"/>
+                      <template v-if="['terlambat','terlambat dengan izin','keluar sebelum bel'].includes(data.kehadiran)">
+                        <el-input type="number" v-model="data.keterlambatan" 
+                          size="large" placeholder="Waktu"
+                          class="mt-2 [&_.el-input-group\_\_append]:px-2">
+                          <template #append>Menit</template>
+                        </el-input>
+                      </template>
+                      <el-input v-if="!['hadir','tanpa keterangan'].includes(data.kehadiran)"
+                        type="textarea" v-model="data.alasan" 
+                        size="large" class="mt-2" :rows="3"
+                        :placeholder="'Masukkan alasan ' + (['terlambat','terlambat dengan izin','keluar sebelum bel'].includes(data.kehadiran) ? 
+                        'keterlambatan' : 'ketidak hadiran')"/>
+                    </td>
+                    <td class="text-center align-top">
+                      <template v-if="data.kehadiran != 'hadir'">
+                        <div class="flex items-center">
+                          <el-checkbox true-value="1" false-value="0"
+                            v-model="data.tugas" />
+                          <div class="ml-2"> {{ data.tugas ? '' : 'Tidak ' }} Ada Tugas</div>
+                        </div>
+                        <div v-if="data.tugas == '1'">
+                          <floating-select v-model:value="data.id_pengganti" placeholder="Pilih Guru Pendamping" 
+                            filterable clearable
+                            size="default"
+                            :options="fields.id_pengganti.options"/>
+                        </div>
+                      </template>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -196,6 +209,14 @@
           })
           this.presensiMax = max
         }
+      },
+      dataPresensi:{
+        deep: true,
+        handler(val){
+          setTimeout(() => {
+            this.getFreezeHeader()
+          }, 300)
+        }
       }
     },  
     computed: {
@@ -268,9 +289,6 @@
           params: this.filter
         }).then(result => {
           this.dataPresensi = result.data
-          setTimeout(() => {
-            this.getFreezeHeader()
-          }, 300)
         })
       },
       getFreezeHeader(){
@@ -419,10 +437,10 @@
             'kehadiran' : d.kehadiran,
             'lainnya' : d.lainnya,
             'keterlambatan' : d.keterlambatan,
-            'alasan_keterlambatan' : d.alasan_keterlambatan,
             'tugas' : d.tugas,
             'alasan' : d.alasan,
             'seragam' : d.seragam,
+            'id_pengganti' : d.id_pengganti > 0 ? d.id_pengganti : null,
           })
         })
         form = window.jsonToFormData(form)
