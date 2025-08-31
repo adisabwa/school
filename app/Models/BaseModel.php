@@ -123,10 +123,12 @@ class BaseModel extends Model
         int $offset = 0,  
         $relations = NULL)
     {
+        // var_dump($whereAnd, $whereOr);
+
         $whereAnd = empty($whereAnd) ? '1=1' : $this->addTableBefore($this->table, $whereAnd, TRUE);
         $whereOr = empty($whereOr) ? '1=1' : $this->addTableBefore($this->table, $whereOr, TRUE);
         
-        // var_dump($whereAnd, $relations);
+        // var_dump($whereAnd, $whereOr);
         $data = $this->db->table($this->table)
                     ->select("{$this->table}.*")
                     ->select($this->addTableBefore($this->table, $this->selects))
@@ -168,6 +170,7 @@ class BaseModel extends Model
     
     public function getData($id)
     {
+        // var_dump($id);
         $data = $this->getAll(whereAnd: ['id' => $id]);
         
         if ($data) {

@@ -77,12 +77,13 @@ function getScrollableParent(element) {
 const fixedToPosition = {
   beforeMount(el, binding) {
     const distance = binding.value
+    const absolute = binding.arg ?? '0'
     const scrollParent = getScrollableParent(el);
     let jqEl = jquery(el)
     function setTop(){
       // console.log('run', jqEl, window.scrollY, distance)
       jqEl.css({
-        top: window.scrollY + distance,
+        top: (absolute == '1' ? 0 : window.scrollY) + distance,
       })
     }
     // console.log('fixed', el, el.getBoundingClientRect(), scrollParent)

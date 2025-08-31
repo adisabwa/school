@@ -8,7 +8,8 @@ use Modules\Psb\Controllers\Admin\Psb as PsbAdmin;
 //----------------------------------Default PSB-------------------------------------
 $routes->group('psb', static function ($routes) {
     $routes->add('/', [Psb::class,'get']);
-    $routes->add('get', [Psb::class,'get_where']);
+    $routes->add('get', [Psb::class,'get']);
+    $routes->add('get_where', [Psb::class,'get_where']);
     $routes->add('search', [Psb::class,'search']);
     $routes->add('store', [Psb::class,'store'],[ 'filter' => 'api-validation:sch_psb']);
     $routes->add('template', [Psb::class,'template']);

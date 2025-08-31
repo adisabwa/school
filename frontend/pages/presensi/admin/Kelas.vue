@@ -1,112 +1,113 @@
 <template>
-    <div id="presensi" class="py-2">
-      <el-card class="bg-white/[0.7]">
-        <form-comp ref="formFilter"
-          :key="formKey"
-          :fields="filterFields"
-          :label-position="labelPosition"
-          :form-class="'mt-2 mb-0'"
-          label-width="150px"
-          v-model:form-value="filter"
-          :pass-columns="[]"
-          :show-submit="false"
-          text-submit="Cari"
-          error-submit-text="Tidak dapat mengambil data"
-          :show-required-text="false"
-          >
-        </form-comp>
-      <el-card class="shadow-none  " 
-        body-class="px-2 py-0 relative" 
-        >   
-          <div :class="[scrollY > showHidden ? 'opacity-100' : 'opacity-0',
-            'animate fixed right-0 z-[9999] bg-white/[0.7] h-fit',
-            'px-3 pt-3 pb-2']"
-            v-fixed-to-position="100">
-            <div class="text-right md:block hidden">
-              <el-button size="small" type="success" @click="savePresensi">
-                <icons icon="fluent:save-20-filled" /> Simpan
-              </el-button>
-            </div>
+  <div id="presensi" class="py-2 overflow-x-hidden max-w-screen">
+    <el-card class="bg-white/[0.7] mb-2">
+      <form-comp ref="formFilter"
+        :key="formKey"
+        :fields="filterFields"
+        :label-position="labelPosition"
+        :form-class="'mt-2 mb-0'"
+        label-width="150px"
+        v-model:form-value="filter"
+        :pass-columns="[]"
+        :show-submit="false"
+        :show-label="$windowWidth > 640"
+        text-submit="Cari"
+        error-submit-text="Tidak dapat mengambil data"
+        :show-required-text="false"
+        >
+      </form-comp>
+    </el-card>
+    <el-card class="bg-white/[0.7]"
+      body-class="p-0">
+      <div class="bg-white/[0.7] h-fit px-3 pt-3 pb-2">
+        <div class="text-right md:block hidden">
+          <el-button size="small" type="success" @click="savePresensi">
+            <icons icon="fluent:save-20-filled" /> Simpan
+          </el-button>
+        </div>
+      </div>
+      <div class="relative bg-white">
+        <div :class="[scrollY > showHidden ? 'opacity-100' : 'opacity-0',
+          'animate absolute right-0 z-[9999] bg-white/[0.7] h-fit',
+          'px-3 pt-3 pb-2']"
+          v-fixed-to-position:1="0">
+          <div class="text-right md:block hidden">
+            <el-button size="small" type="success" @click="savePresensi">
+              <icons icon="fluent:save-20-filled" /> Simpan
+            </el-button>
           </div>
-          <div v-if="dataPresensi.length == 0"
-            class="text-center text-gray-500 text-lg p-5">
-            <icons icon="mdi:alert" class="text-[50px] mb-3" />
-            <div class="text-[18px]">Data Jadwal belum dimasukkan</div>
+        </div>
+        <div v-if="dataPresensi.length == 0"
+          class="text-center text-gray-500 text-lg p-5">
+          <icons icon="mdi:alert" class="text-[50px] mb-3" />
+          <div class="text-[18px]">Data Jadwal belum dimasukkan</div>
+        </div>
+        <div v-else>
+          <div id="freeze-container" class="mx-3 overflow-x-hidden w-full h-full">
           </div>
-          <div v-else class="relative">
-            <div id="freeze-container" class="mx-3 overflow-x-hidden w-full h-full">   
-            </div>
-            <div class="mx-3 overflow-x-auto" @scroll="(event) => {
-              let tFreezeHead = jquery('#table-freeze-head')
-              let target = event.target
-              let scrollLeft = target.scrollLeft
-              let left = scrollLeft - 13
-              tFreezeHead.css({left: -left + 'px'})
-            }" >
-              <table id="table-base" class="table [&_*]:text-[13px] sm:[&_*]:text-[14px] table-fixed">
-                <thead class="bg-slate-100">
-                  <tr>
-                    <th width="20px" class="">No</th>
-                    <th class="text-center " width="30px">Kelas</th>
-                    <th class="">Guru / Mapel</th>
-                    <th class="text-center w-[200px]" width="200px">Kejadian</th>
-                    <th width="50px" class="text-center">Tugas</th>
-                    <th class="text-center w-[150px]" >
-                      Keterlambatan / <br/>
-                      Keluar Lebih Awal
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(data, key) in dataPresensi">
-                    <td class="align-top">{{ key + 1 }}</td>
-                    <td class="text-center align-top">{{ data.kelas }}</td>
-                    <td class="align-top">
-                      <div>{{ data.nama_guru }}</div>
-                      <div>{{ data.nama_mapel }}</div>
-                    </td>
-                    <td class="align-top">
-                      <el-select v-model="data.kehadiran"
-                        class="w-[200px]"
-                        size="large" clearable filterable>
-                        <el-option v-for="opt in (fields?.kehadiran?.options ?? [])" 
-                          :value="opt.value"
-                          :label="opt.label"
-                          />
-                      </el-select>
-                      <el-input v-if="data.kehadiran == 'lainnya'"
-                        v-model="data.lainnya" 
-                        size="large" class="mt-2"
-                        placeholder="Masukkan keterangan lainnya"/>
-                      <el-input v-if="data.kehadiran != 'hadir'"
-                        type="textarea" v-model="data.alasan" 
-                        size="large" class="mt-2" :rows="3"
-                        placeholder="Masukkan alasan ketidak hadiran"/>
-                    </td>
-                    <td class="text-center align-top">
-                      <el-checkbox v-if="data.kehadiran != 'hadir'"
-                        v-model="data.tugas" />
-                    </td>
-                    <td class="align-top">
-                      <template v-if="['terlambat','terlambat dengan izin','keluar sebelum bel'].includes(data.kehadiran)">
-                        <el-input type="number" v-model="data.keterlambatan" 
-                          size="large" placeholder="Waktu"
-                          class="[&_.el-input-group\_\_append]:px-2">
-                          <template #append>Menit</template>
-                        </el-input>
-                        <el-input type="textarea" v-model="data.alasan_keterlambatan" 
-                          size="large" class="mt-2" :rows="3"
-                          placeholder="Masukkan alasan keterlambatan"/>
-                      </template>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div class="mx-3 overflow-x-auto" @scroll="(event) => {
+            let tFreezeHead = jquery('#table-freeze-head')
+            let target = event.target
+            let scrollLeft = target.scrollLeft
+            let left = scrollLeft - 13
+            tFreezeHead.css({left: -left + 'px'})
+          }">
+            <table id="table-base" class=" table mt-1 md:text-[14px] text-[12px] leading-[1.5] table-fixed min-w-[550px]">
+              <thead class="bg-slate-100 [&_*]:border [&_*]:border-solid [&_*]:border-slate-300">
+                <tr>
+                  <th width="20px" class="">No</th>
+                  <th class="text-center " width="30px">Kelas</th>
+                  <th class="">Guru / Mapel</th>
+                  <th class="text-center w-[200px]" width="200px">Kejadian</th>
+                  <th width="50px" class="text-center">Tugas</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(data, key) in dataPresensi">
+                  <td class="align-top">{{ key + 1 }}</td>
+                  <td class="text-center align-top">{{ data.kelas }}</td>
+                  <td class="align-top">
+                    <div class="">{{ data.nama_guru }}</div>
+                    <div>{{ data.nama_mapel }}</div>
+                  </td>
+                  <td class="align-top" width="200px">
+                    <el-select v-model="data.kehadiran"
+                      class=""
+                      size="large" clearable filterable>
+                      <el-option v-for="opt in (fields?.kehadiran?.options ?? [])" 
+                        :value="opt.value"
+                        :label="opt.label"
+                        />
+                    </el-select>
+                    <el-input v-if="data.kehadiran == 'lainnya'"
+                      v-model="data.lainnya" 
+                      size="large" class="mt-2"
+                      placeholder="Masukkan keterangan lainnya"/>
+                    <template v-if="['terlambat','terlambat dengan izin','keluar sebelum bel'].includes(data.kehadiran)">
+                      <el-input type="number" v-model="data.keterlambatan" 
+                        size="large" placeholder="Waktu"
+                        class="mt-2 [&_.el-input-group\_\_append]:px-2">
+                        <template #append>Menit</template>
+                      </el-input>
+                    </template>
+                    <el-input v-if="!['hadir','tanpa keterangan'].includes(data.kehadiran)"
+                      type="textarea" v-model="data.alasan" 
+                      size="large" class="mt-2" :rows="3"
+                      :placeholder="'Masukkan alasan ' + (['terlambat','terlambat dengan izin','keluar sebelum bel'].includes(data.kehadiran) ? 
+                      'keterlambatan' : 'ketidak hadiran')"/>
+                  </td>
+                  <td class="text-center align-top">
+                    <el-checkbox v-if="data.kehadiran != 'hadir'"
+                      v-model="data.tugas" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </el-card>
-      </el-card>
-    </div>
+        </div>
+      </div>
+    </el-card>
+  </div>
 </template>
   
 <script>
@@ -138,6 +139,12 @@
               { value: 'putri', label: 'Putri' },
             ],
           },
+          tanggal:{
+            label:'Tanggal',
+            nama_kolom:'tanggal',
+            input:'date-wheel',
+            format:'dddd, DD MMMM YYYY',
+          },
           id_sesi:{
             label:'Sesi',
             nama_kolom:'id_sesi',
@@ -149,6 +156,7 @@
         filter:{
           id_semester: '',
           komplek: '',
+          tanggal:'',
           id_sesi: '',
         },
         params:{
@@ -211,6 +219,7 @@
       getInitial: async function() {
           // this.loading = true;
         let date = this.dateNow()
+        this.filter.tanggal = date
         // let time = this.timeNow()
         let time = '07:40'
         this.filter.komplek = 'putra'
@@ -247,7 +256,7 @@
           catch(err => {
             console.error('Error fetching semester options:', err);
           });
-        await this.$http.get('/kolom/preparation?table=sch_aka_record_pembelajaran&grouping=0&input=0')
+        await this.$http.get('/kolom/preparation?table=sch_pre_mengajar_kelas&grouping=0&input=0')
             .then(result => {
               var res = result.data;
               this.fields = res
@@ -255,7 +264,7 @@
         console.log('filter', this.filter)
       },
       getData(){
-        this.$http.get('mapel/kmi/record',{
+        this.$http.get('presensi/admin/kelas',{
           params: this.filter
         }).then(result => {
           this.dataPresensi = result.data
@@ -273,17 +282,17 @@
         this.removeColumnByClass(tBodyFreeze, [], 'fixed-col')
         tBodyFreeze.attr('id', 'table-freeze-body')
         tBodyFreeze.appendTo(tFreezeContainer)
-        tBodyFreeze.css({position:'fixed'})
+        tBodyFreeze.css({position:'absolute'})
 
         let tHeadFreeze = tBase.clone(true).find('tbody').remove().end()
         tHeadFreeze.attr('id', 'table-freeze-head')
         tHeadFreeze.appendTo(tFreezeContainer) 
-        tHeadFreeze.css({position:'fixed'})
+        tHeadFreeze.css({position:'absolute'})
 
         let tHeadBodyFreeze = tBodyFreeze.clone().find('tbody').remove().end()
         tHeadBodyFreeze.attr('id', 'table-freeze-head-body')
         tHeadBodyFreeze.appendTo(tFreezeContainer) 
-        tHeadBodyFreeze.css({position:'fixed'})
+        tHeadBodyFreeze.css({position:'absolute'})
         // console.log(tBodyFreeze)
         // console.log(tHeadFreeze.width(), tBase.width())
 
@@ -357,13 +366,13 @@
         })
         tHeadFreeze.css({
           zIndex: 9998,
-          top: (this.scrollY - 20) + 'px',
+          top: (this.scrollY - this.showHidden - 50) + 'px',
           width: tBase.width() + 'px',
           opacity: this.scrollY < this.showHidden ? 0 : 1,
         })
         tHeadBodyFreeze.css({
           zIndex: 9999,
-          top: (this.scrollY - 20) + 'px',
+          top: (this.scrollY - this.showHidden - 50) + 'px',
           width: tBodyFreeze.width() + 'px',
           height: tHeadFreeze.height() + 'px',
           opacity: this.scrollY < this.showHidden ? 0 : 1,
@@ -417,7 +426,7 @@
           })
         })
         form = window.jsonToFormData(form)
-        this.$http.post('mapel/kmi/record/store_many', form)
+        this.$http.post('presensi/admin/kelas/store_many', form)
           .then(res => {
             this.getData()
             this.$notify.success({

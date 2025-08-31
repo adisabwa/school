@@ -13,7 +13,7 @@ let routes = [
         path: siteUrl + 'p/presensi/',
         children: [
             {
-                path: 'kmi',
+                path: 'admin',
                 component: MainLayout,
                 meta: {
                     requiresAuth: true,
@@ -25,16 +25,11 @@ let routes = [
                 },
                 children: [
                   {
-                    path: 'dashboard',
-                    name: 'presensi-dashboard',
-                    component: () => import('@/pages/presensi/Dashboard.vue'),
-                  },   
-                  {
-                    path: '',
-                    name: 'kmi-presensi', 
-                    component: () => import('@/pages/presensi/kmi/Index.vue'),
+                    path: 'kelas',
+                    name: 'kelas-presensi', 
+                    component: () => import('@/pages/presensi/admin/Kelas.vue'),
                     meta: {
-                        pageTitle: '<b>Daftar Presensi Guru</b>',
+                        pageTitle: '<b>Daftar Presensi Mengajar</b>',
                     }
                   },
                   // {
