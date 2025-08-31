@@ -19,7 +19,7 @@ let topMenu = [
     app:'presensi',
     label:"Presensi Guru",
     route:{
-      admin:'kmi-presensi',
+      admin:'kelas-presensi',
     },
     color:'orange-100',
     darkColor:'orange-500',

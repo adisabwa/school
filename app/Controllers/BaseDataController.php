@@ -43,7 +43,7 @@ class BaseDataController extends BaseController
     public function get()
     {
         $id = $this->request->getGet('id');
-        // var_dump($id);
+        // var_dump($id, method_exists($this->model, 'getData'));
         return $this->respondCreated(method_exists($this->model, 'getData') ? $this->model->getData($id) : $this->model->find($id));
     }
 
@@ -51,7 +51,7 @@ class BaseDataController extends BaseController
     public function get_where()
     {
         $where = $this->request->getGetPost('where') ?? [];
-        $or = $this->request->getGetPost('or') ?? ['1=1' => NULL];
+        $or = $this->request->getGetPost('or') ?? [];
         $order = $this->request->getGetPost('order') ?? [];
         $order = implode(",", $order);
 

@@ -196,9 +196,9 @@
             <template v-if="field.input == 'date-wheel'">
               <date-wheel-picker
                 :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`" :class="['w-full flex-1',inputClass]" 
-                v-model:value="form[field.nama_kolom]"
+                v-model:value="form[field.nama_kolom]"  
                 value-format="YYYY-MM-DD"
-                format="DD MMMM YYYY"
+                :format="field.format ?? 'DD MMMM YYYY'"
                 :clearable="field?.clearable ?? true" 
                 :size="size"
                 :readonly="field.readonly"
@@ -541,10 +541,12 @@ export default {
       let where = {}
       if (field.search == '1') {
         where[field.nama_kolom] = this.form[field.nama_kolom]
-        this.getData(where, true)
+        this.getData({
+          where:where
+        }, true)
       }   
     },
-    async getData(where, changeId){
+    async getData(params, changeId){
       if (this.showOriginal) return
       // console.log('get-data', this.initial)
       await this.settingFields();
@@ -554,9 +556,7 @@ export default {
       // let formData = window.jsonToFormData(where);
       await this.$http.get(this.hrefGet,
         {
-          params:{
-            where:where
-          }
+          params:params,
         }
         // formData,
       )

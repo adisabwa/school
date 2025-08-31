@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Mapel\Controllers\Kmi;
+namespace Modules\Presensi\Controllers\Admin;
 
 use App\Controllers\BaseDataController;
 
-class MapelRecordPembelajaranController extends BaseDataController
+class PresensiKelasController extends BaseDataController
 {
     public $sesiModel;
     public $semesterModel;
@@ -13,7 +13,7 @@ class MapelRecordPembelajaranController extends BaseDataController
 
     public function __construct()
     {
-        $this->model = model('MapelRecordPembelajaranModel');
+        $this->model = model('PresensiKelasModel');
         $this->sesiModel = model('DataSesiModel');
         $this->semesterModel = model('DataSemesterModel');
         $this->jadwalModel = model('MapelPenjadwalanModel');
@@ -22,32 +22,34 @@ class MapelRecordPembelajaranController extends BaseDataController
 
     public function index()
     {
-        $tanggal = date('Y-m-d');
+        // $tanggal = date('Y-m-d');
         $id_sesi = $this->request->getGet('id_sesi');
-        $id_semester = $this->request->getGet('id_semester');
-        $komplek = $this->request->getGet('komplek');
+        $tanggal = $this->request->getGet('tanggal') ?? -1;
+        $id_semester = $this->request->getGet('id_semester') ?? -1;
+        $komplek = $this->request->getGet('komplek') ?? -1;
         
-        $tanggal = '2025-08-28';
-        // var_dump($semester_now, $check_sesi);
+        if (!empty($id_sesi)) {
+            $hari = get_hari($tanggal);
+            $check_record = $this->model->getAll(whereAnd: [
+                'id_sesi' => $id_sesi,
+                'tanggal' => $tanggal,
+                'id_semester' => $id_semester,
+            ]);
 
-        $hari = get_hari($tanggal);
-        $check_record = $this->model->getAll(whereAnd: [
-            'id_sesi' => $id_sesi,
-            'tanggal' => $tanggal,
-            'id_semester' => $id_semester,
-        ]);
+            // var_dump($this->model->getLastQuery());
+            // var_dump($check_record);
+            if (empty($check_record)) {
+                // var_dump('car');
+                $input = $this->input_data_from_detail($id_semester, $hari, $id_sesi, $tanggal);
+                // var_dump($input);
+            }
 
-        // var_dump($this->model->getLastQuery());
-        // var_dump($check_record);
-        if (empty($check_record)) {
-            // var_dump('car');
-            $input = $this->input_data_from_detail($id_semester, $hari, $id_sesi, $tanggal);
-            // var_dump($input);
+            $record = $this->get_data($id_semester, $komplek, $tanggal, $id_sesi);
+
+            // var_dump($this->model->getLastQuery());
+        } else {
+            $record = [];
         }
-
-        $record = $this->get_data($id_semester, $komplek, $tanggal, $id_sesi);
-
-        // var_dump($this->model->getLastQuery());
         return $this->respondCreated($record);
     }
 
@@ -106,7 +108,6 @@ class MapelRecordPembelajaranController extends BaseDataController
                     'kehadiran' => $before->kehadiran,
                     'lainnya' => $before->lainnya,
                     'keterlambatan' => $before->keterlambatan,
-                    'alasan_keterlambatan' => $before->alasan_keterlambatan,
                     'tugas' => $before->tugas,
                     'alasan' => $before->alasan,
                     'seragam' => $before->seragam,
@@ -123,7 +124,6 @@ class MapelRecordPembelajaranController extends BaseDataController
                     'kehadiran' => 'hadir',
                     'lainnya' => '',
                     'keterlambatan' => 0,
-                    'alasan_keterlambatan' => '',
                     'tugas' => NULL,
                     'alasan' => '',
                     'seragam' => '1',
@@ -138,7 +138,7 @@ class MapelRecordPembelajaranController extends BaseDataController
         if(!empty($datas)) {
             $inserted = $this->model->insertBatch($datas);
         }
-        // var_dump($inserted);
+        // var_dump($inserted, $this->model->errors());
         if ($this->model->transStatus() === false) {
             $this->model->transRollback();
             return FALSE;
