@@ -88,8 +88,8 @@
           </el-dialog>
         </teleport>
         <div class="relative bg-white">
-          <div :class="[scrollY > showHidden ? 'opacity-100' : 'opacity-0',
-            'animate fixed right-0 z-[9999] bg-white/[0.7] h-fit',
+          <div :class="[scrollY > showHidden ? 'opacity-100 z-[9999]' : 'opacity-0 z-[-1]',
+            'animate fixed right-0 bg-white/[0.7] h-fit',
             'px-3 pt-3 pb-2']"
             v-fixed-to-position="50">
             <div class="text-right md:block hidden">
@@ -135,6 +135,7 @@
               <el-switch />
               <b class="ml-3">Wali Kelas dan Admin boleh mengedit nilai</b>
             </div> -->
+            <div class="mx-4 my-2">Inputkan Nilai / Copy-Paste dari File Excel</div>
             <div id="freeze-container" class="mx-3 overflow-x-hidden w-full h-full">
             </div>
             <div class="mx-3 overflow-x-auto" @scroll="(event) => {
@@ -145,13 +146,21 @@
               tFreezeHead.css({left: -left + 'px'})
             }">
               <table id="table-base" class=" table mt-1 md:text-[14px] text-[12px] leading-[1.5]">
-                <thead class="bg-slate-100 [&_*]:border [&_*]:border-solid [&_*]:border-slate-300">
-                  <tr>
+                <thead class="bg-slate-100 ">
+                  <tr class="*:border *:border-solid *:border-slate-300">
                     <th width="20px" class="fixed-col">No</th>
                     <th class="fixed-col">Nama</th>
-                    <th class="text-center">Nilai Harian</th>
-                    <th class="text-center">UTS</th>
-                    <th class="text-center">UAS</th>
+                    <template v-for="(ujian) in ['nilai_harian','uts','uas']">
+                      <th class="text-center">
+                        <div class="flex items-center justify-center">
+                          <el-tooltip content="Reset Data" placement="bottom-start"
+                            v-if="allowEdit[ujian]">
+                            <icons icon="ri:reset-left-line" class="border-0 cursor-pointer" @click="resetData(ujian)"/>
+                          </el-tooltip>
+                          {{ ujian.toUpperCase().replace('_',' ') }}
+                        </div>
+                      </th>
+                    </template>
                     <th class="text-center">Raport</th>
                     <th class="text-center">Raport Dinas</th>
                   </tr>
@@ -160,13 +169,15 @@
                   <tr v-for="(data, key) in dataNilai">
                     <td>{{ key + 1 }}</td>
                     <td>{{ data.nama }}</td>
-                    <td v-for="ujian in ['nilai_harian','uts','uas']" class="text-center">
+                    <td v-for="(ujian) in ['nilai_harian','uts','uas']" class="text-center">
                       <el-input v-if="allowEdit[ujian]"
                         v-model="data.nilai[ujian]" size="large"
                         @focus="(event) => {  }"
-                        @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 0, 100)
+                        @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 40, 99)
                           countRapor(key);"
-                        class="w-[50px]" />
+                        @paste="(event) => { handlePaste(event, key, ujian)}"
+                        :class="[allowEdit[ujian] ? 'ml-[20px]' : '',
+                          'w-[70px]']" />
                       <span v-else>
                         {{ data.nilai[ujian] }}
                       </span>
@@ -184,7 +195,8 @@
 </template>
   
 <script>
-  import { head } from 'lodash';
+  import { event } from 'jquery';
+import { head } from 'lodash';
 import { mapState } from 'pinia';
   
   
@@ -370,6 +382,44 @@ import { mapState } from 'pinia';
           setTimeout(() => {
             this.getFreezeHeader()
           }, 300)
+        })
+      },
+      async handlePaste(event, key, _ujian) {
+        let ujian = ['nilai_harian','uts','uas']
+        let currInd = ujian.findIndex(d => d == _ujian)
+        // this.loading = true;
+        // console.log(event)
+        const pastedData = await event.clipboardData.getData('Text');
+        // console.log(pastedData)
+        // Process the pastedData (e.g., split by lines and tabs/commas)
+        // Example: Simple parsing for tab-separated values
+        // console.log(data)
+        const rows = pastedData.split('\r\n');
+        // console.log(rows)
+        // rows.pop()
+        const parsedRows = rows.map(row => row.replace('\r','').split('\t'));
+        // console.log(parsedRows)
+        parsedRows.forEach((rows, ind) => {
+          let no_nilai = key + ind
+          rows.forEach( (cell, num) => {
+            let uj = ujian[(currInd + num)]
+            if (this.dataNilai[no_nilai]) {
+              console.log(no_nilai)
+              if (this.allowEdit[uj]) {
+                console.log('uj', this.dataNilai[no_nilai].nilai[uj])
+                this.dataNilai[no_nilai].nilai[uj] = this.checkMinMax(cell, 40, 99)
+              }
+            }
+          })
+        })
+        // this.loading = false;
+        event.preventDefault(); // Prevent default paste behavior if needed
+
+
+      },
+      resetData(ujian){
+        this.dataNilai.forEach(d => {
+          d.nilai[ujian] = 0
         })
       },
       countRapor(key){

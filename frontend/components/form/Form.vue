@@ -547,9 +547,9 @@ export default {
       }   
     },
     async getData(params, changeId){
+      await this.settingFields();
       if (this.showOriginal) return
       // console.log('get-data', this.initial)
-      await this.settingFields();
       if (this.hrefGet == '') 
         return
       this.saving = true
