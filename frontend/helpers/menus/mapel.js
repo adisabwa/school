@@ -30,5 +30,13 @@ let mapel = [
     label:'Nilai Santri',
     type:'menu',
   },
+  {
+    index: 'rekap-nilai',
+    route: 'rekap-nilai',
+    icon:'tabler:table',
+    label:'Rekap Nilai Santri',
+    type:'menu',
+    roles:['admin','walas'],
+  },
 ]
 export default mapel

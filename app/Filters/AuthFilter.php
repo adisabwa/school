@@ -15,6 +15,7 @@ class AuthFilter implements FilterInterface
         $session = session();
 
         $userdata = $session->get(AUTH_SESS_NAME);
+        // return TRUE;
 
         if (empty($userdata)) {
             return redirect()->to(site_url('auth/unauthorized'));
