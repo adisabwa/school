@@ -20,6 +20,8 @@ $routes->group('mapel', [
         $routes->add('store', [MapelNilai::class, 'store']);
         $routes->add('store_many', [MapelNilai::class, 'store_many']);
         $routes->add('rekapitulasi', [MapelNilai::class, 'rekapitulasi']);
+        $routes->add('download_ledger', [MapelNilai::class, 'download_ledger']);
+        $routes->add('download_raport', [MapelNilai::class, 'download_raport']);
     });
 
     //------------------------------------- Data Pembagian Mapel -----------------------------------------------

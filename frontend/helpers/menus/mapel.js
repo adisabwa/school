@@ -32,11 +32,21 @@ let mapel = [
   },
   {
     index: 'rekap-nilai',
-    route: 'rekap-nilai',
     icon:'tabler:table',
-    label:'Rekap Nilai Santri',
-    type:'menu',
-    roles:['admin','walas'],
+    label:'Raport Santri',
+    type:'submenu',
+    children: [
+      {
+        index:'rekap-nilai-uts',
+        route: 'rekap-nilai',
+        label:'Raport MID',
+      },
+      {
+        index:'rekap-nilai-uas',
+        route: 'rekap-nilai-uas',
+        label:'Raport Akhir',
+      },
+    ]
   },
 ]
 export default mapel

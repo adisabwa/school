@@ -1,14 +1,5 @@
 <?php
 
-function excelColumnRange($lower, $upper) {
-    ++$upper;
-    $result = [];
-    for ($i = $lower; $i !== $upper; ++$i) {
-        $result[] = $i;
-    }
-    return $result;
-}
-
 function setRandomColor() {
     // Generate random values for each RGB component
     $r = rand(0, 255); // Red
@@ -89,4 +80,24 @@ function get_hari($tanggal){
     $haris = ['ahad','senin','selasa','rabu','kamis','jumat','sabtu'];
     $day = date('w', strtotime($tanggal));
     return $haris[$day];
+}
+
+
+if ( ! function_exists('dateIndo')) {
+	function dateIndo($date, $showDay = false)
+	{
+
+		$hari  = array ( 1 => 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu');
+		$bulan = array ( 1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus','September', 'Oktober', 'November', 'Desember');
+		
+		$split 	  = explode('-', $date);
+		$tgl_indo = (int) $split[2] . ' ' . $bulan[ (int)$split[1] ] . ' ' . $split[0];
+		
+		if ($showDay) {
+			$num = date('N', strtotime($date));
+			return $hari[$num] . ', ' . $tgl_indo;
+		}
+
+		return $tgl_indo;
+	}
 }

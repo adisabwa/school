@@ -38,6 +38,7 @@
               label-width="250px"
               href="/psb/store"
               href-get="/psb/get"
+              href-search="/psb/get_where"
               @saved="submitted"  
               @error="saving=false"
               @change-id="changeId"

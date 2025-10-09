@@ -13,13 +13,15 @@ class PdfBuilder
         $options = new Options();
         $options->set('defaultFont', 'Times New Roman');
         $options->set('isHtml5ParserEnabled', true);
-        
+        $options->set('isRemoteEnabled', true);
+
         $dompdf = new Dompdf($options);
 
         $dompdf->loadHtml($html);
         // (Optional) Set paper size and orientation
         $dompdf->setPaper($paper, $orientation);
 
+    
         // Render the PDF
         $render = $dompdf->render();
         

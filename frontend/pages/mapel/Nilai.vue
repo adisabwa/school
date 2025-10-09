@@ -130,7 +130,7 @@
             <icons icon="mdi:alert" class="text-[50px] mb-3" />
             <div class="text-[18px]">Tidak ada data nilai</div>
           </div>
-          <div v-else>
+          <div v-else class="mb-12">
             <!-- <div class="mx-3">
               <el-switch />
               <b class="ml-3">Wali Kelas dan Admin boleh mengedit nilai</b>

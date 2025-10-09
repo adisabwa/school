@@ -22,18 +22,13 @@
       </el-card>
       <el-card class="bg-white/[0.7]"
         body-class="p-0">
-        <div :class="[scrollY > showHidden ? 'opacity-0' : 'opacity-100',
-          'animate px-3 pt-3 pb-2']">
+        <div :class="['animate px-3 pt-3 pb-2']">
           <div class="text-right md:block hidden">
-            <el-button size="small" type="success" @click="downloadDinas">
-              <icons icon="ri:file-excel-2-fill" /> Template Dinas
+            <el-button size="small" type="success" @click="downloadLedger">
+              <icons icon="ri:file-excel-2-fill" /> Ledger Raport
             </el-button>
-            <el-button size="small" type="primary" @click="promptDinas = true">
-              <icons icon="ic:twotone-create" /> Generate Raport Dinas
-            </el-button>
-            <el-divider direction="vertical" />
-            <el-button size="small" type="success" @click="saveScore">
-              <icons icon="fluent:save-20-filled" /> Simpan
+            <el-button size="small" type="primary" @click="downloadRaport">
+              <icons icon="ri:file-pdf-2-fill" /> Unduh Raport
             </el-button>
           </div>
           <el-dropdown
@@ -44,68 +39,23 @@
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="downloadDinas">
-                  <icons icon="ri:file-excel-2-fill" /> Template Dinas
+                <el-dropdown-item @click="downloadLedger">
+                  <icons icon="ri:file-excel-2-fill" /> Ledger Raport
                 </el-dropdown-item>
-                <el-dropdown-item @click="promptDinas = true">
-                  <icons icon="ic:twotone-create" /> Generate Raport Dinas
-                </el-dropdown-item>
-                <el-dropdown-item @click="saveScore">
-                  <icons icon="fluent:save-20-filled" /> Simpan
+                <el-dropdown-item @click="downloadRaport">
+                  <icons icon="ri:file-pdf-2-fill" /> Unduh Raport
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
         </div>
         <div class="relative bg-white">
-          <div :class="[scrollY > showHidden ? 'opacity-100 z-[9999]' : 'opacity-0 z-[-1]',
-            'animate fixed right-0 bg-white/[0.7] h-fit',
-            'px-3 pt-3 pb-2']"
-            v-fixed-to-position="50">
-            <div class="text-right md:block hidden">
-              <el-button size="small" type="success" @click="downloadDinas">
-                <icons icon="ri:file-excel-2-fill" /> Template Dinas
-              </el-button>
-              <el-button size="small" type="primary" @click="promptDinas = true">
-                <icons icon="ic:twotone-create" /> Generate Raport Dinas
-              </el-button>
-              <el-divider direction="vertical" />
-              <el-button size="small" type="success" @click="saveScore">
-                <icons icon="fluent:save-20-filled" /> Simpan
-              </el-button>
-            </div>
-            <el-dropdown
-              trigger="click"
-              class="md:hidden block text-right">
-              <el-button class="" type="success" size="small">
-                Aksi <icons icon="mdi:arrow-down" class="m-0 ml-2"/>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item @click="downloadDinas">
-                    <icons icon="ri:file-excel-2-fill" /> Template Dinas
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="promptDinas = true">
-                    <icons icon="ic:twotone-create" /> Generate Raport Dinas
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="saveScore">
-                    <icons icon="fluent:save-20-filled" /> Simpan
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
           <div v-if="dataNilai.length == 0"
             class="text-center text-gray-500 text-lg p-5">
             <icons icon="mdi:alert" class="text-[50px] mb-3" />
             <div class="text-[18px]">Tidak ada data nilai</div>
           </div>
           <div v-else>
-            <!-- <div class="mx-3">
-              <el-switch />
-              <b class="ml-3">Wali Kelas dan Admin boleh mengedit nilai</b>
-            </div> -->
-            <div class="mx-4 my-2">Inputkan Nilai / Copy-Paste dari File Excel</div>
             <div id="freeze-container" class="mx-3 overflow-x-hidden w-full h-full">
               <div></div>
             </div>
@@ -121,7 +71,7 @@
                   <tr class="*:border *:border-solid *:border-slate-300">
                     <th width="20px" class="fixed-col">No</th>
                     <th class="fixed-col min-w-[160px]">Nama</th>
-                    <th v-for="(mapel, key) in dataNilai[0].mapel"
+                    <th v-for="(mapel, key) in [...dataNilai[0].mapel,...['Jumlah','Rata-Rata','Ranking']]"
                       :key="key"
                       class="">
                       <div
@@ -129,7 +79,7 @@
                           overflow-hidden">
                         <div class="absolute bottom-1/2 translate-y-1/2 left-1/2 -translate-x-1/2 rotate-90 flex flex-col justify-end items-center p-1
                           w-[200px]">
-                          {{ mapel.nama_mapel }}
+                          {{ mapel.nama_mapel ?? mapel }}
                         </div>
                       </div>
                     </th>
@@ -145,6 +95,9 @@
                       class="text-center ">
                       {{ mapel.uts }}
                     </td>
+                    <td class="text-center font-bold">{{ data.total_uts }}</td>
+                    <td class="text-center font-bold">{{ (data.total_uts / data.mapel.length).toFixed(2) }}</td>
+                    <td class="text-center font-bold">{{ data.ranking }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -264,6 +217,12 @@ import { mapState } from 'pinia';
           }, 300)
         })
       },
+      downloadLedger(){
+        this.openLink(this.$siteUrl + `mapel/nilai/download_ledger?id_semester=${this.filter.id_semester}&id_kelas=${this.filter.id_kelas}`)
+      },
+      downloadRaport(){
+        this.openLink(this.$siteUrl + `mapel/nilai/download_raport?id_semester=${this.filter.id_semester}&id_kelas=${this.filter.id_kelas}`)
+      },
       getFreezeHeader(){
         // return;
         console.log('freeze-header')
@@ -276,12 +235,12 @@ import { mapState } from 'pinia';
         this.removeColumnByClass(tBodyFreeze, [], 'fixed-col')
         tBodyFreeze.attr('id', 'table-freeze-body')
         tBodyFreeze.appendTo(tFreezeContainer)
-        tBodyFreeze.css({position:'fixed'})
+        tBodyFreeze.css({position:'absolute'})
 
         let tHeadFreeze = tBase.clone(true).find('tbody').remove().end()
         tHeadFreeze.attr('id', 'table-freeze-head')
         tHeadFreeze.appendTo(tFreezeContainer) 
-        tHeadFreeze.css({position:'fixed'})
+        tHeadFreeze.css({position:'absolute'})
 
         let tHeadBodyFreeze = tBodyFreeze.clone().find('tbody').remove().end()
         tHeadBodyFreeze.attr('id', 'table-freeze-head-body')
@@ -360,14 +319,14 @@ import { mapState } from 'pinia';
         })
         tHeadFreeze.css({
           zIndex: 9998,
-          top: (this.scrollY - 20) + 'px',
+          top: (this.scrollY - 210) + 'px',
           width: tBase.width() + 'px',
           opacity: this.scrollY < this.showHidden ? 0 : 1,
           visibility: this.scrollY < this.showHidden ? 'hidden' : 'visible',
         })
         tHeadBodyFreeze.css({
           zIndex: 9999,
-          top: (this.scrollY - 20) + 'px',
+          top: (this.scrollY - 210) + 'px',
           width: tBodyFreeze.width() + 'px',
           height: tHeadFreeze.height() + 'px',
           opacity: this.scrollY < this.showHidden ? 0 : 1,

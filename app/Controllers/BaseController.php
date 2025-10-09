@@ -38,7 +38,7 @@ abstract class BaseController extends Controller
      *
      * @var array
      */
-    protected $helpers = ['auth','form','functions'];
+    protected $helpers = ['auth','form','functions','excel'];
 
     protected $validation;
     /**
