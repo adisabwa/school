@@ -1,4 +1,6 @@
 <?php
+use NumberToWords\NumberToWords;
+use CodeIgniter\HTTP\ResponseInterface;
 
 function setRandomColor() {
     // Generate random values for each RGB component
@@ -100,4 +102,154 @@ if ( ! function_exists('dateIndo')) {
 
 		return $tgl_indo;
 	}
+}
+
+if (! function_exists('number_to_words')) {
+    function number_to_words($number, $locale = 'id') {
+        $numberToWords = new NumberToWords();
+        $numberTransformer = $numberToWords->getNumberTransformer($locale);
+        return ucwords($numberTransformer->toWords($number));
+    }
+}
+
+if (!function_exists('to_arabic_number')) {
+    function to_arabic_number($number)
+    {
+        $western_arabic = ['0','1','2','3','4','5','6','7','8','9'];
+        $eastern_arabic = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+
+        return str_replace($western_arabic, $eastern_arabic, strval($number));
+    }
+}
+
+if ( ! function_exists('dateIndoArabic')) {
+	function dateIndoArabic($date, $showDay = false)
+	{
+
+		$hari  = array ( 1 => 'الاِثْنَيْنِ', 'الثُّلاثَاْءِ', 'الثُّلاثَاْءِ', 'الثُّلاثَاْءِ', 'الثُّلاثَاْءِ', 'السَّبْتِ', 'الأَحَدِ');
+		$bulan = array ( 1 => 'يَنَاْيِرُ', 'فِبْرَاْيِرُ', 'مَاْرِسُ', 'أَبْرِيْلُ', 'مَاْيُوْ', 'يُوْنِيُوْ', 'يُوْلِيُوْ', 'أُغُسْطُسُ','سِبْتِمْبَرُ', 'أُكْتُوْبَرُ', 'نُوْفِمْبَرُ', 'دِيْسِمْبَرُ');
+		
+		$split 	  = explode('-', $date);
+		$tgl_indo = to_arabic_number((int) $split[2]) . ' ' . $bulan[ (int)$split[1] ] . ' ' . to_arabic_number($split[0]);
+		
+		if ($showDay) {
+			$num = date('N', strtotime($date));
+			return $hari[$num] . ', ' . $tgl_indo;
+		}
+
+		return $tgl_indo;
+	}
+}
+
+if (!function_exists('zip_and_download')) {
+    function zip_and_download(string $zipName, array $files = [], array $folders = [], $deleteOriginal = FALSE): ResponseInterface
+    {
+        $zip = new \ZipArchive();
+
+        // Full path to save the zip temporarily
+        $zipPath = WRITEPATH . 'temp/' . $zipName;
+
+        // Ensure temp directory exists
+        if (!is_dir(WRITEPATH . 'temp')) {
+            mkdir(WRITEPATH . 'temp', 0777, true);
+        }
+
+        // Create or overwrite ZIP file
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            throw new \RuntimeException("Cannot create ZIP file.");
+        }
+
+        // ✅ Add individual files
+        // var_dump($files, $folders);
+        foreach ($files as $filePath) {
+            if (file_exists($filePath)) {
+                $zip->addFile($filePath, basename($filePath));
+            }
+        }
+
+        // ✅ Add folders recursively
+        foreach ($folders as $folderPath) {
+            if (is_dir($folderPath)) {
+                $folderNameInZip = basename($folderPath);
+                add_folder_to_zip($folderPath, $zip, $folderNameInZip);
+            }
+        }
+
+        $zip->close();
+        
+        // ✅ Optionally delete original files/folders
+        if ($deleteOriginal) {
+            foreach ($files as $filePath) {
+                if (file_exists($filePath)) {
+                    unlink($filePath); // delete file
+                }
+            }
+
+            foreach ($folders as $folderPath) {
+                if (is_dir($folderPath)) {
+                    delete_folder_recursive($folderPath); // custom function below
+                }
+            }
+        }
+        // 🔽 Return CI4 download response
+        return response()->download($zipPath, null)->setFileName($zipName);
+    }
+}
+
+if (!function_exists('add_folder_to_zip')) {
+    function add_folder_to_zip(string $folder, \ZipArchive $zip, string $zipFolderName)
+    {
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($folder),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($files as $file) {
+            if (!$file->isDir()) {
+                $filePath = $file->getRealPath();
+                $relativePath = $zipFolderName . '/' . substr($filePath, strlen($folder) + 1);
+                $zip->addFile($filePath, $relativePath);
+            }
+        }
+    }
+}
+
+if (!function_exists('delete_folder_recursive')) {
+    function delete_folder_recursive(string $dir)
+    {
+        $items = array_diff(scandir($dir), ['.', '..']);
+        foreach ($items as $item) {
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            is_dir($path) ? delete_folder_recursive($path) : unlink($path);
+        }
+        rmdir($dir);
+    }
+}
+
+function get_predikat($score) {
+    if ($score >= 85) {
+        return 'Istimewa';
+    } elseif ($score >= 70) {
+        return 'Baik Sekali';
+    } elseif ($score >= 60) {
+        return 'Baik';
+    } elseif ($score >= 50) {
+        return 'Cukup';
+    } else {
+        return 'Gagal';
+    }
+}
+
+function get_predikat_arab($score) {
+    if ($score >= 85) {
+        return 'مُمتاز';
+    } elseif ($score >= 70) {
+        return 'جَيِّد جِدًّا';
+    } elseif ($score >= 60) {
+        return 'جَيِّد';
+    } elseif ($score >= 50) {
+        return 'مَقْبُول';
+    } else {
+        return 'رَاسِب';
+    }
 }

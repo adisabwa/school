@@ -35,6 +35,7 @@ let mapel = [
     icon:'tabler:table',
     label:'Raport Santri',
     type:'submenu',
+    roles:['admin','walas'],
     children: [
       {
         index:'rekap-nilai-uts',

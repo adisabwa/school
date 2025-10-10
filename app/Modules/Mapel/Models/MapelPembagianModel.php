@@ -42,6 +42,7 @@ class MapelPembagianModel extends BaseModel
                 'table' => 'sch_aka_mapel',
                 'selects' => [
                     'nama_mapel',
+                    'nama_mapel_arab',
                 ]
             ]
         ];

@@ -39,6 +39,29 @@ let listFunction = {
     const extension = cleanUrl.split('.').pop().toLowerCase();
     return extension
   },
+  objectToQueryParams(obj, prefix = '') {
+    const query = Object.entries(obj).flatMap(([key, value]) => {
+      const paramKey = prefix ? `${prefix}[${encodeURIComponent(key)}]` : encodeURIComponent(key);
+
+      if (value === null || value === undefined) {
+        return [];
+      } else if (typeof value === 'object' && !Array.isArray(value)) {
+        return objectToQueryParams(value, paramKey);
+      } else if (Array.isArray(value)) {
+        return value.flatMap((val, i) => {
+          if (typeof val === 'object') {
+            return objectToQueryParams(val, `${paramKey}[${i}]`);
+          } else {
+            return `${paramKey}[]=${encodeURIComponent(val)}`;
+          }
+        });
+      } else {
+        return `${paramKey}=${encodeURIComponent(value)}`;
+      }
+    });
+
+    return query.join('&');
+  },
   getValueFromOption(label, options, sim_rate = 0.7){
     if (typeof options == 'object') {
       options = Object.values(options)

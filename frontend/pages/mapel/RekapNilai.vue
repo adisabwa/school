@@ -49,7 +49,34 @@
             </template>
           </el-dropdown>
         </div>
-        <div class="relative bg-white">
+        <el-dialog
+          title="Unduh Raport"
+          append-to-body
+          v-model="showDownload"
+          class="max-w-[500px]"
+          :close-on-click-modal="false">
+          <div class="text-center p-5">
+            <div class="text-blue-500 mb-3">
+              <icons v-if="generating" icon="line-md:downloading-loop" class="text-[50px]"/>
+              <icons v-else icon="fa7-solid:compress-arrows-alt" class="text-[50px]"/>
+            </div>
+            <div class="text-lg mb-2">Sedang menyiapkan file raport</div>
+            <div class="mb-5">
+              <span v-if="generating">Tunggu hingga proses selesai, jangan tutup halaman ini</span>
+              <span v-else>Membuat File Zip. Halaman Unduh akan muncul sebentar lagi. Jika tidak, maka klik 
+                <a @click="downloadRaport" class="cursor-pointer underline">disini</a> </span>
+            </div>
+            <el-progress :percentage="percentage"
+              :stroke-width="24"
+              :show-text="true"
+              striped
+              striped-flow
+              >
+              {{ files.length }} / {{ dataNilai.length }} file
+            </el-progress>
+          </div>
+        </el-dialog>
+        <div class="relative bg-white" v-loading="loading">
           <div v-if="dataNilai.length == 0"
             class="text-center text-gray-500 text-lg p-5">
             <icons icon="mdi:alert" class="text-[50px] mb-3" />
@@ -59,14 +86,14 @@
             <div id="freeze-container" class="mx-3 overflow-x-hidden w-full h-full">
               <div></div>
             </div>
-            <div class="mx-3 overflow-x-auto" @scroll="(event) => {
+            <div class="mx-3 overflow-x-auto mb-5" @scroll="(event) => {
               let tFreezeHead = jquery('#table-freeze-head')
               let target = event.target
               let scrollLeft = target.scrollLeft
               let left = scrollLeft - 13
               tFreezeHead.css({left: -left + 'px'})
             }">
-              <table id="table-base" class=" table mt-1 md:text-[14px] text-[12px] leading-[1.5]">
+              <table id="table-base" class=" table mt-1 md:text-[14px] text-[12px] leading-[1.5] mb-4">
                 <thead class="bg-slate-100 ">
                   <tr class="*:border *:border-solid *:border-slate-300">
                     <th width="20px" class="fixed-col">No</th>
@@ -121,6 +148,11 @@ import { mapState } from 'pinia';
     },
     data: function() {
       return {
+        showDownload:false,
+        generating:true,
+        progress:0,
+        downloadStatus:'',
+        files:[],
         loading: false,
         saving: false,
         filterFields: {
@@ -176,17 +208,13 @@ import { mapState } from 'pinia';
       showLabel(){
         return this.$windowWidth > 800
       },
+      percentage(){
+        if (this.files.length == 0) return 0
+        let all = this.dataNilai.length
+        return Math.round((this.files.length / all) * 100)
+      }
     },
     methods: {
-      searchData(){
-        if (Object.values(this.filter).some(x => {
-          this.isEmpty(x)
-        }))
-          return
-        this.params.where = Object.fromEntries(
-          Object.entries(this.filter).filter(([key, value]) => value)
-        )
-      },
       getInitial: async function() {
           this.loading = true;
           this.$http.get('data/semester/options')
@@ -205,12 +233,14 @@ import { mapState } from 'pinia';
             })
         },
       getData(){
+        this.loading = true
         this.$http.get('mapel/nilai/rekapitulasi',{
           params: {
             id_semester: this.filter.id_semester,
             id_kelas: this.filter.id_kelas
           }
         }).then(result => {
+          this.loading = false
           this.dataNilai = result.data
           setTimeout(() => {
             this.getFreezeHeader()
@@ -220,8 +250,81 @@ import { mapState } from 'pinia';
       downloadLedger(){
         this.openLink(this.$siteUrl + `mapel/nilai/download_ledger?id_semester=${this.filter.id_semester}&id_kelas=${this.filter.id_kelas}`)
       },
-      downloadRaport(){
-        this.openLink(this.$siteUrl + `mapel/nilai/download_raport?id_semester=${this.filter.id_semester}&id_kelas=${this.filter.id_kelas}`)
+      // downloadRaport(){
+      //   this.openLink(this.$siteUrl + `mapel/nilai/download_raport?id_semester=${this.filter.id_semester}&id_kelas=${this.filter.id_kelas}`)
+      // },
+      async downloadRaport() {
+        this.showDownload = true;
+        this.generating = true;
+        this.files = [];
+        let semesterText = this.filterFields.id_semester.options.find(opt => opt.value == this.filter.id_semester)?.label.replace(/\s+/g, '-').toUpperCase() || 'SEMESTER';
+        let kelasText = this.filterFields.id_kelas.options.find(opt => opt.value == this.filter.id_kelas)?.label.replace(/\s+/g, '-').toUpperCase() || 'KELAS';
+        for (const santri of this.dataNilai) {
+          const id = santri.id_santri;
+          try {
+            await this.fetchAndDownloadRaport(id);
+            console.log(`Report ${id} downloaded.`);
+          } catch (error) {
+            console.error(`Failed to download report ${id}:`, error);
+          }
+        }
+
+        console.log("All reports processed. Sending to zip...");
+        this.generating = false;
+        // Convert to FormData
+        const formData = window.jsonToFormData({ 
+          files: this.files,
+          delete_original: true,
+        });
+
+        this.openLink(this.$siteUrl + 'download_zip?' + this.objectToQueryParams({files:this.files}), '_blank');
+        return
+        try {
+          const zipResponse = await this.$http.post('download_zip', formData, {
+            responseType: 'blob', // if your backend returns a zip file
+            onUploadProgress: (progressEvent) => {
+              if (progressEvent.lengthComputable) {
+                const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                this.progress = percent;
+                this.downloadStatus = `Uploading file list... ${percent}%`;
+              }
+            }
+          });
+
+          // ✅ Trigger download of the zip file
+          const blob = new Blob([zipResponse.data], { type: 'application/zip' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'RAPORT-MID-SEMESTER-'+ semesterText + '-' + kelasText+'.zip';
+          link.download.replace(' ', '-');
+          link.download.replace('_', '-');
+          document.body.appendChild(link);
+          link.click();
+          URL.revokeObjectURL(link.href);
+          document.body.removeChild(link);
+          // this.showDownload = false;
+        } catch (error) {
+          console.error("Failed to zip/download files:", error);
+        }
+      },
+      async fetchAndDownloadRaport(id) {
+        try {
+          const result = await this.$http.get('mapel/nilai/download_raport', {
+            params: {
+              id_semester: this.filter.id_semester,
+              id_kelas: this.filter.id_kelas,
+              id_santri: id,
+            }
+          });
+
+          // Add the file path to this.files
+          this.files.push(result.data);
+
+          return result.data; // ⬅️ Return the path for consistency
+        } catch (error) {
+          console.error(`Error downloading report for santri ID ${id}:`, error);
+          throw error; // allow caller to handle it
+        }
       },
       getFreezeHeader(){
         // return;
