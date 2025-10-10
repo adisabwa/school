@@ -9,6 +9,7 @@ class Psb extends BaseDataController
 {
     public function __construct()
     {
+        parent::__construct();
         
         $this->model = model('PsbModel');
         helper('psb');
@@ -33,8 +34,6 @@ class Psb extends BaseDataController
     public function status($id, $status)
     {
         $data = ['status' => $status];
-        if ($status == '2')
-            $data['no_pendaftaran'] = getNomorPendaftaran();
         // var_dump($data);exit;
         $save = $this->model->update($id,$data);
 
@@ -72,10 +71,7 @@ class Psb extends BaseDataController
     {
         $PdfBuilder = new PdfBuilder();
 
-        $data  = $this->model->getData(['p.id' => $id]);
-        if ($data->status != '2')
-            exit('Data belum diverifikasi');
-        
+        $data  = $this->model->getData(['p.id' => $id]);        
         $html = view('Modules\Psb\dokumens/kartu-pendaftaran', ['content' => $data]);
         // echo $html;exit;
         $PdfBuilder->generatePdf($html, TRUE, [0, 0, 500, 842]);
@@ -85,11 +81,10 @@ class Psb extends BaseDataController
     {
         ini_set('max_input_vars', -1);
 
-        $ids = $this->request->getPostGet('id') ?? -1;
-
+        $ids = $this->request->getPostGet('id') ?? ['-1'];
         $PdfBuilder = new PdfBuilder();
 
-        $data  = $this->model->getAll(['id IN ('.implode(',',$ids).')' => NULL, 'status' => '2']);
+        $data  = $this->model->getAll(['id IN ('.implode(',',$ids).')' => NULL]);
         $html = '';
         foreach($data as $d) {
             $html .= view('Modules\Psb\dokumens/kartu-pendaftaran', ['content' => $d]);

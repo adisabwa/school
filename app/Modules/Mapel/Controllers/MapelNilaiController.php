@@ -11,6 +11,8 @@ class MapelNilaiController extends BaseDataController
 
     public function __construct()
     {
+        parent::__construct();
+        
         $this->model = model('MapelNilaiModel');
         $this->santriModel = model('DataSantriModel');
         $this->mapelPembagianModel = model('MapelPembagianModel');
@@ -26,7 +28,8 @@ class MapelNilaiController extends BaseDataController
         // var_dump($pembagian);
         $id_kelas = $pembagian->id_kelas ?? -1;
 
-        $santris = $this->santriModel->getAll(whereAnd: ['id_kelas' => $id_kelas], order: $order);
+        $santris = $this->santriModel->getAll(whereAnd: ['id_kelas' => $id_kelas,'status' => '0'], order: $order);
+        // var_dump($this->santriModel->getLastQuery()); 
         $result = [];
         foreach ($saved_nilai as $key => $value) {
             $result[$value->id_santri] = $value;

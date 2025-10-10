@@ -119,7 +119,6 @@
       }
     },  
     computed: {
-      
       ...mapState(useAuthStore, {
         user: 'loggedUser',
       }),
@@ -130,7 +129,7 @@
     methods: {
       getInitial: async function() {
         this.loading = true;
-        await this.$http.get('/kolom/preparation?table=sch_psb')
+        await this.$http.get('/kolom/preparation?table=sch_psb&grouping=1')
           .then(result => {
             var res = result.data;
             this.groups = Object.values(res)

@@ -90,11 +90,18 @@ export default {
           input:'select',
           options:[],
         },
+        'id_guru' : {
+          nama_kolom:'id_guru',
+          label:'Guru',
+          input:'select',
+          options:[],
+        },
       },
       filter:{
         id_penjadwalan:null,
         id_kelas:null,
         hari:null,
+        id_guru:null,
       },
       tableKey:0,
       fields:{},
@@ -147,9 +154,18 @@ export default {
       })
     },
     searchData(){
-      this.params.where = Object.fromEntries(
-        Object.entries(this.filter).filter(([key, value]) => value)
-      )
+      this.params = {
+        where:{
+          hari:this.filter.hari,
+          id_penjadwalan:this.filter.id_penjadwalan,
+        },
+        condition:{
+          id_pembagian_mapel: {
+            id_kelas: this.filter.id_kelas,
+            id_guru: this.filter.id_guru
+          },
+        }
+      }
     },
     getInitial: async function() {
         this.loading = true;
@@ -162,7 +178,6 @@ export default {
           .then(result => {
             var res = result.data;
             this.fields = res
-            this.fields.id_penjadwalan.readonly = true
             this.fields.id_pembagian_mapel.similar_criteria = 0.95
             this.filterFields = this.fillObjectValue(this.filterFields, JSON.parse(JSON.stringify(res)))
             this.filterFields.id_penjadwalan.clearable = false
@@ -185,6 +200,12 @@ export default {
           .then(result => {
             var res = result.data;
             this.filterFields.id_kelas.options = res
+            this.loading = false
+          });
+        await this.$http.get('/data/guru/options')
+          .then(result => {
+            var res = result.data;
+            this.filterFields.id_guru.options = res
             this.loading = false
           });
       },

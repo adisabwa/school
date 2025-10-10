@@ -5,52 +5,33 @@
           :fields="filterFields"
           :label-position="labelPosition"
           class="mt-3"
+          form-class="mb-0"
           form-item-class="mb-2"
-          label-width="250px"
-          @form-value="getFilter"
+          label-width="180px"
+          v-model:form-value="filter"
           :show-submit="false"
           text-submit="Cari"
           error-submit-text="Tidak dapat mengambil data"
           :show-required-text="false"
           ></form-comp>
-        <div class="mt-3 flex flex-row justify-between">
-          <div class="flex flex-col md:flex-row gap-3 justify-start">
-            <el-dropdown trigger="click" @command="handleActionClick">
-              <el-button type="primary"> 
-                Ubah Checklist <icons icon="fe:arrow-down" class="el-icon--right" />
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item class="text-green-600"
-                    :command="{action: 'pay-many', status:'1'}">
-                    <icons icon="mdi:money"/> Sudah Dibayar</el-dropdown-item>
-                  <el-dropdown-item class="text-sky-600"
-                    :command="{action: 'pay-many', status:'2'}">
-                    <icons icon="mdi:check"/> Verifikasi</el-dropdown-item>
-                  <el-dropdown-item class="text-red-500"
-                    :command="{action: 'delete-many'}" >
-                    <icons icon="material-symbols:delete-outline"/> Hapus Data</el-dropdown-item>
-                  <el-dropdown-item
-                    :command="{action: 'download-many'}" >
-                    <icons icon="mdi:download"/> Unduh Kartu Pendaftaran</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-            <el-button type="success" @click="showUpload = true" class="m-0">
-              <icons icon="mdi:download"/>
-              Download Excel</el-button>
-          </div>
-          <el-button type="primary"
-            @click="searchData"
-            ><icons icon="mdi:search"/>Cari</el-button>
-        </div>
+        <el-button type="primary"
+          @click="searchData"
+          ><icons icon="mdi:search"/>Cari</el-button>
         <table-data ref="tableData" :href="hrefData" :params="params"
-          :show-create="false" :show-search="false" :show-dropdown="false"
-          :upload="false" :add-columns="['nomor']"
+          :show-create="true" 
+          :show-search="true" 
+          :show-download="true"
+          :show-upload="false" 
+          :show-dropdown="false"
           :title="'Data Calon Santri'"
           v-model:checked-id="ids"
           :fields="fields"
           class="p-0 mt-3">
+          <template #menu>
+            <el-button type="primary" class="h-full" @click="handleActionClick({action:'download-many'})" size="small"> 
+              <icons icon="mdi:download"/> Unduh Kartu Pendaftaran
+            </el-button>
+          </template>
           <template #nama-inside="el">
             {{ el.scope.row.nama  }} <br/>
             {{ el.scope.row.nisn  }} 
@@ -60,13 +41,6 @@
               Ibu : {{ el.scope.row.ibu_nama  }} ( {{ el.scope.row.ibu_nik  }} ) <br/>
               Wali : {{ el.scope.row.wali_nama  }} ( {{ el.scope.row.wali_nik  }}  )
           </template>
-          <el-table-column label="Status" min-width="130" align="center">
-            <template #default="scope">
-              <el-tag :type="setStatusType(scope.row.status) "  effect="dark">
-                {{ setStatusText(scope.row.status) }}
-              </el-tag>
-            </template>
-          </el-table-column>
           <el-table-column
             width="120">
             <template #default="scope">
@@ -85,13 +59,7 @@
                     <el-dropdown-item v-if="scope.row.status == '0'"
                       :command="{action: 'delete', id: scope.row.id}">
                       <icons icon="material-symbols:delete-outline"/> Hapus</el-dropdown-item>
-                    <el-dropdown-item class="text-green-600" v-if="scope.row.status == '0'"
-                      :command="{action: 'pay', status:'1'}">
-                      <icons icon="mdi:money"/> Sudah Dibayar</el-dropdown-item>
-                    <el-dropdown-item class="text-sky-600"  v-if="scope.row.status == '1'"
-                      :command="{action: 'pay', status:'2'}">
-                      <icons icon="mdi:check"/> Verifikasi</el-dropdown-item>
-                    <el-dropdown-item v-if="scope.row.status == '1'"
+                    <el-dropdown-item 
                       :command="{action: 'download', id:scope.row.id}" >
                       <icons icon="mdi:download"/> Unduh Kartu Pendaftaran</el-dropdown-item>
                   </el-dropdown-menu>
@@ -117,7 +85,7 @@
   import { setStatusText, setStatusType } from '@/helpers/psb'
   import PsbView from '../View.vue'
   
-  
+
   export default {
     name: "psb",
     components: {
@@ -141,7 +109,7 @@
           no_pendaftaran: {
             nama_kolom:'no_pendaftaran',
             label:'No. Pendaftaran',
-            'min-width':'200px',
+            'width':'150px',
             sort:'',
             sortable:'1',
             align:'left',
@@ -205,16 +173,14 @@
         console.log(this.filter)
         if (!this.isEmpty(this.filter.nama)) {
           let nama = "nama LIKE '%"+this.filter.nama+"%'"
-          this.params.where[nama] = ''
+          this.params.where[0] = nama
+          console.log('nama', this.params.where)
         }
         if (!this.isEmpty(this.filter.nomor)) {
           let nomor = "(nisn LIKE '%"+this.filter.nomor+"%' OR nik LIKE '%"+this.filter.nomor+"%'' OR ayah_nik LIKE '%"+this.filter.nomor+"%' OR ibu_nik LIKE '%"+this.filter.nomor+"%' OR wali_nik LIKE '%"+this.filter.nomor+"%')"
-          this.params.where[nomor] = ''
+          this.params.where[1] = nomor
         }
-        // console.log(this.params)
-      },
-      getFilter(filter){
-        this.fillObjectValue(this.filter, filter)
+        console.log(this.params)
       },
       handleActionClick: function(obj) {
         var action = obj.action;
@@ -308,7 +274,8 @@
           form.method = 'POST';
           form.action = url;
           form.target = '_blank'; // Open in a new tab
-  
+        
+          console.log(this.ids)
           // Add data as hidden input fields
           this.ids.forEach((s, key) => {
             var input = document.createElement('input');

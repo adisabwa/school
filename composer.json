@@ -5,7 +5,8 @@
     "require": {
         "google/apiclient": "*",
         "google/apiclient-services": "*",
-        "dompdf/dompdf": "^3.1"
+        "dompdf/dompdf": "2.0",
+        "phpoffice/phpspreadsheet": "^5.0"
     },
     "minimum-stability": "stable",
     "prefer-stable": true

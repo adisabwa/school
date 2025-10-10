@@ -88,7 +88,7 @@
           </el-dialog>
         </teleport>
         <div class="relative bg-white">
-          <div :class="[scrollY > showHidden ? 'opacity-100' : 'opacity-0',
+          <div :class="[scrollY > showHidden ? 'opacity-100' : 'opacity-0 hidden',
             'animate fixed right-0 z-[9999] bg-white/[0.7] h-fit',
             'px-3 pt-3 pb-2']"
             v-fixed-to-position="50">
@@ -164,9 +164,9 @@
                       <el-input v-if="allowEdit[ujian]"
                         v-model="data.nilai[ujian]" size="large"
                         @focus="(event) => {  }"
-                        @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 0, 100)
+                        @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 10, 99)
                           countRapor(key);"
-                        class="w-[50px]" />
+                        class="w-[60px]" />
                       <span v-else>
                         {{ data.nilai[ujian] }}
                       </span>
@@ -208,7 +208,6 @@ import { mapState } from 'pinia';
             label:'Kelas',
             nama_kolom:'id_kelas',
             input:'select',
-            input_only:'1',
             options:[],
           },
           id_pembagian_mapel:{
@@ -306,6 +305,7 @@ import { mapState } from 'pinia';
       },
       allowEdit(){
         let access = (this.role == 'guru' || this.PembagianMapel.allow_access == '1')
+        // access = true
         // console.log(access)
         let data = {
           nilai_harian: access && this.PembagianMapel['lock_nilai_harian'] == '0',

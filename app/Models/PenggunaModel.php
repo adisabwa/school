@@ -73,7 +73,8 @@ class PenggunaModel extends BaseModel
         string $order = '', 
         int $limit = 0, 
         int $offset = 0,  
-        $relations = NULL)
+        $relations = NULL,
+        bool $return_data = FALSE)
     {
       $whereAnd = empty($whereAnd) ? '1=1' : $whereAnd;
 

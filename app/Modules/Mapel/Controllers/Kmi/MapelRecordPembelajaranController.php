@@ -13,6 +13,8 @@ class MapelRecordPembelajaranController extends BaseDataController
 
     public function __construct()
     {
+        parent::__construct();
+        
         $this->model = model('MapelRecordPembelajaranModel');
         $this->sesiModel = model('DataSesiModel');
         $this->semesterModel = model('DataSemesterModel');

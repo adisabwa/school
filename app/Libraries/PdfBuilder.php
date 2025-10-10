@@ -19,7 +19,7 @@ class PdfBuilder
         $dompdf->loadHtml($html);
         // (Optional) Set paper size and orientation
         $dompdf->setPaper($paper, $orientation);
-
+        $dompdf->getCanvas()->get_cpdf()->addInfo("Laporan Keuangan 2025");
         // Render the PDF
         $render = $dompdf->render();
         
@@ -31,7 +31,7 @@ class PdfBuilder
             header_remove();
             
             // Output the generated PDF to Browser
-            $dompdf->stream("document.pdf", ["Attachment" => false]); // Change to true to force download
+            $dompdf->stream("Dokumen.pdf", ["Attachment" => false]); // Change to true to force download
             exit();
         } else {
             return $render;

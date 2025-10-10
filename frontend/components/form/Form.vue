@@ -430,11 +430,12 @@ export default {
   },
   watch: {
     fieldsData: function(val, oldVal) {
-      
+      console.log('field', val)
     },
     id: {
       immediate: true,
       async handler(val) {
+        console.log(val)
         this.dataId = val;
         this.showOriginal = val instanceof Array
       }
@@ -543,18 +544,27 @@ export default {
         where[field.nama_kolom] = this.form[field.nama_kolom]
         this.getData({
           where:where
-        }, true)
+        }, true, true)
       }   
     },
-    async getData(params, changeId){
-      if (this.showOriginal) return
-      // console.log('get-data', this.initial)
+    async getData(params, changeId = false, search = false) {
       await this.settingFields();
+      if (this.showOriginal) return
       if (this.hrefGet == '') 
         return
       this.saving = true
+      let href = ''
+      if (search) {
+        if (this.isEmpty(this.hrefSearch)) {
+          href = this.hrefGet + '_where'
+        } else {
+          href = this.hrefSearch
+        }
+      } else {
+        href = this.hrefGet
+      }
       // let formData = window.jsonToFormData(where);
-      await this.$http.get(this.hrefGet,
+      await this.$http.get(href,
         {
           params:params,
         }

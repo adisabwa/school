@@ -7,6 +7,7 @@ use CodeIgniter\Model;
 class BaseModel extends Model
 {
     protected $table      = 'table';
+    protected $table_label = 'LENGKAP';
     protected $primaryKey = 'id';
 
     protected $useAutoIncrement = true;
@@ -24,6 +25,7 @@ class BaseModel extends Model
     public $userId;
     public $relations = [];
     public $selects = [];
+    public $whereAnd = [];
 
     public function __construct()
     {
@@ -41,6 +43,11 @@ class BaseModel extends Model
     public function getTableName()
     {
         return $this->table;
+    }
+
+    public function getTableLabel()
+    {
+        return $this->table_label;
     }
     
     public function getOptionsData(array $where = [], ?callable $concatFunc = null, ?callable $addOptions = null)
@@ -87,28 +94,34 @@ class BaseModel extends Model
 
     public function addTableBefore(string $table, $attr, $is_key = FALSE)
     {
+        // var_dump($attr);
         $attr = is_array($attr) ? $attr : explode(',', $attr);
         $new_attr = [];
         foreach ($attr as $key => $value) {
             $old_value = $value;
-            if (empty($value))
+            if ($value === NULL || $value === '')
                 continue;
 
             $value = $is_key ? $key : $value;
-            $no_line = strpos($value, '{n}');
-            $pos = strpos($value, '{f}');
-            if ($no_line !== false) {
-                $new = str_replace('{n}','', $value);
-            } else if ($pos !== false) {
-                $new = str_replace('{f}',$table, $value);
+            if (!is_numeric($value)) {
+                $no_line = strpos($value, '{n}');
+                $pos = strpos($value, '{f}');
+                if ($no_line !== false) {
+                    $new = str_replace('{n}','', $value);
+                } else if ($pos !== false) {
+                    $new = str_replace('{f}',$table, $value);
+                } else {
+                    $new = "$table.$value";
+                }
+                if ($is_key)
+                    $new_attr[$new] = $old_value;
+                else
+                    $new_attr[] = $new;
             } else {
-                $new = "$table.$value";
+                $new_attr[$old_value] = NULL;
             }
-            if ($is_key)
-                $new_attr[$new] = $old_value;
-            else
-                $new_attr[] = $new;
         }
+        // var_dump($new_attr);
         return $new_attr;
     }
 
@@ -121,14 +134,18 @@ class BaseModel extends Model
         string $order = '', 
         int $limit = 0, 
         int $offset = 0,  
-        $relations = NULL)
+        $relations = NULL,
+        bool $return_data = FALSE)
     {
-        // var_dump($whereAnd, $whereOr);
 
+        // var_dump($whereAnd, $whereOr);
+        $whereAnd = array_merge($this->whereAnd, $whereAnd);
         $whereAnd = empty($whereAnd) ? '1=1' : $this->addTableBefore($this->table, $whereAnd, TRUE);
         $whereOr = empty($whereOr) ? '1=1' : $this->addTableBefore($this->table, $whereOr, TRUE);
+
+        // var_dump('Where', $this->table, $whereAnd, $whereOr);
         
-        // var_dump($whereAnd, $whereOr);
+        // var_dump($this->whereAnd);
         $data = $this->db->table($this->table)
                     ->select("{$this->table}.*")
                     ->select($this->addTableBefore($this->table, $this->selects))
@@ -151,7 +168,10 @@ class BaseModel extends Model
 
         $data->limit($limit, $offset);
 
+        if ($return_data)
+            return $data->getCompiledSelect();
         // var_dump($data->getCompiledSelect());
+        // exit;
 
         return $data->get()->getResult();
     }
@@ -182,6 +202,7 @@ class BaseModel extends Model
 
     public function applyJoin(object $builder, $relations = NULL)
     {
+        $currTable = $this->table;
         // var_dump($this->relations);
         // exit;
         if ($relations === NULL) {
@@ -193,40 +214,61 @@ class BaseModel extends Model
             if ($rel) {
                 // var_dump($relation, $rel);
                 $model = false;
-                $table = $rel['table'];
+                $table = $rel['table'] ?? '';
+                $model = $rel['model'] ?? NULL;
                 $alias = $rel['alias'] ?? NULL;
-                $table_alias = $alias ?? $table;
-                if ($rel['model'] ?? false) {
-                    $model = model($rel['model']);
-                    $table = $model->getTableName();
-                }
-
-                $builder->select($this->addTableBefore($table_alias, $rel['selects']));
-                // var_dump($this->addTableBefore($table_alias, $rel['selects']));
-                // echo "<br/>";
-                $condition = [
-                    "$this->table.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
-                ];
-                if ($rel['condition'] ?? false)
-                    $condition = array_merge($condition,
-                    $this->addTableBefore($table_alias, $rel['condition'])
-                );
-
-                $text_table = $alias ? "$table $alias" : $table;
-                // var_dump($condition, $text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
-                // var_dump($condition, implode(" AND ", $condition), $rel['condition'] ?? '',$text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
-                $builder->join($text_table, implode(" AND ", $condition), $rel['type'] ?? 'inner');
-                if ($rel['order'] ?? false) {
-                    if (!is_array($rel['order'])) {
-                        $j_order = explode(',', $rel['order']);
-                    }
-                    $j_order = $this->addTableBefore($table_alias, $rel['order']);
-                    $j_order = implode(",", $j_order);
-                    $builder->orderBy($j_order);
-                }
 
                 if ($model) {
-                    $builder = $model->applyJoin($builder);
+                    $model = model($rel['model']);
+                    $table = $model->getTableName();
+                    $table_alias = $alias ?? "alias_$table";
+                    // $condition = [
+                    //     "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
+                    // ];
+                    // if ($rel['condition'] ?? false)
+                    //     $condition = $this->addTableBefore($table_alias, $rel['condition']);
+                    
+                    if ($rel['order'] ?? false) {
+                        if (!is_array($rel['order'])) {
+                            $j_order = explode(',', $rel['order']);
+                        }
+                        // $j_order = $this->addTableBefore($table_alias, $rel['order']);
+                        $j_order = implode(",", $j_order);
+                        // $builder->orderBy($j_order);
+                    }
+                    
+                    $query = $model->getAll(whereAnd:($rel['condition'] ?? []), return_data: TRUE, order: ($j_order ?? ''));
+                    // var_dump($query);
+                    $builder->select($this->addTableBefore($table_alias, $rel['selects']));
+                    $builder->join("($query) $table_alias", 
+                        "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id'),
+                        $rel['type'] ?? 'inner'
+                        );
+                } else {
+                    $table_alias = $alias ?? $table;
+                    $builder->select($this->addTableBefore($table_alias, $rel['selects']));
+                    // var_dump($this->addTableBefore($table_alias, $rel['selects']));
+                    // echo "<br/>";
+                    $condition = [
+                        "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
+                    ];
+                    if ($rel['condition'] ?? false)
+                        $condition = array_merge($condition,
+                        $this->addTableBefore($table_alias, $rel['condition'])
+                    );
+
+                    $text_table = $alias ? "$table $alias" : $table;
+                    // var_dump($condition, $text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
+                    // var_dump($condition, implode(" AND ", $condition), $rel['condition'] ?? '',$text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
+                    $builder->join($text_table, implode(" AND ", $condition), $rel['type'] ?? 'inner');
+                    if ($rel['order'] ?? false) {
+                        if (!is_array($rel['order'])) {
+                            $j_order = explode(',', $rel['order']);
+                        }
+                        $j_order = $this->addTableBefore($table_alias, $rel['order']);
+                        $j_order = implode(",", $j_order);
+                        $builder->orderBy($j_order);
+                    }
                 }
             }
         }
@@ -247,6 +289,30 @@ class BaseModel extends Model
             }
         }
         // var_dump($key, $this->relations[$key]);
+        return $this;
+    }
+    
+    public function resolveConditions($condition)
+    {
+        
+    }
+    public function addConditions($conditions)
+    {
+        // var_dump($conditions);
+        foreach ($conditions as $key => $condition) {
+            if (empty($this->relations[$key]['condition'])) {
+                $this->relations[$key]['condition'] = [];
+            }
+            foreach($condition as $index => $value) {
+                if (empty($value)) {
+                    $cond = $index;
+                } else {
+                    $cond = "$index='$value'";
+                }
+                $this->relations[$key]['condition'][] = $cond;
+            }
+        }
+        // var_dump($this->relations);
         return $this;
     }
     

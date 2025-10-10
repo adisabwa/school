@@ -20,9 +20,19 @@ function setStatusColor($value) {
 
 function getNomorPendaftaran($plus = 0) {
     $psb = new PsbModel();
-    $data = $psb->where(['status' => '2'])->findAll();
-    $count = count($data) + 1 + $plus;
+    $data = $psb->where(['no_pendaftaran !=' => ''])->orderBy('id desc')->findAll();
+    if ($data) {
+        $data =  $data[0];
+        $no_pendaftaran = $data->no_pendaftaran;
+        $count = str_replace('PPMDA','', $no_pendaftaran);
+        $count = (int) $count;
+        $count++;
+        $count = str_pad($count, 5, "0", STR_PAD_LEFT);
+        // var_dump($count);exit;
+    } else {
+        $count = 1;
+    }
 
-    return 'PPMDA000'.$count;
+    return 'PPMDA'.$count;
 
 }
