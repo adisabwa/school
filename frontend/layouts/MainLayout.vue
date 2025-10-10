@@ -128,7 +128,7 @@ export default {
           function:'',
           icon:'mingcute:group-3-fill',
           label:'Kelompok',
-          role:['admin','super-admin'],
+          role:['admin','super-admin','admin-bidang'],
         },
         'group-user':{
           route:'group-user',

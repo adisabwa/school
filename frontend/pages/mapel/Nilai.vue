@@ -174,6 +174,7 @@
                         v-model="data.nilai[ujian]" size="large"
                         @focus="(event) => {  }"
                         @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 10, 99)
+                        @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 10, 99)
                           countRapor(key);"
                         @paste="(event) => { handlePaste(event, key, ujian)}"
                         :class="[allowEdit[ujian] ? 'ml-[20px]' : '',
@@ -220,7 +221,6 @@ import { mapState } from 'pinia';
             label:'Kelas',
             nama_kolom:'id_kelas',
             input:'select',
-            input_only:'1',
             options:[],
           },
           id_pembagian_mapel:{

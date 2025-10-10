@@ -10,6 +10,8 @@ class MapelPenjadwalanController extends BaseDataController
 
     public function __construct()
     {
+        parent::__construct();
+        
         $this->model = model('MapelPenjadwalanModel');
     }
 

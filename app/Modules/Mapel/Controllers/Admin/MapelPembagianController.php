@@ -10,6 +10,8 @@ class MapelPembagianController extends BaseDataController
 
     public function __construct()
     {
+        parent::__construct();
+        
         $this->model = model('MapelPembagianModel');
     }
 

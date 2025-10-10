@@ -1,3 +1,12 @@
+<style lang="postcss" scoped>
+  :deep(.button-menu) {
+    @apply m-0 mt-2 text-white font-bold rounded-[10px]
+      bg-[linear-gradient(to_right,theme(colors.cyan.500),theme(colors.emerald.500)_50%,theme(colors.red.500)_50%,theme(colors.yellow.500))]
+      bg-[length:200%_200%] bg-left-bottom hover:bg-right-top py-2 px-4
+      transition-all duration-500 ease-in-out
+    !important;
+  }
+</style>
 <template>
     <div id="psb" class="flex flex-col">
       <el-card class="mx-0 sm:mx-20 md:mx-auto mt-10 bg-white/[0.9]
@@ -74,7 +83,7 @@
                 <el-button size="large" type="success" :disable="saving"
                   class="p-3"
                   @click="active++"
-                  :style="{visibility: active < fields.length ? 'visible' : 'hidden'}"
+                  :style="{visibility: active < (groups.length - 1) ? 'visible' : 'hidden'}"
                   >
                   Selanjutnya
                   <icons icon="mdi:arrow-right-bold" class="m-0 ml-2"/>
@@ -85,29 +94,24 @@
           
           <div class="mt-4 mb-16 flex flex-row space-x-5 items-center justify-center">
             <el-button size="large"
-              class="m-0 mt-2 text-white font-bold rounded-[10px]
-                bg-[linear-gradient(to_right,theme(colors.cyan.500),theme(colors.emerald.500)_50%,theme(colors.red.500)_50%,theme(colors.yellow.500))]
-                bg-[length:200%_200%] bg-left-bottom hover:bg-right-top py-2 px-4
-                transition-all duration-500 ease-in-out"
+              class="button-menu"
               @click="$router.push({name:'psb-start'});">
                 Halaman Utama
             </el-button>
             <el-button size="large"
-              class="m-0 mt-2 text-white font-bold rounded-[10px]
-                bg-[linear-gradient(to_right,theme(colors.cyan.500),theme(colors.emerald.500)_50%,theme(colors.red.500)_50%,theme(colors.yellow.500))]
-                bg-[length:200%_200%] bg-left-bottom hover:bg-right-top py-2 px-4
-                transition-all duration-500 ease-in-out"
+              class="button-menu"
               @click="$router.push({name:'psb-create'});">
                 Daftar Baru
             </el-button>
-            <el-button size="large"
-              class="m-0 mt-2 text-white font-bold rounded-[10px]
-                bg-[linear-gradient(to_right,theme(colors.cyan.500),theme(colors.emerald.500)_50%,theme(colors.red.500)_50%,theme(colors.yellow.500))]
-                bg-[length:200%_200%] bg-left-bottom hover:bg-right-top py-2 px-4
-                transition-all duration-500 ease-in-out"
+            <el-button size="large" v-if="dataId > 0"
+              class="button-menu"
               @click="$router.push({name:'psb-create',query:{id:dataId}});">
-                <icons icon="mdi:edit"/>
                 Edit Data
+            </el-button>
+            <el-button size="large" v-if="dataId > 0"
+              class="button-menu"
+              @click="openLink($siteUrl+'/psb/admin/download/'+dataId)">
+                Unduh Kartu Pendaftaran
             </el-button>
           </div>
         </div>
@@ -183,7 +187,7 @@
       },
       getInitial: async function() {
         this.loading = true
-        await this.$http.get('/kolom/preparation?table=sch_psb&input=0')
+        await this.$http.get('/kolom/preparation?table=sch_psb&input=0&grouping=1')
           .then(result => {
             var res = result.data;
             this.groups = Object.values(res)

@@ -1,29 +1,36 @@
 <template>
   <div id="table-data">
-    <div v-if="showCreate || showSearch"
+    <div v-if="showCreate || showSearch || showDownload || showUpload"
       class="flex flex-col sm:flex-row mb-3 gap-4
       mt-7 sm:mt-2">
-      <div v-if="showCreate" class="w-full
-        grid grid-cols-2 max-sm:[&_button]:m-0
-        gap-x-3 gap-y-2
-        sm:block">
+      <div class="w-full
+        grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] [&_button]:m-0
+        gap-x-3 gap-y-2">
         <slot name="before-menu" :action="handleActionClick"></slot>
-        <el-button class="py-[15px]" type="primary" size="small" v-if="upload" @click="showUpload = true">
+        <el-button class="py-[15px]" type="primary" size="small" v-if="showUpload" @click="showUploadDialog = true">
           <icons icon="mdi:upload"/>
           Import Data</el-button>
-        <el-button class="py-[15px]" type="success" size="small" @click="handleActionClick({action:'add'})">
-          <icons icon="mdi:plus"/>
-          Buat Baru</el-button>
-        <el-button class="py-[15px]" type="primary" size="small" @click="handleActionClick({action:'edit-all'})">
-          <icons icon="mdi:edit"/>
-          Edit Bersama</el-button>
-        <el-button class="py-[15px]" type="danger" size="small" v-if="checked" @click="deleteMany">
-          <icons icon="mdi:trash"/>
-          Delete Checklist</el-button>
+        <template v-if="showCreate">
+          <el-button class="py-[15px]" type="success" size="small" @click="handleActionClick({action:'add'})">
+            <icons icon="mdi:plus"/>
+            Buat Baru</el-button>
+          <el-button class="py-[15px]" type="primary" size="small" @click="handleActionClick({action:'edit-all', id:1})">
+            <icons icon="mdi:edit"/>
+            Edit Bersama</el-button>
+          <el-button class="py-[15px]" type="danger" size="small" v-if="checked" @click="deleteMany">
+            <icons icon="mdi:trash"/>
+            Delete Checklist</el-button>
+        </template>
+        <el-button type="success" 
+          v-if="showDownload"
+          @click="handleActionClick({action:'download-excel'})" class="py-[15px]">
+          <icons icon="mdi:download"/>
+          Download Excel</el-button>
         <slot name="menu" :action="handleActionClick"></slot>
       </div>
-      <div v-if="showSearch" class="w-full sm:w-1/3 flex">
+      <div v-if="showSearch" class="w-full sm:w-1/3 flex h-fit">
         <el-select v-model="searchField" placeholder="Kolom"
+          class="min-w-[100px]"
           :empty-values="[null, undefined]"
           :value-on-clear="null"
           clearable>
@@ -31,7 +38,7 @@
           <el-option v-for="field in fields"
             :value="field.nama_kolom" :label="field.label"/>
         </el-select>
-        <el-input placeholder="Cari..." class="min-w-[200px] rounded-full" size="default" type="search" @input="isTyping=true" v-model="searchKeyword" />
+        <el-input placeholder="Cari..." class="min-w-[150px] rounded-full" size="default" type="search" @input="isTyping=true" v-model="searchKeyword" />
       </div>
     </div>
     <el-card class="bg-white/[0.7]"
@@ -87,15 +94,17 @@
               </div>
             </template>
             <template #default="scope">
-              <div v-if="!field.hide_content" :class="field.sortable == '1' ? 'ml-[16px]' : 'ml-0'">
-                {{ runFunction({
-                  func: field.function, 
-                  data: isEmpty(field.view_kolom) ? scope.row[field.nama_kolom] : scope.row[field.view_kolom], 
-                  options: field.options,
-                  defaultData: field?.defaultData,
-                })  }}
+              <div :class="field.sortable == '1' ? 'ml-[16px]' : 'ml-0'">
+                <div v-if="!field.hide_content">
+                  {{ runFunction({
+                    func: field.function, 
+                    data: isEmpty(field.view_kolom) ? scope.row[field.nama_kolom] : scope.row[field.view_kolom], 
+                    options: field.options,
+                    defaultData: field?.defaultData,
+                  })  }}
+                </div>
+                <slot :name="field.nama_kolom+'-inside'" :scope="scope" :field="field"></slot>
               </div>
-              <slot :name="field.nama_kolom+'-inside'" :scope="scope" :field="field"></slot>
             </template>
           </el-table-column>
           <slot :name="'after-'+field.nama_kolom" :field="field"></slot>
@@ -175,7 +184,7 @@
       }"
       @saved="onUpdated"></data-view>
       
-    <excel-dialog v-model:show="showUpload" :href="href + '/store_many'"      @saved="onUpdated" :fields="fields" :datas="datas" :options="options"
+    <excel-dialog v-model:show="showUploadDialog" :href="href + '/store_many'"      @saved="onUpdated" :fields="fields" :datas="datas" :options="options"
       :default-value="defaultValue"/>
   </div>
 </template>
@@ -198,6 +207,10 @@
       showSearch:{
         type:Boolean,
         default: true,
+      },
+      showDownload:{
+        type:Boolean,
+        default: false,
       },
       showDropdown:{
         type:Boolean,
@@ -239,7 +252,7 @@
         type:Boolean,
         default: true,
       },
-      upload:{
+      showUpload:{
         type:Boolean,
         default: true,
       },
@@ -279,7 +292,7 @@
         page: [10,20,30,40,50],
         showAdd: false,
         showView: false,
-        showUpload: false,
+        showUploadDialog: false,
         editId: '',
         loading: false,
         datas: [],
@@ -444,8 +457,8 @@
           o.unshift(ind)
         this.getData()
       },
-      async getData(){
-        console.log('getDataTable', this.params)
+      getParams(){
+        console.log('getParams', this.params)
         let list = []
         let f = this.fields
         this.order.forEach(o => {
@@ -455,11 +468,17 @@
         let order = this.params?.order ?? []
         // console.log(order, [...order, ...list])
         order = [...list, ...order]
-        await this.$http.get(this.href, {
-          params: {
+        return {
             ...this.params,
             order:order
           }
+
+      },
+      async getData(){
+        let params = this.getParams()
+        console.log(params)
+        await this.$http.get(this.href, {
+          params: params
         })
           .then(result => {
             this.loading = false;
@@ -514,7 +533,7 @@
             delete this.fieldsCreate[element]
           }
         }
-        // console.log(obj, this.fieldsCreate)
+        console.log(obj, this.fieldsCreate)
         if (action == 'add') {
           this.showAdd = true;
           this.dataType = 'create';
@@ -570,6 +589,11 @@
             });
         } else if (action == 'delete-many') {
           this.deleteMany()
+        } else if (action == 'download-excel') {
+          let params = this.getParams()
+          console.log(params, this)
+          params = this.toQueryString(params)
+          this.openLink(this.$siteUrl + this.href + '/download_excel?' + params)
         }
       },
       onUpdated: function(teacher) {

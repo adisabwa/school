@@ -13,6 +13,8 @@ class PresensiKelasController extends BaseDataController
 
     public function __construct()
     {
+        parent::__construct();
+        
         $this->model = model('PresensiKelasModel');
         $this->sesiModel = model('DataSesiModel');
         $this->semesterModel = model('DataSemesterModel');

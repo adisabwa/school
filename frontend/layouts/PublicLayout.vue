@@ -84,6 +84,10 @@ export default {
     };
   },
   watch: {
+    $route(to, from) {
+      console.log(to, from)
+      this.setHeader(to.name, from.name)
+    }
 
   },
   computed: {
@@ -95,6 +99,7 @@ export default {
     setHeader(to, from){
       let To = this.bigs.includes(to);
       let From = this.bigs.includes(from);
+      console.log(to, from, To, From)
       if (To == From) return ''
       else if (To) {
         this.addClass('.add-play','play');
@@ -110,9 +115,6 @@ export default {
   },
   updated: function() {
     this.setHeader(this.$route.name, null)
-  },
-  beforeRouteLeave(to, from){
-    this.setHeader(to.name, from.name)
   },
 }
 </script>

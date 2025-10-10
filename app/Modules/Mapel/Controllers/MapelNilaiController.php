@@ -15,6 +15,8 @@ class MapelNilaiController extends BaseDataController
 
     public function __construct()
     {
+        parent::__construct();
+        
         $this->model = model('MapelNilaiModel');
         $this->santriModel = model('DataSantriModel');
         $this->mapelPembagianModel = model('MapelPembagianModel');

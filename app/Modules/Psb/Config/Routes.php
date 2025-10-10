@@ -15,6 +15,7 @@ $routes->group('psb', static function ($routes) {
     $routes->add('template', [Psb::class,'template']);
     $routes->add('upload', [Psb::class,'upload']);
     $routes->add('preparation', [Psb::class,'preparation']);
+    $routes->add('admin/download/(:any)', [PsbAdmin::class,'download/$1']);
 });
 
 //-------------------------------------Admin PSB -----------------------------------------------
@@ -27,8 +28,8 @@ $routes->group('psb/admin', [
     $routes->add('status_many', [PsbAdmin::class,'status_many']);
     $routes->add('delete/(:any)', [PsbAdmin::class,'delete/$1']);
     $routes->add('delete_many', [PsbAdmin::class,'delete_many']);
-    $routes->add('download/(:any)', [PsbAdmin::class,'download/$1']);
     $routes->add('download_many', [PsbAdmin::class,'download_many']);
+    $routes->add('download_excel', [PsbAdmin::class,'download_excel']);
 });
 
 //-----------------------------------------------------------------------------------------------------

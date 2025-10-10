@@ -10,6 +10,7 @@ class PsbModel extends BaseModel
     {
         parent::__construct();
         $this->table = 'sch_psb';
+        $this->table_label = 'SANTRI BARU';
         $this->relations = [
             'ayah_penghasilan' => [
                 'foreign_key' => 'ayah_penghasilan',
@@ -17,9 +18,9 @@ class PsbModel extends BaseModel
                 'alias' => 'pel1',
                 'type' => 'left',
                 'selects' => [
-                    'label ayah_peng_label', 
-                    'dari ayah_peng_dari', 
-                    'hingga ayah_peng_hingga',
+                    'label ayah_penghasilan_label', 
+                    'dari ayah_penghasilan_dari', 
+                    'hingga ayah_penghasilan_hingga',
                 ]
             ],
             'ibu_penghasilan' => [
@@ -28,9 +29,9 @@ class PsbModel extends BaseModel
                 'alias' => 'pel2',
                 'type' => 'left',
                 'selects' => [
-                    'label ibu_peng_label', 
-                    'dari ibu_peng_dari', 
-                    'hingga ibu_peng_hingga',
+                    'label ibu_penghasilan_label', 
+                    'dari ibu_penghasilan_dari', 
+                    'hingga ibu_penghasilan_hingga',
                 ]
             ],
             'wali_penghasilan' => [
@@ -39,9 +40,9 @@ class PsbModel extends BaseModel
                 'alias' => 'pel3',
                 'type' => 'left',
                 'selects' => [
-                    'label wali_peng_label', 
-                    'dari wali_peng_dari', 
-                    'hingga wali_peng_hingga',
+                    'label wali_penghasilan_label', 
+                    'dari wali_penghasilan_dari', 
+                    'hingga wali_penghasilan_hingga',
                 ]
             ],
         ];

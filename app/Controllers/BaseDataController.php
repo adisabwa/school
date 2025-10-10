@@ -6,16 +6,18 @@ use App\Controllers\BaseController;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use CodeIgniter\Files\File;
-use App\Controllers\Kolom;
+use App\Libraries\Fields;
 
 class BaseDataController extends BaseController
 {
     public $model;
     public $kolomClass;
+    public $fieldsLibrary;
 
     public function __construct()
     {
         $this->kolomClass = new Kolom;
+        $this->fieldsLibrary = new Fields;
     }
 
     public function index()
@@ -27,11 +29,12 @@ class BaseDataController extends BaseController
         $order = $this->request->getGetPost('order') ?? [];
         $limit = $this->request->getGetPost('limit') ?? 0;
         $offset = $this->request->getGetPost('offset') ?? 0;
+        $condition = $this->request->getGetPost('condition') ?? [];
 
         $order = implode(",", $order);
 
-        // var_dump($where);
-        $data = $this->model->getAll(whereAnd: $where, whereOr: $or, whereIn: $in, orWhereIn: $inOr, 
+        // var_dump($condition);
+        $data = $this->model->addConditions($condition)->getAll(whereAnd: $where, whereOr: $or, whereIn: $in, orWhereIn: $inOr, 
             order: $order, limit: $limit, offset: $offset);
         
         foreach ($data as $key => $d) {
@@ -98,7 +101,7 @@ class BaseDataController extends BaseController
         foreach ($child_table as $table => $values) {
             $fk = $child_key[$table];
             $id = $posted_data['id'];
-            $model = $this->kolomClass->getModelFromTable($table);
+            $model = $this->fieldsLibrary->getModelFromTable($table);
             if ($model) {
                 $model->where([$fk => $posted_data['id']])->delete();
                 array_walk($values, function(&$value) use ($fk, $id) {
@@ -151,7 +154,7 @@ class BaseDataController extends BaseController
             foreach ($child_table as $table => $values) {
                 $fk = $child_key[$table];
                 $id = $posted_data['id'];
-                $model = $this->kolomClass->getModelFromTable($table);
+                $model = $this->fieldsLibrary->getModelFromTable($table);
                 if ($model) {
                     $model->where([$fk => $posted_data['id']])->delete();
                     array_walk($values, function(&$value) use ($fk, $id) {
@@ -331,5 +334,98 @@ class BaseDataController extends BaseController
         // return sendInternalServerError();
         if ($save) return $this->respondCreated(['data' => $data_pegnghasilan,'error' => $error_pegnghasilan]);
         else return $this->failServerError();
+    }
+
+    public function download_excel()
+    {
+        $where = $this->request->getGetPost('where') ?? [];
+        $in = $this->request->getGetPost('in') ?? [];
+        $or = $this->request->getGetPost('or') ?? [];
+        $inOr = $this->request->getGetPost('in_or') ?? [];
+        $order = $this->request->getGetPost('order') ?? [];
+        $limit = $this->request->getGetPost('limit') ?? 0;
+        $offset = $this->request->getGetPost('offset') ?? 0;
+        $condition = $this->request->getGetPost('condition') ?? [];
+
+        $order = implode(",", $order);
+
+        // var_dump($condition);
+        $data = $this->model->addConditions($condition)->getAll(whereAnd: $where, whereOr: $or, whereIn: $in, orWhereIn: $inOr, 
+            order: $order, limit: $limit, offset: $offset);
+        
+        $fields = $this->fieldsLibrary->getFields($this->model->getTableName(), TRUE, FALSE, FALSE);
+
+        $filename = strtotime('now').'-DATA-'.$this->model->getTableLabel();
+        $filename = str_replace(' ','-',$filename);
+        $filename = strtoupper($filename);
+        // var_dump($filename);exit;
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->getProperties()
+                    ->setCreator('Codev-App')
+                    ->setTitle('Sistem Informas PPMDA');
+                    
+        $activeWorksheet = $spreadsheet->getActiveSheet();
+        $kolomRange = excelColumnRange('B','ZZZ');
+        $activeWorksheet->setCellValue('A1', 'No');
+        $fields = array_values($fields);
+        $row = 1;
+        $grouping = $this->fieldsLibrary->groupingData($fields);
+        $show_group = count($grouping) > 1;
+        $key = 0;
+        foreach ($grouping as $group) {
+            if ($show_group) {
+                $last_key = $key + count($group->children) - 1;
+                $activeWorksheet->mergeCells("{$kolomRange[$key]}$row:".
+                $kolomRange[$last_key].$row);
+                $activeWorksheet->setCellValue("{$kolomRange[$key]}$row", $group->label);
+            }
+            foreach ($group->children as $field) {
+                $activeWorksheet->setCellValue("{$kolomRange[$key]}".($show_group ? $row + 1 : $row), $field->label);
+                $key++;
+            }
+        }
+        
+        $row += ($show_group ? '2' : '1');
+        // var_dump($data);exit;
+        foreach ($data as $ind => $d) {
+            $activeWorksheet->setCellValue("A$row", $ind + 1);
+            $key = 0;
+            foreach ($grouping as $group) {
+                foreach ($group->children as $key => $field) {
+                    $col = $field->view_kolom;
+                    if (empty($col))
+                        $col = $field->nama_kolom;
+
+                    $data = $d->$col;
+                    if (is_numeric($data))
+                        $data = "'".$data;
+
+                    $activeWorksheet->setCellValue("{$kolomRange[$key]}$row", $data);
+
+                    $key++;
+                }
+            }
+                
+            $row++;
+        }
+
+
+        for ($i = 'A'; $i !=  $activeWorksheet->getHighestColumn(); $i++) {
+            $activeWorksheet->getColumnDimension($i)->setAutoSize(TRUE);
+        }
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0
+        $writer = IOFactory::createWriter($spreadsheet, 'Xls');
+        // ob_end_clean();
+        $writer->save('php://output');
     }
 }

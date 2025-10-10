@@ -3,7 +3,23 @@ import { isArray } from "lodash";
 import { ref, watch } from 'vue';
 
 let listFunction = {
-    fillObjectValue(src, data) {
+    toQueryString(obj, prefix) {
+      console.log(obj)
+      const str = [];
+      for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          const k = prefix ? prefix + "[" + key + "]" : key;
+          const v = obj[key];
+          str.push(
+            (v !== null && typeof v === "object")
+              ? listFunction.toQueryString(v, k)
+              : encodeURIComponent(k) + "=" + encodeURIComponent(v)
+          );
+        }
+      }
+      return str.join("&");
+    },
+    fillObjectValue(src, data, exception = []) {
       if (!this.isArrayOrObject(data))
         return;
       if (data === null || data == undefined)
@@ -11,12 +27,14 @@ let listFunction = {
       // console.log('source', src)
       // console.log('data', data)
       Object.keys(data).forEach(key => {
-        // key = key + '.coba'
-        if (this.getObjectValueByPath(src, key) !== undefined) {
-          // src[key] = data[key];
-          // console.log(key, data[key])
-          let res = this.setObjectValueByPath(src, key, data[key])
-          // console.log('res', res, src)
+        if (!exception.includes(key)) {
+          // key = key + '.coba'
+          if (this.getObjectValueByPath(src, key) !== undefined) {
+            // src[key] = data[key];
+            // console.log(key, data[key])
+            let res = this.setObjectValueByPath(src, key, data[key])
+            // console.log('res', res, src)
+          }
         }
       });
       // console.log(src)

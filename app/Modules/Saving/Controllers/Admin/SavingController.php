@@ -13,6 +13,8 @@ class SavingController extends BaseDataController
 
     public function __construct()
     {
+        parent::__construct();
+        
         $this->model = model('SavingModel');
         $this->santriModel = model('SantriModel');
     }
