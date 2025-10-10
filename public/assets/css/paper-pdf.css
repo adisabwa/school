@@ -1,0 +1,121 @@
+@font-face {
+  font-family: 'Roboto Regular';
+  src: url('../fonts/Roboto/Roboto-Regular.ttf') format('ttf');
+}
+@font-face {
+  font-family: 'Roboto Medium';
+  src: url('../fonts/Roboto/Roboto-Medium.ttf') format('ttf');
+}
+@page { 
+  margin: 0px 0px; 
+}
+.sheet {
+  padding: 0mm;
+  line-height: 1.2;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+td {
+  padding: 2px 2px;
+  border: 0px;
+}
+.no-margin { 
+  margin: 0 
+}
+.no-bold { 
+  font-weight: normal; 
+}
+.font-tnw {
+  font-family: 'Times New Roman';
+}
+.font-roboto {
+  font-family: 'Roboto Regular', sans-serif;
+  font-style: normal;
+}
+
+.font-8 {
+  font-size: 8pt;
+}
+.font-9 {
+  font-size: 9pt;
+}
+.font-10 {
+  font-size: 10pt;
+}
+.font-11 {
+  font-size: 11pt;
+}
+.font-12 {
+  font-size: 12pt;
+}
+.font-13 {
+  font-size: 13pt;
+}
+.font-14 {
+  font-size: 14pt;
+}
+.text-justify {
+  text-align: justify;
+}
+.spacer {
+  clear: both;
+  height: 15px;
+}
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+.text-left {
+  text-align: left;
+}
+div {
+  position: relative;
+}
+header {
+  position: fixed;
+  top: -40px;
+  left: 0;
+  right: 0;
+  height: 140px;
+  text-align: center;
+  line-height: 35px;
+}
+
+footer {
+  position: fixed;
+  bottom: -40px;
+  left: 0;
+  right: 0;
+  height: 120px;
+  text-align: center;
+  line-height: 35px;
+}
+
+.stempel {
+  position: absolute;
+  left:50%;
+  transform: translateX(-50%);
+  top:0;
+  height: 3.8cm;
+}
+
+.ttd {
+  height:3.5cm;
+  width:5cm;
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:bottom;
+  position:absolute;
+  top:0;
+  left:50%;
+  transform:translateX(-50%) translateY(-0.5cm);
+}
+
+.page-break {
+    page-break-before: always;
+}

@@ -1,13 +1,10 @@
 {
-    "name": "adisabwa/school",
-    "description": "Sistem Informasi Sekolah",
-    "type": "project",
     "require": {
-        "google/apiclient": "*",
-        "google/apiclient-services": "*",
-        "dompdf/dompdf": "2.0",
-        "phpoffice/phpspreadsheet": "^5.0"
-    },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+        "phpoffice/phpspreadsheet": "^5.0",
+        "google/apiclient": "^2.18",
+        "phpmailer/phpmailer": "*",
+        "dompdf/dompdf": "*",
+        "kwn/number-to-words": "*",
+        "phpoffice/phpword": "*"
+    }
 }

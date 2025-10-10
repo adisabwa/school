@@ -139,7 +139,6 @@ class BaseModel extends Model
     {
 
         // var_dump($whereAnd, $whereOr);
-        $whereAnd = array_merge($this->whereAnd, $whereAnd);
         $whereAnd = empty($whereAnd) ? '1=1' : $this->addTableBefore($this->table, $whereAnd, TRUE);
         $whereOr = empty($whereOr) ? '1=1' : $this->addTableBefore($this->table, $whereOr, TRUE);
 

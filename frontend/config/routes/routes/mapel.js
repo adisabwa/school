@@ -71,7 +71,12 @@ let routes = [
                   name: 'nilai-mapel',
                   component: () => import('@/pages/mapel/Nilai.vue'),
                 },  
-                ]
+                {
+                  path: 'rekap-nilai',
+                  name: 'rekap-nilai',
+                  component: () => import('@/pages/mapel/RekapNilai.vue'),
+                },  
+              ]
             }
         ],
       },

@@ -31,91 +31,96 @@
         :style="{
           backgroundImage:`url('${$baseUrl}/assets/images/menu.png')`,
         }"></div>
-      <div class="mt-[110px] mx-5 text-white z-[2]
-        flex flex-col items-center">
-        <div class="w-full px-6 mt-0 z-[1]
-          text-white leading-[1.3]">
-          Assalamu'alaikum,<br/>
-          <div class="text-xl font-semibold truncate">{{ user.nama }}</div>
-          <div class="text-md font-semibold truncate">{{ user.unit_kerja }}</div>
-          <div class="mt-1 text-md leading-[1] cursor-pointer"
-            @click="showRole = true">
-            <span class="el-dropdown-link text-white flex items-end gap-1">
-              {{ ucFirst(role) }}
-              <icons icon="fe:arrow-down" class="text-[90%]" />
-            </span>
+      <div>
+        <div class="mt-[110px] mx-5 text-white z-[2]
+          flex flex-col items-center">
+          <div class="w-full px-6 mt-0 z-[1]
+            text-white leading-[1.3]">
+            Assalamu'alaikum,<br/>
+            <div class="text-xl font-semibold truncate">{{ user.nama }}</div>
+            <div class="text-md font-semibold truncate">{{ user.unit_kerja }}</div>
+            <div class="mt-1 text-md leading-[1] cursor-pointer"
+              @click="showRole = true">
+              <span class="el-dropdown-link text-white flex items-end gap-1">
+                {{ ucFirst(role) }}
+                <icons icon="fe:arrow-down" class="text-[90%]" />
+              </span>
+            </div>
+            <teleport to="body">
+              <el-dialog v-model="showRole"
+                class="[&_*]:font-montserrat text-teal-800 w-[280px]">
+                <template #header>
+                  <div>Masuk Sebagai</div>
+                </template>
+                <el-radio-group class="flex flex-col gap-2"
+                  v-model="selectedRole">
+                  <el-radio-button v-for="rl in [...user.akses.all, ...(user.akses[$route?.meta?.app] ?? [])]"
+                    :value="rl.role" class="
+                    border border-solid border-teal-700/[0.5]
+                    text-teal-800 
+                    [&_*]:w-full w-full
+                    [&_*]:border-0">
+                    {{ ucFirst(rl.role) }}</el-radio-button>
+                </el-radio-group>
+                <template #footer>
+                  <div class="dialog-footer flex justify-between">
+                    <el-button @click="showRole = false">Batal</el-button>
+                    <el-button type="primary" @click="showRole = false;
+                      authStore.changeRole({
+                        app:$route?.meta?.app ?? 'all',
+                        role:selectedRole
+                      })"
+                      class="bg-teal-700 border-0">
+                      Ubah
+                    </el-button>
+                  </div>
+                </template>
+              </el-dialog>
+            </teleport>
           </div>
-          <teleport to="body">
-            <el-dialog v-model="showRole"
-              class="[&_*]:font-montserrat text-teal-800 w-[280px]">
-              <template #header>
-                <div>Masuk Sebagai</div>
-              </template>
-              <el-radio-group class="flex flex-col gap-2"
-                v-model="selectedRole">
-                <el-radio-button v-for="rl in [...user.akses.all, ...(user.akses[$route?.meta?.app] ?? [])]"
-                  :value="rl.role" class="
-                  border border-solid border-teal-700/[0.5]
-                  text-teal-800 
-                  [&_*]:w-full w-full
-                  [&_*]:border-0">
-                  {{ ucFirst(rl.role) }}</el-radio-button>
-              </el-radio-group>
-              <template #footer>
-                <div class="dialog-footer flex justify-between">
-                  <el-button @click="showRole = false">Batal</el-button>
-                  <el-button type="primary" @click="showRole = false;
-                    authStore.changeRole({
-                      app:$route?.meta?.app ?? 'all',
-                      role:selectedRole
-                    })"
-                    class="bg-teal-700 border-0">
-                    Ubah
-                  </el-button>
-                </div>
-              </template>
-            </el-dialog>
-          </teleport>
         </div>
-      </div>
-      <el-menu :default-active="activeMenu"
-        @select="handleSelect"
-        class="el-menu-vertical-demo bg-transparent
-          w-full h-full
-          pt-4 ">
-        <template v-for="menu in menus">
-          <template v-if="menu.type == 'submenu' && (isEmpty(menu.roles) || menu?.roles?.includes(role))">
-            <el-sub-menu :index="menu.index" class="pl-5 [&>*]:p-0 text-left menu-item-custom title">
-              <template #title>
+        <el-menu :default-active="activeMenu"
+          @select="handleSelect"
+          class="el-menu-vertical-demo bg-transparent
+            border-0
+            w-full max-h-[calc(100vh-150px)] overflow-auto
+            text-[16px]
+            pt-4 ">
+          <template v-for="menu in menus">
+            <template v-if="menu.type == 'submenu' && (isEmpty(menu.roles) || menu?.roles?.includes(role))">
+              <el-sub-menu :index="menu.index" class="pl-5 [&>*]:p-0 text-left title">
+                <template #title>
+                  <icons v-if="!isEmpty(menu.icon)" class="mr-2" :icon="menu.icon" />
+                  <span class="">{{ menu.label }}</span>
+                </template>
+                <template v-for="child in menu.children">
+                  <el-menu-item @click="$router.push({name:child.route})"
+                    v-if="(isEmpty(child.roles) || child?.roles?.includes(role))"
+                    :index="child.index" class="pl-6 title
+                      text-[14px] h-[34px]">
+                    <icons v-if="!isEmpty(child.icon)" class="mr-2" :icon="child.icon" />
+                    <span class="">{{ child.label }}</span>
+                  </el-menu-item>
+                </template>
+              </el-sub-menu>
+            </template>
+            <template v-else-if="(isEmpty(menu.roles) || menu?.roles?.includes(role))">
+              <el-menu-item @click="isEmpty(menu.route) ?
+                $emit('function', menu.function) :
+                $router.push({name:menu.route, params: menu.params})"
+                :index="menu.index" class="pl-5 text-left title">
                 <icons v-if="!isEmpty(menu.icon)" class="mr-2" :icon="menu.icon" />
                 <span class="">{{ menu.label }}</span>
-              </template>
-              <template v-for="child in menu.children">
-                <el-menu-item @click="$router.push({name:child.route, params: child.params})"
-                  v-if="(isEmpty(child.roles) || child?.roles?.includes(role))"
-                  :index="child.index" class="pl-6 menu-item-custom title">
-                  <icons v-if="!isEmpty(child.icon)" class="mr-2" :icon="child.icon" />
-                  <span class="">{{ child.label }}</span>
-                </el-menu-item>
-              </template>
-            </el-sub-menu>
+              </el-menu-item>
+            </template>
           </template>
-          <template v-else-if="(isEmpty(menu.roles) || menu?.roles?.includes(role))">
-            <el-menu-item @click="isEmpty(menu.route) ?
-              $emit('function', menu.function) :
-              $router.push({name:menu.route, params: menu.params})"
-              :index="menu.index" class="pl-5 text-left menu-item-custom title">
-              <icons v-if="!isEmpty(menu.icon)" class="mr-2" :icon="menu.icon" />
-              <span class="">{{ menu.label }}</span>
-            </el-menu-item>
-          </template>
-        </template>
-        <el-menu-item @click="$emit('function', 'doLogout')"
-          class="pl-5 text-left menu-item-custom title">
-          <icons icon="mdi:logout" />
-          <span class="">Keluar</span>
-        </el-menu-item>
-      </el-menu>
+          <el-menu-item @click="$emit('function', 'doLogout')"
+            class="pl-5 text-left title">
+            <icons icon="mdi:logout" />
+            <span class="">Keluar</span>
+          </el-menu-item>
+        </el-menu>
+      </div>
       <div class="text-white
         text-center px-2 pb-10">
         <div class="mb-2 text-[12px]">Ubah Menu</div>
@@ -198,30 +203,23 @@ export default {
 
 <style lang="postcss" scoped>
   :deep(.el-menu) {
-    @apply bg-transparent !important;
+    @apply bg-transparent w-full !important;
   }
-  :deep(.menu-item-custom) {
+  :deep([role="menuitem"]) {
 		@apply 
-      transition-all ease-in-out duration-300
+      transition-all ease-in-out delay-[400] duration-500 hover:delay-0
+      [&_*]:delay-[400] [&_*]:hover:delay-0 
       bg-gradient-to-l from-transparent from-50% to-teal-100 to-50%
       bg-[length:200%_200%] bg-right-bottom 
-      text-[15px]
       leading-[0]
       border-0
       [--el-menu-item-height:40px]
       [--el-menu-sub-item-height:40px]
       hover:bg-left-top
+      hover:shadow-md
+      hover:-translate-y-[2px]
+      pl-5
 		!important;
-	}
-  :deep(.menu-item-custom.is-active) {
-    * {
-      @apply text-teal-700 !important;
-    }
-    @apply
-      bg-teal-50
-    !important;
-  }
-  :deep(.menu-item-custom) {
     li, span, div {
       @apply 
         text-white
@@ -231,13 +229,32 @@ export default {
       @apply fill-current text-white !important;
     }
   }
-  :deep(.menu-item-custom):hover {
+  :deep(.el-sub-menu.is-active .el-menu) :not(.is-active) {
+    * {
+      @apply text-teal-50;
+    }
+    @apply
+      bg-teal-700
+    !important;
+  }
+  :deep([role="menuitem"]):hover {
     .el-menu {
-      @apply text-slate-500 bg-teal-700 !important;
+      @apply bg-teal-700 !important;
     }
     > li, > span, > div * {
       @apply 
         text-teal-700
+      !important;
+    }
+    > svg {
+      @apply fill-teal-700 text-teal-700 !important;
+    }
+  }
+  :deep([role="menuitem"].is-active) {
+    @apply bg-teal-50 !important;
+    > li, > span, > div * {
+      @apply 
+         text-teal-700
       !important;
     }
     > svg {

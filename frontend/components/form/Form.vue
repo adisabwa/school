@@ -544,12 +544,13 @@ export default {
         where[field.nama_kolom] = this.form[field.nama_kolom]
         this.getData({
           where:where
-        }, true, true)
+        }, true, true, true)
       }   
     },
     async getData(params, changeId = false, search = false) {
       await this.settingFields();
       if (this.showOriginal) return
+      // console.log('get-data', this.initial)
       if (this.hrefGet == '') 
         return
       this.saving = true
