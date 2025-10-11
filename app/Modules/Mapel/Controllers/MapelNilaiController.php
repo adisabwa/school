@@ -62,6 +62,7 @@ class MapelNilaiController extends BaseDataController
     {
         $id_semester = $this->request->getGetPost('id_semester');
         $id_kelas = $this->request->getGetPost('id_kelas');
+        $id_santri = $this->request->getGetPost('id_santri');
         if (empty($id_semester)) $id_semester = -1;
         if (empty($id_kelas)) $id_kelas = -1;
         $ujian = $this->request->getGetPost('ujian') ?? 'uts';
@@ -78,6 +79,7 @@ class MapelNilaiController extends BaseDataController
             $mapels[$key] = (object) [
                 'id_pembagian_mapel' => $value->id,
                 'nama_mapel' => $value->nama_mapel,
+                'nama_mapel_arab' => $value->nama_mapel_arab ?? $value->nama_mapel,
                 'uts' => 0,
                 'uas' => 0,
                 'nilai_rapor' => 0,
@@ -86,7 +88,7 @@ class MapelNilaiController extends BaseDataController
             $mapel_ids[$value->id] = $key;
         }
         // var_dump($mapels);exit;
-        $santris = $this->santriModel->getAll(whereAnd: ['id_kelas' => $id_kelas, 'status' => '0'], order: $order);
+        $santris = $this->santriModel->getAll(whereAnd: ['id_kelas' => $id_kelas, 'id' => $id_santri, 'status' => '0'], order: $order);
         // var_dump($this->santriModel->getLastQuery());
         $result = [];
         foreach ($santris as $key => $santri) {
@@ -246,7 +248,7 @@ class MapelNilaiController extends BaseDataController
         // return $this->respondCreated($santri);
         $templateProcessor->setValue("semester", strtoupper($semester->semester));
         $templateProcessor->setValue("tahun_ajaran", $semester->tahun_ajaran);
-        $templateProcessor->setValue("nama", $santri->nama);
+        $templateProcessor->setValue("nama", strtoupper($santri->nama));
         $templateProcessor->setValue("stb", $santri->stb ?? '');
         $templateProcessor->setValue("semester_small", ucfirst($semester->semester));
         $templateProcessor->setValue("kelas", $kelas->kelas);
@@ -257,30 +259,34 @@ class MapelNilaiController extends BaseDataController
             $templateProcessor->setValue("no#{$i}", $i);
             $templateProcessor->setValue("mapel#{$i}", $mapel->nama_mapel);
             $templateProcessor->setValue("uts#{$i}", $mapel->uts);
-            $templateProcessor->setValue("uts_bilangan#{$i}", $mapel->uts);
-            $templateProcessor->setValue("no_arab#{$i}", $i);
-            $templateProcessor->setValue("mapel_arab#{$i}", $mapel->nama_mapel);
-            $templateProcessor->setValue("uts_arab#{$i}", $mapel->uts);
-            $templateProcessor->setValue("uts_bilangan_arab#{$i}", $mapel->uts);
+            $templateProcessor->setValue("uts_bilangan#{$i}", number_to_words($mapel->uts));
+            $templateProcessor->setValue("no_arab#{$i}", to_arabic_number($i));
+            $templateProcessor->setValue("mapel_arab#{$i}", $mapel->nama_mapel_arab ?? $mapel->nama_mapel);
+            $templateProcessor->setValue("uts_arab#{$i}", to_arabic_number($mapel->uts));
+            $templateProcessor->setValue("uts_bilangan_arab#{$i}", number_to_words($mapel->uts,'ar'));
         }
         $templateProcessor->setValue("total_uts", $santri->total_uts);
         $templateProcessor->setValue("rata_uts", $santri->rata_uts);
-        $templateProcessor->setValue("total_uts_arab", $santri->total_uts);
-        $templateProcessor->setValue("rata_uts_arab", $santri->rata_uts);
+        $templateProcessor->setValue("total_uts_arab", to_arabic_number($santri->total_uts));
+        $templateProcessor->setValue("rata_uts_arab", to_arabic_number($santri->rata_uts));
         $templateProcessor->setValue("tanggal", dateIndo(date('Y-m-d')));
-        $templateProcessor->setValue("tanggal_arab", dateIndo(date('Y-m-d')));
+        $templateProcessor->setValue("tanggal_arab", dateIndoArabic(date('Y-m-d')));
+        $templateProcessor->setValue("predikat", get_predikat($santri->rata_uts));
+        $templateProcessor->setValue("predikat_arab", get_predikat_arab($santri->rata_uts));
 
         // Set HTTP headers to force download
-        header("Content-Description: File Transfer");
-        header('Content-Disposition: attachment; filename="Raport-MID.docx"');
-        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-        header('Content-Transfer-Encoding: binary');
-        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Expires: 0');
+        $fileName = "$santri->nama.docx";
+        $savePath = WRITEPATH . 'documents/' . $fileName;
 
-        // Save output to PHP output stream (browser)
-        $templateProcessor->saveAs('php://output');
-        exit;  // Always exit after output to avoid extra output
+        // Make sure directory exists
+        if (!is_dir(WRITEPATH . 'documents')) {
+            mkdir(WRITEPATH . 'documents', 0777, true);
+        }
+
+        // Save the processed file
+        $templateProcessor->saveAs($savePath);
+        
+        return $this->respondCreated($savePath);
 
     }
 }

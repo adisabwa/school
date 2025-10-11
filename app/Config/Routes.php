@@ -48,6 +48,7 @@ $routes->group('auth', static function ($routes) {
 
 //----------------------------File Controller------------------------------
 $routes->add('get-files', 'FileController::getFile');
+$routes->add('download_zip', 'FileController::downloadZip');
 
 //-----------------------------------------------------------------------//
 

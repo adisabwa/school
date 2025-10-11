@@ -26,4 +26,13 @@ class FileController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('File not found: ' . $fileName);
         }
     }
+
+    public function downloadZip()
+    {
+        $files = $this->request->getGetPost('files') ?? [];
+        $folders = $this->request->getGetPost('folders') ?? [];
+        $zipName = $this->request->getGetPost('zip_name') ?? 'files.zip';
+        $deleteOriginal = $this->request->getGetPost('delete_original') ?? FALSE;
+        return zip_and_download($zipName, $files, $folders, $deleteOriginal);
+    }
 }
