@@ -30,6 +30,7 @@
               leave-to-class="-translate-x-full opacity-0">
             <form-comp ref="formPsb"
               :fields="fields" 
+              :pass-columns="role != 'admin' ? ['no_pendaftaran']  : []"
               :key="'from'+active"
               v-model:id="dataId"
               v-model:form-value="formValue"
@@ -122,6 +123,7 @@
     computed: {
       ...mapState(useAuthStore, {
         user: 'loggedUser',
+        role:'role',
       }),
       labelPosition(){
         return this.$windowWidth < 800 ? 'top' : 'left'

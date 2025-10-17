@@ -76,6 +76,11 @@ let routes = [
                   name: 'rekap-nilai',
                   component: () => import('@/pages/mapel/RekapNilai.vue'),
                 },  
+                {
+                  path: 'dashboard-nilai',
+                  name: 'dashboard-nilai',
+                  component: () => import('@/pages/mapel/DashboardNilai.vue'),
+                },  
               ]
             }
         ],

@@ -170,7 +170,7 @@ export default {
   data: function() {
     return {
       selectedRole:'',
-      showRole:false
+      showRole:false,
     };
   },
   watch: {

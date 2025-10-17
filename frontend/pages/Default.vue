@@ -5,6 +5,36 @@
         <div class="max-w-[95%] md:max-w-[80%] mx-auto relative h-auto w-full pt-3 pb-24 ">
         <div class=" mx-auto leading-[1.2]
           text-2xl text-center font-bold text-cyan-800">Sistem Informasi PPM Darul Arqam</div>
+          <el-dialog v-model="showRole"
+            append-to-body
+            class="[&_*]:font-montserrat text-teal-800 w-[280px]">
+            <template #header>
+              <div>Masuk Sebagai</div>
+            </template>
+            <el-radio-group class="flex flex-col gap-2"
+              v-model="selectedRole">
+              <el-radio-button v-for="rl in [...user.akses.all, ...(user.akses[$route?.meta?.app] ?? [])]"
+                :value="rl.role" class="
+                border border-solid border-teal-700/[0.5]
+                text-teal-800 
+                [&_*]:w-full w-full
+                [&_*]:border-0">
+                {{ ucFirst(rl.role) }}</el-radio-button>
+            </el-radio-group>
+            <template #footer>
+              <div class="dialog-footer flex justify-between">
+                <el-button @click="showRole = false">Batal</el-button>
+                <el-button type="primary" @click="showRole = false;
+                  authStore.changeRole({
+                    app:$route?.meta?.app ?? 'all',
+                    role:selectedRole
+                  })"
+                  class="bg-teal-700 border-0">
+                  Ubah
+                </el-button>
+              </div>
+            </template>
+          </el-dialog>
         <div v-if="!user.id"
           class="text-center mt-6 *:w-[250px]
             flex flex-col gap-3 items-center">
@@ -19,7 +49,13 @@
         <template v-else>
           <div class="mx-auto relative leading-[1.3]
             text-xl text-center font-bold text-cyan-800 mt-3 mb-5">
-            Assalamualaikum, <br/>{{ user.nama }}
+            Assalamualaikum,<br/>
+            {{ user.nama }} <br/>
+            <span class="flex items-center gap-1 justify-center cursor-pointer"
+              @click="showRole = true; selectedRole = role">
+              ( {{ ucFirst(role) }} )
+              <icons icon="fe:arrow-down" class="text-[90%]" />
+            </span>
             <div class="text-[15px] w-fit mx-auto mt-1
               md:absolute md:top-0 md:right-0
               flex items-center cursor-pointer
@@ -109,6 +145,10 @@
 	</div>
 </template>
 
+<script setup>
+  const authStore = useAuthStore()   
+</script>
+
 <script>
 import Psb from '@/pages/psb/Start.vue'
 import { topMenu } from '@/helpers/menus.js'
@@ -121,7 +161,8 @@ export default {
   },
   computed:{
     ...mapState(useAuthStore,{
-      user:'loggedUser'
+      user:'loggedUser',
+      role:'role',
     }),
   },
   data: function() {
@@ -144,8 +185,10 @@ export default {
         all: {
           label: 'Daftar Aplikasi',
           datas:[],
-        }
-      }
+        },
+      },
+      showRole:false,
+      selectedRole:'',
     };
   },
   watch:{
@@ -162,7 +205,7 @@ export default {
           this.getDataFilter()
         }).catch(err => {
           this.loading = false;
-          console.log(err)
+          // console.log(err)
           const res = err.response;
           if (res.status == 401) {
             useDataStore().setFilter({key:'email', val:res?.data?.email})
@@ -200,7 +243,7 @@ export default {
     getDataFilter(){
       let q = this.keyword?.toLowerCase()
       let menus = this.topMenu.filter((d) => {
-        console.log(this.user)
+        // console.log(this.user)
         if (!this.user.app_roles)
           return false
         let role = this.user?.app_roles[d.app] ?? this.user.app_roles.all

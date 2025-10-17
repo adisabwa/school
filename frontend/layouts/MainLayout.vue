@@ -46,7 +46,7 @@
           :style="`background-image:url('${$baseUrl}assets/images/back-sketch.png')`">
         </div>
         <div :class="`${isVertical == '1' ? 'sm:w-[calc(100%_-_var(--width-menu,0))] sm:translate-x-[--width-menu]' : 'w-full' } animate h-full flex-1 bg-transparent z-[0]`">
-          <router-view v-slot="{ Component , route}" >
+          <router-view v-slot="{ Component , route}"  :key="routerViewKey">
             <transition name="slide-in" mode="out-in"
               enter-active-class="transition-all ease-in-out duration-500"
               leave-active-class="transition-all ease-in-out duration-500"
@@ -72,33 +72,13 @@
         </div>
       </el-footer> -->
     </el-container>
-    
-		<div class="fixed left-0 bottom-0
-      sm:hidden
-			w-screen z-[20]
-			bg-white"
-      v-if="[...Object.keys(mainMenus), ...['unauthorized']].includes($route.name)">
-			<div class="h-full px-6 pb-1
-				flex items-center justify-between">
-        <template  v-for="m in mainMenus">
-          <div
-            v-if="isEmpty(m?.role) ? true : (m.role.includes(user.role))"
-            :class="['flex flex-col items-center cursor-pointer p-2 active:scale-[0.8]',
-              ($route.name == m.route ? '[&_*]:text-teal-600' : '[&_*]:text-teal-800'),]"
-            @click="isEmpty(m.route) ?
-              m.function() :
-              $router.push({name:m.route})">
-            <icons class="text-3xl m-0" :icon="m.icon"/>
-            <span class="text-[12px] leading-[1]">{{ m.label }}</span>
-          </div>
-        </template>
-      </div>
-		</div>
   </div>
 </template>
 
 <script setup>
   import menu from '@/helpers/menus.js';
+  const authStore = useAuthStore()
+   
 </script>
 
 <script>
@@ -116,40 +96,7 @@ export default {
       showMenu2: true,
       scrollPosition:0,
       menus:[],
-      mainMenus:{
-        default:{
-          route:'default',
-          function:'',
-          icon:'mdi:home',
-          label:'Beranda',
-        },
-        'group-admin':{
-          route:'group-admin',
-          function:'',
-          icon:'mingcute:group-3-fill',
-          label:'Kelompok',
-          role:['admin','super-admin','admin-bidang'],
-        },
-        'group-user':{
-          route:'group-user',
-          function:'',
-          icon:'mingcute:group-3-fill',
-          label:'Kelompok',
-          role:['mentor','user']
-        },
-        account:{
-          route:'account',
-          function:'',
-          icon:'mdi:account',
-          label:'Profil',
-        },
-        logout:{
-          route:'',
-          function:'',
-          icon:'mdi:logout',
-          label:'Keluar',
-        },
-      },
+      routerViewKey: 0,
       isVertical:'1',
     };
   },
@@ -160,6 +107,7 @@ export default {
   computed: {
     ...mapState(useAuthStore, {
       user: 'loggedUser',
+      role:'role',
       pageTitle: 'pageTitle',
       pageSubTitle: 'pageSubTitle',
     }),
@@ -167,11 +115,19 @@ export default {
       return this.isVertical == '1' || this.$windowWidth <= 600 ? VerticalMenu : HorizontalMenu
     },
   },
+  watch: {
+    $route(to, from){
+      this.setActiveMenu()
+    },
+    role(newRole, oldRole) {
+      this.routerViewKey++ // Trigger re-render
+    }
+  },
   methods: {
     setActiveMenu: function() {
       let vm = this
       let index = ''
-      // console.log(index, this.menus)
+      console.log(index, this.menus)
       this.menus.forEach(m => {
         if (m.type == 'submenu') {
           m?.children?.forEach(c => {
@@ -191,7 +147,7 @@ export default {
     async getMenus(app = 'admin'){
       this.resetStorage('menu')
       this.saveToStorage('menu',app)
-      // console.log(app);
+      console.log(app);
       // let index = vm.coalesce([vm.$route.meta.app, 'default'])
       await import(`@/helpers/menus/${app}.js`)
         .then(res => {
@@ -249,7 +205,6 @@ export default {
     // this.resetStorage('menu')
     this.getMenus(useAuthStore().getApp())
     this.scrollPosition = window.scrollY;
-    this.mainMenus.logout.function = this.doLogout
     this.isVertical = this.getDataFormStorage('vertical-menu') ?? '1';
   },
   mounted(){

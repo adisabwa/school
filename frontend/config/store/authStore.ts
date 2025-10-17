@@ -3,7 +3,7 @@ import { siteUrl } from "@/config/url"
 import { listFunction } from "@/config/plugins/data-functions"
 import axios from "axios";
 import jsonToFormData from 'json-form-data'
-import { useRoute, useRouter } from 'vue-router'
+import router from '@/config/routes/router' // 👈 directly import the router instance
 
 let { setCookie, getCookie, deleteCookie, getDataFormStorage } = listFunction
 
@@ -63,17 +63,18 @@ export const useAuthStore = defineStore('auth', {
       let user = this.loggedUser
       let app = this.getApp()
       // console.log(user.app_roles, user.app_roles[app], app)
+      if (!user.app_roles) return 'guest'
       let role = user.app_roles[app] ?? user.app_roles['all'] ?? ''
       // console.log(role)
       return role
     },
     getApp(){
-      const route = useRoute()
+      const route =  router.currentRoute.value
+      // console.log(route)
       return route?.meta?.app ?? getDataFormStorage('menu') ?? 'admin'
     },
     changeRole(payload: any, save = true) {
-      const route = useRoute()
-      const router = useRouter()
+      const route = router.currentRoute.value
       return new Promise((resolve, reject) => {
         axios({
           method: "POST",
@@ -84,13 +85,15 @@ export const useAuthStore = defineStore('auth', {
           const userData = JSON.stringify(response.data);
           this.setUserData(userData, save)
           console.log(router, route)
-          router.replace({
-            path: route.path,
-            query: {
-              ...route.query,
-              _reload: Date.now() // dummy param to change URL
-            }
-          })
+          if (router) {
+            router.replace({
+              path: route.path,
+              query: {
+                ...route.query,
+                _reload: Date.now() // dummy param to change URL
+              }
+            })
+          }
           resolve(response);
         }).catch(error => {
           this.clearUserData()

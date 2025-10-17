@@ -22,17 +22,32 @@ class MapelNilaiController extends BaseDataController
         $this->mapelPembagianModel = model('MapelPembagianModel');
     }
 
-    public function index()
+    public function index($return_data = FALSE)
     {
         $id_pembagian_mapel = $this->request->getGetPost('id_pembagian_mapel') ?? -1;
+        $id_pembagian_mapels = $this->request->getGetPost('id_pembagian_mapels') ?? ['-1'];
         $order = $this->request->getGetPost('order') ?? ['nama asc'];
         $order = implode(',', $order);
         $pembagian = $this->mapelPembagianModel->find($id_pembagian_mapel) ?? NULL;
-        $saved_nilai = $this->model->getAll(whereAnd: ['id_pembagian_mapel' => $id_pembagian_mapel]);
-        // var_dump($pembagian);
+        $pembagianss = $this->mapelPembagianModel->getAll(whereIn: ['id' => $id_pembagian_mapels]) ?? [];
+        // var_dump($this->mapelPembagianModel->getLastQuery());
+        $saved_nilai = $this->model->getAll(
+            whereAnd: ['id_pembagian_mapel' => $id_pembagian_mapel],
+            orWhereIn: ['id_pembagian_mapel' => $id_pembagian_mapels],
+        );
+        // var_dump($saved_nilai);exit;
         $id_kelas = $pembagian->id_kelas ?? -1;
+        $id_kelass = empty($pembagianss) ? [-1] : array_unique(array_map(function($a){
+            return $a->id_kelas;
+        }, $pembagianss));
+        // var_dump($id_kelas, $id_kelass);
+        // exit;
+        $santris = $this->santriModel->getAll(
+            whereAnd: ['id_kelas' => $id_kelas, 'status' => '0'], 
+            orWhereIn: ['id_kelas' => $id_kelass],
+            order: $order
+        );
 
-        $santris = $this->santriModel->getAll(whereAnd: ['id_kelas' => $id_kelas, 'status' => '0'], order: $order);
         $result = [];
         foreach ($saved_nilai as $key => $value) {
             $result[$value->id_santri] = $value;
@@ -63,6 +78,7 @@ class MapelNilaiController extends BaseDataController
         $id_semester = $this->request->getGetPost('id_semester');
         $id_kelas = $this->request->getGetPost('id_kelas');
         $id_santri = $this->request->getGetPost('id_santri');
+        $id_pembagian = $this->request->getGetPost('id_pembagian');
         if (empty($id_semester)) $id_semester = -1;
         if (empty($id_kelas)) $id_kelas = -1;
         $ujian = $this->request->getGetPost('ujian') ?? 'uts';
@@ -70,8 +86,14 @@ class MapelNilaiController extends BaseDataController
         $order = $this->request->getGetPost('order') ?? ['nama asc'];
         $order = implode(',', $order);
 
-        // var_dump($id_kelas, $id_semester);
-        $mapel = $this->mapelPembagianModel->getAll(whereAnd: ['id_kelas' => $id_kelas, 'id_semester' => $id_semester], order: 'nama_mapel asc');
+        // var_dump($id_pembagian);
+        $whereIn = empty($id_pembagian) ? [] : ['id' => $id_pembagian];
+
+        $mapel = $this->mapelPembagianModel->getAll(
+            whereAnd: ['id_kelas' => $id_kelas, 'id_semester' => $id_semester],
+            whereIn: $whereIn, 
+            order: 'nama_mapel asc');
+
         $mapels = [];
         $mapel_ids = [];
         // $mapel = array_splice($mapel, 0, 15);
@@ -88,18 +110,29 @@ class MapelNilaiController extends BaseDataController
             $mapel_ids[$value->id] = $key;
         }
         // var_dump($mapels);exit;
-        $santris = $this->santriModel->getAll(whereAnd: ['id_kelas' => $id_kelas, 'id' => $id_santri, 'status' => '0'], order: $order);
+        $santris = $this->santriModel->getAll(
+            whereAnd: ['id_kelas' => $id_kelas, 'id' => $id_santri, 'status' => '0'], 
+            order: $order);
         // var_dump($this->santriModel->getLastQuery());
+        // var_dump($santris);
+        // exit;
         $result = [];
         foreach ($santris as $key => $santri) {
             $result[$santri->id] = (object) [
                 'id_santri' => $santri->id,
+                'stb' => $santri->stb,
                 'nama' => $santri->nama,
+                'kelas' => $santri->kelas,
+                'id_kelas' => $santri->id_kelas,
                 'mapel' => unserialize(serialize($mapels)),
             ];
         }
 
-        $saved_nilai = $this->model->getAll(whereAnd: ['{n}id_kelas' => $id_kelas]);
+        $whereIn = empty($id_pembagian) ? [] : ['id_pembagian_mapel' => $id_pembagian];
+        $saved_nilai = $this->model->getAll(
+            whereAnd: ['{n}id_kelas' => $id_kelas],
+            whereIn: $whereIn, 
+        );
         foreach ($saved_nilai as $key => $nilai) {
             $id_santri = $nilai->id_santri;
             $ind_mapel = $mapel_ids[$nilai->id_pembagian_mapel];
@@ -239,7 +272,7 @@ class MapelNilaiController extends BaseDataController
         $kelas = model('DataKelasModel')->getData($id_kelas);
 
         $result = array_values($this->rekapitulasi(TRUE));
-        $result = array_splice($result, 0, 4);
+        // $result = array_splice($result, 0, 4);
         
         $templatePath = APPPATH . '../templates/raport-mid.docx';
         $templateProcessor = new TemplateProcessor($templatePath);

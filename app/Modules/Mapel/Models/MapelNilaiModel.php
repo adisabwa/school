@@ -16,8 +16,11 @@ class MapelNilaiModel extends BaseModel
                 'foreign_key' => 'id_pembagian_mapel',
                 'model' => 'MapelPembagianModel',
                 'selects' => [
-                    '*',
-                    'id id_pembagian_mapel' // Alias to avoid conflict
+                    'id id_pembagian_mapel', // Alias to avoid conflict
+                    'semester','tahun_ajaran','semester_keterangan', 
+                    'nama_guru','nama_guru_lengkap',
+                    'kelas',
+                    'nama_mapel','nama_mapel_arab',   
                 ]
             ],
         ];

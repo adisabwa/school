@@ -323,7 +323,7 @@
         this.paging.offset = val * this.paging.perPage - this.paging.perPage;
       },
       href(val){
-        console.log(val)
+        // console.log(val)
         this.getData();
       },
       params: {
@@ -352,7 +352,7 @@
     computed: {
       datasFilter: function() {
         var q = this.searchKeyword?.toLowerCase();
-        console.log('computed', this.datas)
+        // console.log('computed', this.datas)
         if (q.length > 0) {
           let fields = this.fields
           let keys = Object.keys(fields)
@@ -417,7 +417,7 @@
         return text.join(', ')
       },
       labelPosition(){
-        console.log(this.$windowWidth)
+        // console.log(this.$windowWidth)
         return this.$windowWidth > 700 ? 'left' : 'top'
       }
     },
@@ -458,7 +458,7 @@
         this.getData()
       },
       getParams(){
-        console.log('getParams', this.params)
+        // console.log('getParams', this.params)
         let list = []
         let f = this.fields
         this.order.forEach(o => {
@@ -476,14 +476,14 @@
       },
       async getData(){
         let params = this.getParams()
-        console.log(params)
+        // console.log(params)
         await this.$http.get(this.href, {
           params: params
         })
           .then(result => {
             this.loading = false;
             var res = result.data;
-            console.log('getData', res)
+            // console.log('getData', res)
             this.datas = res;
             this.paging.dataTotal = this.datas.length;
           })
@@ -533,7 +533,7 @@
             delete this.fieldsCreate[element]
           }
         }
-        console.log(obj, this.fieldsCreate)
+        // console.log(obj, this.fieldsCreate)
         if (action == 'add') {
           this.showAdd = true;
           this.dataType = 'create';
@@ -564,7 +564,7 @@
             type: 'warning',
           })
           .then(() => {
-            console.log(this.href)
+            // console.log(this.href)
             this.$http.get(this.href + `/delete/` + id)
               .then(result => {
                 this.getData();
@@ -591,7 +591,7 @@
           this.deleteMany()
         } else if (action == 'download-excel') {
           let params = this.getParams()
-          console.log(params, this)
+          // console.log(params, this)
           params = this.toQueryString(params)
           this.openLink(this.$siteUrl + this.href + '/download_excel?' + params)
         }

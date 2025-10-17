@@ -25,16 +25,19 @@
         <div :class="[scrollY > showHidden ? 'opacity-0' : 'opacity-100',
           'animate px-3 pt-3 pb-2']">
           <div class="text-right md:block hidden">
-            <el-button size="small" type="success" @click="downloadDinas">
+            <el-button size="small" type="success" @click="downloadDinas"
+              v-if="role != 'guru'">
               <icons icon="ri:file-excel-2-fill" /> Template Dinas
             </el-button>
-            <el-button size="small" type="primary" @click="promptDinas = true">
-              <icons icon="ic:twotone-create" /> Generate Raport Dinas
-            </el-button>
-            <el-divider direction="vertical" />
-            <el-button size="small" type="success" @click="saveScore">
-              <icons icon="fluent:save-20-filled" /> Simpan
-            </el-button>
+            <template v-if="role == 'guru'">
+              <el-button size="small" type="primary" @click="promptDinas = true">
+                <icons icon="ic:twotone-create" /> Generate Raport Dinas
+              </el-button>
+              <el-divider direction="vertical" />
+              <el-button size="small" type="success" @click="saveScore">
+                <icons icon="fluent:save-20-filled" /> Simpan
+              </el-button>
+            </template>
           </div>
           <el-dropdown
             trigger="click"
@@ -44,15 +47,18 @@
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="downloadDinas">
+                <el-dropdown-item @click="downloadDinas"
+                  v-if="role != 'guru'">
                   <icons icon="ri:file-excel-2-fill" /> Template Dinas
                 </el-dropdown-item>
-                <el-dropdown-item @click="promptDinas = true">
-                  <icons icon="ic:twotone-create" /> Generate Raport Dinas
-                </el-dropdown-item>
-                <el-dropdown-item @click="saveScore">
-                  <icons icon="fluent:save-20-filled" /> Simpan
-                </el-dropdown-item>
+                <template v-if="role == 'guru'">
+                  <el-dropdown-item @click="promptDinas = true">
+                    <icons icon="ic:twotone-create" /> Generate Raport Dinas
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="saveScore">
+                    <icons icon="fluent:save-20-filled" /> Simpan
+                  </el-dropdown-item>
+                </template>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -92,38 +98,44 @@
             'animate fixed right-0 bg-white/[0.7] h-fit',
             'px-3 pt-3 pb-2']"
             v-fixed-to-position="50">
-            <div class="text-right md:block hidden">
-              <el-button size="small" type="success" @click="downloadDinas">
-                <icons icon="ri:file-excel-2-fill" /> Template Dinas
-              </el-button>
-              <el-button size="small" type="primary" @click="promptDinas = true">
-                <icons icon="ic:twotone-create" /> Generate Raport Dinas
-              </el-button>
-              <el-divider direction="vertical" />
-              <el-button size="small" type="success" @click="saveScore">
-                <icons icon="fluent:save-20-filled" /> Simpan
-              </el-button>
-            </div>
-            <el-dropdown
-              trigger="click"
-              class="md:hidden block text-right">
-              <el-button class="" type="success" size="small">
-                Aksi <icons icon="mdi:arrow-down" class="m-0 ml-2"/>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item @click="downloadDinas">
-                    <icons icon="ri:file-excel-2-fill" /> Template Dinas
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="promptDinas = true">
+              <div class="text-right md:block hidden">
+                <el-button size="small" type="success" @click="downloadDinas"
+                  v-if="role != 'guru'">
+                  <icons icon="ri:file-excel-2-fill" /> Template Dinas
+                </el-button>
+                <template v-if="role == 'guru'">
+                  <el-button size="small" type="primary" @click="promptDinas = true">
                     <icons icon="ic:twotone-create" /> Generate Raport Dinas
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="saveScore">
+                  </el-button>
+                  <el-divider direction="vertical" />
+                  <el-button size="small" type="success" @click="saveScore">
                     <icons icon="fluent:save-20-filled" /> Simpan
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+                  </el-button>
+                </template>
+              </div>
+              <el-dropdown
+                trigger="click"
+                class="md:hidden block text-right">
+                <el-button class="" type="success" size="small">
+                  Aksi <icons icon="mdi:arrow-down" class="m-0 ml-2"/>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item @click="downloadDinas"
+                      v-if="role != 'guru'">
+                      <icons icon="ri:file-excel-2-fill" /> Template Dinas
+                    </el-dropdown-item>
+                    <template v-if="role == 'guru'">
+                      <el-dropdown-item @click="promptDinas = true">
+                        <icons icon="ic:twotone-create" /> Generate Raport Dinas
+                      </el-dropdown-item>
+                      <el-dropdown-item @click="saveScore">
+                        <icons icon="fluent:save-20-filled" /> Simpan
+                      </el-dropdown-item>
+                    </template>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
           </div>
           <div v-if="dataNilai.length == 0"
             class="text-center text-gray-500 text-lg p-5">
@@ -174,7 +186,6 @@
                         v-model="data.nilai[ujian]" size="large"
                         @focus="(event) => {  }"
                         @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 10, 99)
-                        @change="data.nilai[ujian] = checkMinMax(rounding(data.nilai[ujian],2), 10, 99)
                           countRapor(key);"
                         @paste="(event) => { handlePaste(event, key, ujian)}"
                         :class="[allowEdit[ujian] ? 'ml-[20px]' : '',
@@ -208,6 +219,7 @@ import { mapState } from 'pinia';
     },
     data: function() {
       return {
+        initial:false,
         loading: false,
         saving: false,
         filterFields: {
@@ -245,7 +257,7 @@ import { mapState } from 'pinia';
         scrollY:0,
         promptDinas:false ,
         nilaiMin:78,
-        nilaiMax:0,
+        nilaiMax:99,
         showHidden: 286,
         PembagianMapel:{},
         // role:'guru',
@@ -253,29 +265,23 @@ import { mapState } from 'pinia';
     },
     watch: {
       'filter.id_semester' (val){
-        this.filterFields.id_kelas.options = this.filterFields.id_semester.options[val]?.options ?? []
-        this.filter.id_kelas = -1
-        setTimeout(() => {
-          this.filter.id_kelas = Object.values(this.filterFields.id_kelas.options)[0]?.value
-        }, 100)
+        if (!this.initial) {
+          this.filterFields.id_kelas.options = this.filterFields.id_semester.options[val]?.options ?? []
+          this.filter.id_kelas = -1
+          setTimeout(() => {
+            this.filter.id_kelas = Object.values(this.filterFields.id_kelas.options)[0]?.value
+          }, 100)
+        }
       },
       'filter.id_kelas' (val){
-        this.filterFields.id_pembagian_mapel.options = this.filterFields.id_kelas.options[val]?.options ?? []
-        this.filter.id_pembagian_mapel = Object.values(this.filterFields.id_pembagian_mapel.options)[0]?.value
+        if (!this.initial) {
+          this.filterFields.id_pembagian_mapel.options = this.filterFields.id_kelas.options[val]?.options ?? []
+          this.filter.id_pembagian_mapel = Object.values(this.filterFields.id_pembagian_mapel.options)[0]?.value
+        }
       },
       'filter.id_pembagian_mapel' (val) {
         this.getData()
       },
-      promptDinas(val){
-        if (val) {
-          let max = 0
-          this.dataNilai.forEach(d => {
-            let rap = d.nilai.nilai_rapor
-            if (rap > max) max = rap
-          })
-          this.nilaiMax = max
-        }
-      }
     },  
     computed: {
       ...mapState(useAuthStore, {
@@ -290,7 +296,7 @@ import { mapState } from 'pinia';
       },
       allowEdit(){
         let access = (this.role == 'guru' || this.PembagianMapel.allow_access == '1')
-        access = true
+        // access = true
         // console.log(access)
         let data = {
           nilai_harian: access && this.PembagianMapel['lock_nilai_harian'] == '0',
@@ -328,14 +334,28 @@ import { mapState } from 'pinia';
             }
           })
             .then(res => {
+              this.initial = true
               let data = res.data
               this.filterFields.id_semester.options = data
               this.filter.id_semester = this.storeFilters?.id_semester ? this.storeFilters?.id_semester : Object.values(data)[0]?.value
               this.filterFields.id_kelas.options = data[this.filter.id_semester]?.options ?? {}
               this.filter.id_kelas = this.storeFilters?.id_kelas ? this.storeFilters?.id_kelas : this.user.id_kelas ?? Object.values(this.filterFields.id_kelas.options)[0]?.value
               this.filterFields.id_pembagian_mapel.options = this.filterFields.id_kelas.options[this.filter.id_kelas]?.options
-              this.filter.id_pembagian_mapel = this.storeFilters?.id_mapel ? this.storeFilters?.id_mapel : Object.values(this.filterFields.id_pembagian_mapel.options)[0]?.value
-            })
+              if (this.storeFilters?.nama_mapel) {
+                console.log(this.storeFilters?.nama_mapel)
+                let filter = this.filterFields.id_pembagian_mapel.options.filter(o => {
+                  let nama_mapel = o.label.slice(0, o.label.indexOf('(') - 1);
+                  console.log(nama_mapel)
+                  return nama_mapel == this.storeFilters?.nama_mapel
+                })
+                console.log(filter, filter[0])
+                this.filter.id_pembagian_mapel = filter[0]?.value
+              } else
+                this.filter.id_pembagian_mapel = this.storeFilters?.id_mapel ? this.storeFilters?.id_mapel : Object.values(this.filterFields.id_pembagian_mapel.options)[0]?.value
+              setTimeout(() => {
+                this.initial = false
+              },1000)    
+          })
         },
       getData(){
         this.$http.get('mapel/pembagian/get',{
@@ -403,13 +423,8 @@ import { mapState } from 'pinia';
       generateDinas(){
         let max = this.nilaiMax
         let min = this.nilaiMin
-        let real_min = 999
-        let real_max = -1
-        this.dataNilai.forEach(d => {
-          let rap = d.nilai.nilai_rapor
-          if (rap < real_min) real_min = rap
-          if (rap > real_max) real_max = rap
-        })
+        let real_min = 40
+        let real_max = 99
 
         this.dataNilai.forEach(d => {
           let rap = d.nilai.nilai_rapor

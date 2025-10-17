@@ -229,6 +229,7 @@ import { mapState } from 'pinia';
               this.loading = false;
               let options = res.data
               this.filterFields.id_kelas.options = options
+              this.filterFields.id_kelas.readonly = this.role != 'admin'
               this.filter.id_kelas = this.storeFilters?.id_kelas ? this.storeFilters?.id_kelas : this.user.id_kelas?? Object.values(options)[0]?.value
             })
         },
@@ -277,9 +278,10 @@ import { mapState } from 'pinia';
           delete_original: true,
         });
 
-        this.openLink(this.$siteUrl + 'download_zip?' + this.objectToQueryParams({files:this.files}), '_blank');
-        return
+        
         try {
+          this.openLink(this.$siteUrl + 'download_zip?' + this.objectToQueryParams({files:this.files}), '_blank');
+          return
           const zipResponse = await this.$http.post('download_zip', formData, {
             responseType: 'blob', // if your backend returns a zip file
             onUploadProgress: (progressEvent) => {

@@ -11,6 +11,14 @@ class DataSantriModel extends BaseModel
         parent::__construct();
 
         $this->table = 'sch__santri';
+        $this->relations = [
+          'id_kelas' => [
+            'foreign_key' => 'id_kelas',
+            'model' => 'DataKelasModel',
+            'type' => 'left',
+            'selects' => ['kelas'],
+          ]
+        ];
     }
 
     public function getOptions($where = ['status' => '0'])

@@ -144,6 +144,8 @@ if ( ! function_exists('dateIndoArabic')) {
 if (!function_exists('zip_and_download')) {
     function zip_and_download(string $zipName, array $files = [], array $folders = [], $deleteOriginal = FALSE): ResponseInterface
     {
+        $compressedExtensions = ['zip', 'jpg', 'jpeg', 'png', 'gif', 'mp4', 'mp3', 'pdf', 'avi', 'mov','docx','xlsx','pptx'];
+
         $zip = new \ZipArchive();
 
         // Full path to save the zip temporarily
@@ -159,21 +161,27 @@ if (!function_exists('zip_and_download')) {
             throw new \RuntimeException("Cannot create ZIP file.");
         }
 
+        // $zip->setCompressionIndex($index, \ZipArchive::CM_STORE);
         // ✅ Add individual files
         // var_dump($files, $folders);
         foreach ($files as $filePath) {
             if (file_exists($filePath)) {
-                $zip->addFile($filePath, basename($filePath));
+                $index = $zip->addFile($filePath, basename($filePath));
+                // Skip compression for already compressed file types
+                $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+                if (in_array($extension, $compressedExtensions) && $index !== false) {
+                    $zip->setCompressionIndex($index, \ZipArchive::CM_STORE);
+                }
             }
         }
 
-        // ✅ Add folders recursively
-        foreach ($folders as $folderPath) {
-            if (is_dir($folderPath)) {
-                $folderNameInZip = basename($folderPath);
-                add_folder_to_zip($folderPath, $zip, $folderNameInZip);
-            }
-        }
+        // // ✅ Add folders recursively
+        // foreach ($folders as $folderPath) {
+        //     if (is_dir($folderPath)) {
+        //         $folderNameInZip = basename($folderPath);
+        //         add_folder_to_zip($folderPath, $zip, $folderNameInZip);
+        //     }
+        // }
 
         $zip->close();
         
@@ -227,13 +235,13 @@ if (!function_exists('delete_folder_recursive')) {
 }
 
 function get_predikat($score) {
-    if ($score >= 85) {
+    if ($score >= 91) {
         return 'Istimewa';
-    } elseif ($score >= 70) {
+    } elseif ($score >= 86) {
         return 'Baik Sekali';
-    } elseif ($score >= 60) {
+    } elseif ($score >= 78) {
         return 'Baik';
-    } elseif ($score >= 50) {
+    } elseif ($score >= 40) {
         return 'Cukup';
     } else {
         return 'Gagal';
@@ -241,13 +249,13 @@ function get_predikat($score) {
 }
 
 function get_predikat_arab($score) {
-    if ($score >= 85) {
+    if ($score >= 91) {
         return 'مُمتاز';
-    } elseif ($score >= 70) {
+    } elseif ($score >= 86) {
         return 'جَيِّد جِدًّا';
-    } elseif ($score >= 60) {
+    } elseif ($score >= 78) {
         return 'جَيِّد';
-    } elseif ($score >= 50) {
+    } elseif ($score >= 40) {
         return 'مَقْبُول';
     } else {
         return 'رَاسِب';

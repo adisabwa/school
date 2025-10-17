@@ -545,11 +545,8 @@ export default {
         this.getData({
           where:where
         }, true, true)
-        }, true, true)
       }   
     },
-    async getData(params, changeId = false, search = false) {
-      await this.settingFields();
     async getData(params, changeId = false, search = false) {
       await this.settingFields();
       if (this.showOriginal) return
@@ -567,18 +564,7 @@ export default {
       } else {
         href = this.hrefGet
       }
-      let href = ''
-      if (search) {
-        if (this.isEmpty(this.hrefSearch)) {
-          href = this.hrefGet + '_where'
-        } else {
-          href = this.hrefSearch
-        }
-      } else {
-        href = this.hrefGet
-      }
       // let formData = window.jsonToFormData(where);
-      await this.$http.get(href,
       await this.$http.get(href,
         {
           params:params,

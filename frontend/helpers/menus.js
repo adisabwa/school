@@ -6,9 +6,9 @@ let topMenu = [
     app:'mapel',
     label:"Pembelajaran & Penilaian",
     route:{
-      admin:'admin-mapel',
-      guru:'nilai-mapel',
-      walas:'nilai-mapel',
+      admin:'pembagian-mapel',
+      walas:'dashboard-nilai',
+      guru:'dashboard-nilai',
     },
     color:'emerald-100',
     darkColor:'emerald-500',
