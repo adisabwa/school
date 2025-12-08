@@ -65,7 +65,16 @@ class ValidationFilter implements FilterInterface
             foreach ($_FILES as $inputName => $fileData) {
                 // Get the file object
                 $file = $request->getFile($inputName);
+                // var_dump('file upload', $inputName, $fileData, $file, $file->isValid(), !$file->hasMoved());
                 if ($file->isValid() && !$file->hasMoved()) {
+                    // Hapus file lama kalau ada
+                    if ($postData["old_$inputName"]) {
+                        if (!empty($postData["old_$inputName"])) {
+                            $this->deleteFileFromUrl($postData["old_$inputName"]);
+                        }
+                        unset($postData["old_$inputName"]);
+                    }
+                    
                     $uploadPath = WRITEPATH . "uploads/$folders[$inputName]";// Ensure this directory exists with the correct permissions
                     // Move the file to the upload folder
                     $newName = $file->getRandomName(); // Generates a unique name
@@ -148,6 +157,7 @@ class ValidationFilter implements FilterInterface
             }
 
         }
+        // var_dump('validation rule', $files_data, $_POST, $validationRule);
         return $validationRule;
     }
 
@@ -201,7 +211,7 @@ class ValidationFilter implements FilterInterface
         foreach ($double_input as $nama_kolom => $data) {
             $koloms = explode('-', $nama_kolom);
             $datas = explode('-', $data);
-            var_dump('double', $koloms, $datas, !in_array($nama_kolom, $koloms));
+            // var_dump('double', $koloms, $datas, !in_array($nama_kolom, $koloms));
             foreach ($koloms as $key => $kolom) {
                 $postData[$kolom] = $datas[$key] ?? '';
             }
@@ -222,5 +232,30 @@ class ValidationFilter implements FilterInterface
         }
         // var_dump($postData);
         return $postData;
+    }
+
+    function deleteFileFromUrl($url)
+    {
+        // Ambil bagian setelah "file="
+        $parsed = parse_url($url);
+        parse_str($parsed['query'], $query);
+
+        if (!isset($query['file'])) {
+            return false; // tidak ada param file
+        }
+
+        // Decode: uploads%2Fsignature%2Fxxx.png → uploads/signature/xxx.png
+        $filePath = urldecode($query['file']);
+
+        // Path fisik
+        $fullPath = WRITEPATH . $filePath;
+
+        // Hapus file
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+            return true;
+        }
+
+        return false;
     }
 }

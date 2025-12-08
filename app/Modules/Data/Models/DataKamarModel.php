@@ -11,6 +11,20 @@ class DataKamarModel extends BaseModel
         parent::__construct();
 
         $this->table = 'sch__kamar';
+        $this->relations = [
+          'id_wali_kamar' => [
+            'foreign_key' => 'id_wali_kamar',
+            'model' => 'DataGuruModel',
+            'type' => 'left',
+            'selects' => [
+                "nama nama_wamar",
+                "TRIM(REPLACE(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,'')),'-','')) nama_wamar_lengkap",
+                "nama_arab nama_wamar_arab",
+                "nbm nbm_wamar",
+                "signature wamar_signature",
+              ],
+          ]
+        ];
     }
 
     public function getOptions($where = [])

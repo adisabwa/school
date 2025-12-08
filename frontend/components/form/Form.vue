@@ -81,6 +81,7 @@
                 :size="size"
                 :readonly="field.readonly"
                 :empty-value="field.emptyValue"
+                :multiple="field.input == 'select-multiple'"
                 @change="changedValue(field.nama_kolom)"
                 :style="{width:((field.width_input ?? '').split('-')[1] ?? '') + ' !important'}"  
                 :type="(field.input ?? '').split?.('-')[0]"
@@ -296,12 +297,14 @@
         <span class="text-red-500">)*</span> isian harus diisi
       </div>
     </el-form>
-    <div class="text-right" v-if="showSubmit">
+    <div class="text-right flex" v-if="showSubmit">
       <el-button type="success" :size="size" @click="submitForm"
         :disabled="saving">
         <icons v-if="saving" icon="eos-icons:loading"/>
         {{ submitText }}
       </el-button>
+      <slot name="submit" :submitForm="submitForm">
+      </slot>
     </div>
 	</div>
 </template>

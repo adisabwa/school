@@ -10,6 +10,7 @@
 	<title>Sistem Informasi Sekolah</title>
 	<link rel="icon" href="<?= base_url('assets/images/favicon.ico') ?>">
 	<link rel="manifest" href="<?= base_url() ?>assets/vue/manifest.webmanifest">
+	<script async src="https://docs.opencv.org/4.x/opencv.js"></script>
 </head>
 <body>
 	<div id="app">

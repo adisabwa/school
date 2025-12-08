@@ -20,7 +20,9 @@ class MapelNilaiModel extends BaseModel
                     'semester','tahun_ajaran','semester_keterangan', 
                     'nama_guru','nama_guru_lengkap',
                     'kelas',
+                    'tingkat',
                     'nama_mapel','nama_mapel_arab',   
+                    'id_semester','id_kelas','id_mapel',
                 ]
             ],
         ];

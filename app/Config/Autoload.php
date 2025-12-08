@@ -47,8 +47,8 @@ class Autoload extends AutoloadConfig
         'Modules\Data'      => APPPATH . 'Modules/Data',
         'Modules\Mapel'      => APPPATH . 'Modules/Mapel',
         'Modules\Presensi'      => APPPATH . 'Modules/Presensi',
-        'Modules\Kajian'      => APPPATH . 'Modules/Kajian',
-        'Modules\Persyarikatan'      => APPPATH . 'Modules/Persyarikatan',
+        'Modules\Pengasuhan'      => APPPATH . 'Modules/Pengasuhan',
+        'Modules\Rapor'      => APPPATH . 'Modules/Rapor',
     ];
 
     /**

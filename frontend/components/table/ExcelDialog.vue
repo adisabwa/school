@@ -46,6 +46,9 @@
             <el-checkbox v-model="addReq">
               <span class="text-sm">Cek Data yang harus diisi</span>
             </el-checkbox>
+            <el-checkbox v-model="skipCheck">
+              <span class="text-sm">Skip Data di Kolom Acuan</span>
+            </el-checkbox>
           </div>
           <div class="flex gap-x-5">
             <el-checkbox v-model="updateData">
@@ -146,7 +149,12 @@
                       <td align="center" class="px-1 ">
                         <icons icon="mdi-delete" 
                           class="text-md text-center text-red-700 m-0 cursor-pointer"
-                            @click="parsedData.splice((row_num), 1),forms.splice((row_num), 1),errors.splice((row_num), 1)"/>
+                            @click="
+                                ids.splice((row_num), 1);
+                                oldDatas.splice((row_num), 1);
+                                parsedData.splice((row_num), 1);
+                                forms.splice((row_num), 1);
+                                errors.splice((row_num), 1)"/>
                         <icons icon="mdi-edit"
                           class="text-md text-center text-cyan-700 m-0 cursor-pointer"
                             @click="$refs.updateDataSelect.openSelect();
@@ -192,6 +200,7 @@
                           </div>
                         </template>
                         <div v-else>{{ col }}</div>
+                        <!-- {{ oldDatas[row_num] }} -->
                         <div v-if="oldDatas[(row_num)]"
                           class="text-[12px] text-slate-500">
                           <template v-if="oldDatas[(row_num)][cols[col_num]]">
@@ -308,6 +317,7 @@ export default {
       haveHeader: true,
       updateData: true,
       addReq: true,
+      skipCheck: false,
       checkColumn:[],
       oldDatas:[],
       ids:[],
@@ -517,10 +527,12 @@ export default {
       });
     },
     addDataToForm(key, kolom = null) {
+      // console.log('addDataToForm', key, kolom, this.cols[key])
       let field = this.excelFields[kolom ?? this.cols[key]]
       this.mustEdit[key] = false
       // console.log(this.cols[key], field.options)
       for (let i = 0; i < this.parsedData.length; i++) {
+        // console.log('addDataToForm', key, kolom, this.cols[key])
         let val = this.parsedData[i][key]
         let value = ''
         this.errors[i] = ''
@@ -528,7 +540,7 @@ export default {
           value = field?.options?.length > 0 ? 
             this.getValueFromOption(val, field.options, field.similar_criteria ?? 0.85) :
             val
-          // console.log(val, value)
+          // console.log('opt', field, field?.options?.length, val, value)
           if (!value)
             this.mustEdit[key] = true
         }
@@ -567,27 +579,49 @@ export default {
           this.checkColumn.forEach(c => {
             let text = d[c]
             if (typeof text == 'string')
-              text = text.toLowerCase()
+              text = text.toLowerCase().trim()
             ind.push(text)
           })
           ind = ind.join('-')
           setId[ind] = d.id
           setData[ind] = d
         })
-      // console.log(setId)
+      console.log(setId, keys)
       this.forms.forEach((row, row_num) => {
         let ind = []
         keys.forEach(k => {
           let text = row[k] ?? ''
           if (typeof text == 'string')
-            text = text.toLowerCase()
+            text = text.toLowerCase().trim()
           ind.push(text)
         })
-        ind = ind.join('-')
-        this.ids[row_num] = parseInt(setId[ind]) ?? -1
-        // console.log(this.ids[row_num], this.ids[row_num] > 0)
+        // ind = ind.join('-')
+        // Cari ID dengan mencari data dengan index yang paling mirip
+        console.log('ind', ind)
+        let id = -1
+        let data = {}
+        let _sim = -1
+        Object.keys(setId).forEach(k => {
+          // console.log('k', k, ind)
+          let keys = k.split('-')
+          let simTotal = 0
+          keys.forEach((key, i) => {
+            simTotal += parseFloat(this.isSimilar(key, ind[i] ?? ''))
+            // console.log('sim', key, ind[i] ?? '', this.isSimilar(key, ind[i] ?? ''))
+          })
+          // console.log(_sim, simTotal)
+          if (simTotal > _sim) {
+            _sim = simTotal
+            if (_sim > 0.7) {
+              id = setId[k] 
+              data = setData[k]
+            }
+          }
+        } )
+        this.ids[row_num] = id
         this.updates[row_num] = this.ids[row_num] > 0
-        this.oldDatas[row_num] = this.updates[row_num] ? setData[ind] : false
+        // console.log(this.ids[row_num], this.ids[row_num] > 0, this.updates[row_num])
+        this.oldDatas[row_num] = this.updates[row_num] ? data : false
       })
       // console.log(this.ids, this.updates)
       // this.forms.forEach((row, row_num) => {
@@ -622,6 +656,7 @@ export default {
       })
     },
     submitUpload(){
+      // Simpan data
       this.saving = true;
       this.resetObjectValue(this.errors)
       let vm = this
@@ -635,9 +670,20 @@ export default {
           el.map((val, col) => {
             return [cols[col], val]
           })
-          .filter(([key, value]) => !this.isEmpty(key))
+          .filter(([key, value]) => {
+            if (this.isEmpty(key)) return false
+            if (this.skipCheck) {
+              if (this.checkColumn.includes(key)) {
+                return false
+              } else {
+                return true
+              }
+            } else {
+              return true
+            }
+          })
         )
-        // console.log('formData', formData)
+        console.log('formData', formData)
         if (this.addReq)
           addCols.forEach(col => {
             formData[col] = ''
@@ -665,7 +711,9 @@ export default {
         json: JSON.stringify(form),
       }
       var formData = window.jsonToFormData(form); 
-
+      
+      // this.saving = false;
+      // return false;
       this.$http.post(this.href, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       } )
@@ -708,6 +756,7 @@ export default {
         });
     },
     addNewAll(){
+      // Tambahkan data baru untuk semua baris yang belum sesuai
       let promises = []
       this.saving = true
       for (let i = 0; i < this.parsedData.length; i++) {
@@ -761,6 +810,7 @@ export default {
       });
     },
     addNew(row_num, col_num){
+      // Tambahkan data baru untuk baris dan kolom tertentu
       if (!this.cols[col_num]) return
       let formData = this.forms[row_num][col_num]
       // console.log(formData)

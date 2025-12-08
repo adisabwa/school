@@ -24,118 +24,32 @@
         body-class="p-0">
         <div :class="[scrollY > showHidden ? 'opacity-0' : 'opacity-100',
           'animate px-3 pt-3 pb-2']">
-          <div class="text-right md:block hidden">
-            <el-button size="small" type="success" @click="downloadDinas"
-              v-if="role != 'guru'">
-              <icons icon="ri:file-excel-2-fill" /> Template Dinas
-            </el-button>
+          <div class="text-right">
             <template v-if="role == 'guru'">
-              <el-button size="small" type="primary" @click="promptDinas = true">
-                <icons icon="ic:twotone-create" /> Generate Raport Dinas
+              <el-button size="small" type="success" @click="downloadScoreTemplate">
+                <icons icon="mdi:download" /> Unduh Template
               </el-button>
-              <el-divider direction="vertical" />
               <el-button size="small" type="success" @click="saveScore">
                 <icons icon="fluent:save-20-filled" /> Simpan
               </el-button>
             </template>
           </div>
-          <el-dropdown
-            trigger="click"
-            class="md:hidden block text-right">
-            <el-button class="" type="success" size="small">
-              Aksi <icons icon="mdi:arrow-down" class="m-0 ml-2"/>
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item @click="downloadDinas"
-                  v-if="role != 'guru'">
-                  <icons icon="ri:file-excel-2-fill" /> Template Dinas
-                </el-dropdown-item>
-                <template v-if="role == 'guru'">
-                  <el-dropdown-item @click="promptDinas = true">
-                    <icons icon="ic:twotone-create" /> Generate Raport Dinas
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="saveScore">
-                    <icons icon="fluent:save-20-filled" /> Simpan
-                  </el-dropdown-item>
-                </template>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
         </div>
-        <teleport to="body">
-          <el-dialog  
-            v-model="promptDinas"
-            class="p-7 w-[300px] md:w-[400px]"
-            :close-on-click-modal="true">
-            <template #header>
-              <b>Setting Raport Dinas</b>
-            </template>
-            <b>Masukkan nilai minimal dan nilai maksimal terlebih dahulu</b>
-            <div class="flex md:flex-row flex-col gap-4 mt-4">
-              <div class="flex flex-col">
-                <label class="font-semibold mb-1">Nilai Minimal</label>
-                <el-input size="large" v-model="nilaiMin"
-                  placeholder="Nilai Terkecil" />
-              </div>
-              <div class="flex flex-col">
-                <label class="font-semibold mb-1">Nilai Maksimal</label>
-                <el-input size="large" v-model="nilaiMax"
-                  placeholder="Nilai Terbesar" />
-              </div>
-            </div>
-            <template #footer>
-              <el-button @click="promptDinas = false">Batal</el-button>
-              <el-button 
-                type="success" 
-                @click="generateDinas()" :icon="saving ? 'el-icon-loading' : ''" 
-                :disabled="saving">Generate</el-button>
-            </template>
-          </el-dialog>
-        </teleport>
         <div class="relative bg-white">
           <div :class="[scrollY > showHidden ? 'opacity-100 z-[9999]' : 'opacity-0 z-[-1]',
             'animate fixed right-0 bg-white/[0.7] h-fit',
             'px-3 pt-3 pb-2']"
             v-fixed-to-position="50">
-              <div class="text-right md:block hidden">
-                <el-button size="small" type="success" @click="downloadDinas"
-                  v-if="role != 'guru'">
-                  <icons icon="ri:file-excel-2-fill" /> Template Dinas
+            <div class="text-right">
+              <template v-if="role == 'guru'">
+                <el-button size="small" type="success" @click="downloadScoreTemplate">
+                  <icons icon="mdi:download" /> Unduh Template
                 </el-button>
-                <template v-if="role == 'guru'">
-                  <el-button size="small" type="primary" @click="promptDinas = true">
-                    <icons icon="ic:twotone-create" /> Generate Raport Dinas
-                  </el-button>
-                  <el-divider direction="vertical" />
-                  <el-button size="small" type="success" @click="saveScore">
-                    <icons icon="fluent:save-20-filled" /> Simpan
-                  </el-button>
-                </template>
-              </div>
-              <el-dropdown
-                trigger="click"
-                class="md:hidden block text-right">
-                <el-button class="" type="success" size="small">
-                  Aksi <icons icon="mdi:arrow-down" class="m-0 ml-2"/>
+                <el-button size="small" type="success" @click="saveScore">
+                  <icons icon="fluent:save-20-filled" /> Simpan
                 </el-button>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item @click="downloadDinas"
-                      v-if="role != 'guru'">
-                      <icons icon="ri:file-excel-2-fill" /> Template Dinas
-                    </el-dropdown-item>
-                    <template v-if="role == 'guru'">
-                      <el-dropdown-item @click="promptDinas = true">
-                        <icons icon="ic:twotone-create" /> Generate Raport Dinas
-                      </el-dropdown-item>
-                      <el-dropdown-item @click="saveScore">
-                        <icons icon="fluent:save-20-filled" /> Simpan
-                      </el-dropdown-item>
-                    </template>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
+              </template>
+            </div>
           </div>
           <div v-if="dataNilai.length == 0"
             class="text-center text-gray-500 text-lg p-5">
@@ -255,7 +169,6 @@ import { mapState } from 'pinia';
         formKey:0,
         dataNilai:[],
         scrollY:0,
-        promptDinas:false ,
         nilaiMin:78,
         nilaiMax:99,
         showHidden: 286,
@@ -303,7 +216,8 @@ import { mapState } from 'pinia';
           uts: access && this.PembagianMapel['lock_uts'] == '0',
           uas: access && this.PembagianMapel['lock_uas'] == '0',
         }
-        console.log(data)
+        // data.uas = true
+        // console.log(data)
         return data
       }
     },
@@ -418,25 +332,24 @@ import { mapState } from 'pinia';
       },
       countRapor(key){
         let nilai = this.dataNilai[key].nilai
-        this.dataNilai[key].nilai.nilai_rapor = Math.round((parseInt(nilai.nilai_harian) + parseInt(nilai.uts) * 2 + parseInt(nilai.uas) * 3) / 6 * 100)  / 100
+        this.dataNilai[key].nilai.nilai_rapor = Math.round((parseInt(nilai.nilai_harian) + parseInt(nilai.uts) * 2 + parseInt(nilai.uas) * 3) / 6)
+        this.generateDinas(key)
       },
-      generateDinas(){
+      generateDinas(key){
         let max = this.nilaiMax
         let min = this.nilaiMin
         let real_min = 40
         let real_max = 99
 
-        this.dataNilai.forEach(d => {
-          let rap = d.nilai.nilai_rapor
-          let katrol1 = min + ( ( rap - real_min ) / ( real_max - real_min ) * ( max - min ) )
-          let katrol2 = katrol1 + 1
-          if (katrol1 == NaN) katrol1 = 0
-          if (katrol2 == NaN) katrol2 = 0
-          d.nilai.katrol1 = this.rounding(katrol1, 2)
-          d.nilai.katrol2 = this.rounding(katrol2, 2)
-        })
-
-        this.promptDinas = false
+        let d = this.dataNilai[key]
+        let rap = d.nilai.nilai_rapor
+        if (rap < real_min) rap = real_min
+        let katrol1 = min + ( ( rap - real_min ) / ( real_max - real_min ) * ( max - min ) )
+        let katrol2 = katrol1 + 1
+        if (katrol1 == NaN) katrol1 = 0
+        if (katrol2 == NaN) katrol2 = 0
+        d.nilai.katrol1 = this.rounding(katrol1, 2)
+        d.nilai.katrol2 = this.rounding(katrol2, 2)
       },
       saveScore() {
         let form = []
@@ -472,6 +385,13 @@ import { mapState } from 'pinia';
               position: 'bottom-right'
             });
           })
+      },
+      downloadScoreTemplate(){
+        let params = {
+          id_pembagian_mapel: this.filter.id_pembagian_mapel
+        }
+        let queryString = new URLSearchParams(params).toString();
+        this.openLink(this.$siteUrl + 'mapel/nilai/download_template?' + queryString)
       },
       getFreezeHeader(){
         console.log('freeze-header')
@@ -580,9 +500,6 @@ import { mapState } from 'pinia';
           opacity: this.scrollY < this.showHidden ? 0 : 1,
         })
       },
-      downloadDinas(){
-        
-      }
     },
     created: function() {
       this.getInitial()

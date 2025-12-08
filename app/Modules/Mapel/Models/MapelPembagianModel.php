@@ -27,7 +27,7 @@ class MapelPembagianModel extends BaseModel
                 'table' => 'sch__guru',
                 'selects' => [
                     "nama nama_guru",
-                    "TRIM(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,''))) nama_guru_lengkap",
+                    "TRIM(REPLACE(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,'')),'-',''))  nama_guru_lengkap",
                 ]
             ],
             'id_kelas' => [
@@ -35,6 +35,7 @@ class MapelPembagianModel extends BaseModel
                 'table' => 'sch__kelas',
                 'selects' => [
                     'kelas',
+                    'tingkat',
                 ]
             ],
             'id_mapel' => [

@@ -16,6 +16,30 @@ let topMenu = [
     image:baseUrl + 'assets/images/icons/subject.png',
   },
   {
+    app:'pengasuhan',
+    label:"Pengasuhan",
+    route:{
+      wamar:'admin-pengasuhan',
+      admin:'admin-pengasuhan',
+    },
+    color:'sky-100',
+    darkColor:'sky-500',
+    textColor:'emerald-700',
+    image:baseUrl + 'assets/images/icons/pengasuhan.png',
+  },
+  {
+    app:'rapor',
+    label:"Raport Santri",
+    route:{
+      walas:'rapor-dashboard',
+      admin:'rapor-dashboard',
+    },
+    color:'red-100',
+    darkColor:'red-500',
+    textColor:'indigo-700',
+    image:baseUrl + 'assets/images/icons/report.png',
+  },
+  {
     app:'presensi',
     label:"Presensi Guru",
     route:{
@@ -65,6 +89,8 @@ let topMenu = [
     route:{
       admin:'user-management',
       walas:'santri-list',
+      guru:'teacher-list',
+      wamar:'teacher-list',
     },
     color:'rose-100',
     darkColor:'rose-500',

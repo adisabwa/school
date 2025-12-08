@@ -6,10 +6,14 @@ import psbRoute from './routes/psb'
 import savingRoute from './routes/saving'
 import mapelRoute from './routes/mapel'
 import presensiRoute from './routes/presensi'
+import pengasuhanRoute from './routes/pengasuhan'
+import raporRoute from './routes/rapor'
 // Vue router
 const routes = new createRouter({
   history: createWebHistory(),
   routes: [
+    ...raporRoute,
+    ...pengasuhanRoute,
     ...presensiRoute,
     ...mapelRoute,
     ...savingRoute,

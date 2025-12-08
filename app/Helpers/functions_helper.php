@@ -112,6 +112,25 @@ if (! function_exists('number_to_words')) {
     }
 }
 
+function class_to_arabic($number) {
+    $classes = [
+        1 => 'الأول',
+        2 => 'الثاني',
+        3 => 'الثالث',
+        4 => 'الرابع',
+        5 => 'الخامس',
+        6 => 'السادس',
+        7 => 'السابع',
+        8 => 'الثامن',
+        9 => 'التاسع',
+        10 => 'العاشر',
+        11 => 'الحادي عشر',
+        12 => 'الثاني عشر',
+    ];
+
+    return $classes[$number] ?? '';
+}
+
 if (!function_exists('to_arabic_number')) {
     function to_arabic_number($number)
     {
@@ -151,14 +170,28 @@ if (!function_exists('zip_and_download')) {
         // Full path to save the zip temporarily
         $zipPath = WRITEPATH . 'temp/' . $zipName;
 
+        var_dump($zipPath);
         // Ensure temp directory exists
         if (!is_dir(WRITEPATH . 'temp')) {
             mkdir(WRITEPATH . 'temp', 0777, true);
         }
 
-        // Create or overwrite ZIP file
-        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
-            throw new \RuntimeException("Cannot create ZIP file.");
+        if (file_exists($zipPath)) {
+            unlink($zipPath); // hapus dulu
+        }
+        $zip = new \ZipArchive();
+        $result = $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+        if ($result) {
+            // Log or display the error code
+            echo "Failed to open zip archive: error code " . $zip->status;
+        } else {
+            // Add files...
+            $zip->close();
+        }
+
+        if ($result !== true) {
+            die("Zip error: " . $result);
         }
 
         // $zip->setCompressionIndex($index, \ZipArchive::CM_STORE);
@@ -244,7 +277,7 @@ function get_predikat($score) {
     } elseif ($score >= 40) {
         return 'Cukup';
     } else {
-        return 'Gagal';
+        return 'Kurang';
     }
 }
 
@@ -258,6 +291,69 @@ function get_predikat_arab($score) {
     } elseif ($score >= 40) {
         return 'مَقْبُول';
     } else {
-        return 'رَاسِب';
+        return 'ناقص';
+    }
+}
+
+function get_sikap_arab($score) {
+    switch ($score) {
+        case '4':
+            return 'جَيِّد جِدًّا';
+            break;
+        case '3':
+            return 'جَيِّد';
+            break;
+        case '2':
+            return 'مَقْبُول';
+            break;
+        case '1':
+            return 'ناقص';
+            break;
+        
+        default:
+            return 'جَيِّد';
+            break;
+    }
+}
+
+function get_sikap($score) {
+    switch ($score) {
+        case '4':
+            return 'Sangat Baik';
+            break;
+        case '3':
+            return 'Baik';
+            break;
+        case '2':
+            return 'Cukup';
+            break;
+        case '1':
+            return 'Kurang';
+            break;
+        
+        default:
+            return '-';
+            break;
+    }
+}
+
+function get_sikap_short($score) {
+    switch ($score) {
+        case '4':
+            return 'SB';
+            break;
+        case '3':
+            return 'B';
+            break;
+        case '2':
+            return 'C';
+            break;
+        case '1':
+            return 'K';
+            break;
+        
+        default:
+            return '-';
+            break;
     }
 }

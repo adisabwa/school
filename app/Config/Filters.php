@@ -61,5 +61,30 @@ class Filters extends BaseConfig
      * Example:
      * 'isLoggedIn' => ['before' => ['account/*', 'profiles/*']]
      */
-    public array $filters = [];
+    public array $filters = [
+        'toolbar' => [
+            'except' => [
+        'psb/admin/download_excel',
+        'psb/admin/download_many',
+        '*download_excel*',
+        '*download*',
+            ],
+        ],
+        'honeypot' => [
+            'except' => [
+        'psb/admin/download_excel',
+        'psb/admin/download_many',
+        '*download_excel*',
+        '*download*',
+            ],
+        ],
+        'secureheaders' => [
+            'except' => [
+        'psb/admin/download_excel',
+        'psb/admin/download_many',
+        '*download_excel*',
+        '*download*',
+            ],
+        ],
+];
 }

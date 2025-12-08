@@ -238,7 +238,7 @@ class BaseModel extends Model
                         // $builder->orderBy($j_order);
                     }
                     
-                    $query = $model->getAll(whereAnd:($rel['condition'] ?? []), return_data: TRUE, order: ($j_order ?? ''));
+                    $query = $model->getAll(whereAnd:($rel['condition'] ?? []), return_data: TRUE, order: ($j_order ?? ''), groupBy: ($rel['group_by'] ?? []));
                     // var_dump($query);
                     $builder->select($this->addTableBefore($table_alias, $rel['selects']));
                     $builder->join("($query) $table_alias", 
@@ -269,6 +269,10 @@ class BaseModel extends Model
                         $j_order = $this->addTableBefore($table_alias, $rel['order']);
                         $j_order = implode(",", $j_order);
                         $builder->orderBy($j_order);
+                    }
+                    if ($rel['group_by'] ?? false) {
+                        $g_by = $this->addTableBefore($table_alias, $rel['group_by']);
+                        $builder->groupBy($g_by);
                     }
                 }
             }

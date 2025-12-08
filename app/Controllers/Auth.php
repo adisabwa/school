@@ -71,8 +71,12 @@ class Auth extends BaseController
         $role = $this->request->getGetPost('role');
 
         $user = userdata();
-        if (isset($user->app_roles['all']))
-            $user->app_roles['all'] = $role;
+        if (isset($user->app_roles['all'])) {
+            array_walk($user->app_roles, function(&$r, $key) use ($role) {
+                if ($key != 'all')
+                    $r = $role;
+            });
+        }
         if ($app)
             $user->app_roles[$app] = $role;
         

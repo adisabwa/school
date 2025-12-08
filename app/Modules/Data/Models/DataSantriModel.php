@@ -17,7 +17,20 @@ class DataSantriModel extends BaseModel
             'model' => 'DataKelasModel',
             'type' => 'left',
             'selects' => ['kelas'],
-          ]
+          ],
+          'id_daerah' => [
+            'foreign_key' => 'id_daerah',
+            'model' => 'DataDaerahModel',
+            'type' => 'left',
+            'selects' => ['daerah','daerah_arab'],
+          ],
+          // 'id_kamar' => [
+          //   'foreign_key' => 'id',
+          //   'local_key' => 'id_santri',
+          //   'model' => 'DataSantriKamarModel',
+          //   'type' => 'left',
+          //   'selects' => ['rayon','nomor','nama_wamar','nama_wamar_lengkap', "kamar" ],
+          // ]
         ];
     }
 
@@ -35,7 +48,7 @@ class DataSantriModel extends BaseModel
       foreach ($data as $key => $d) {
         $options[] = (object)[
           'value' => "$d->id",
-          'label' => "$d->nama"
+          'label' => "$d->kelas - $d->nama"
         ];
       }
       return $options;

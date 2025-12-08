@@ -20,6 +20,9 @@ export const useAuthStore = defineStore('auth', {
     role() {
       return this.getRole()
     },
+    roles() {
+      return this.getRoles()
+    },
     app() {
       return this.getApp()
     }
@@ -67,6 +70,20 @@ export const useAuthStore = defineStore('auth', {
       let role = user.app_roles[app] ?? user.app_roles['all'] ?? ''
       // console.log(role)
       return role
+    },
+    getRoles(){
+      let user = this.loggedUser
+      let _roles = []
+      let app = this.getApp()
+      if (user.akses) {
+        Object.values(user.akses).forEach((akses: any) => {
+          akses.forEach((rl: any) => {
+            _roles.push(rl.role)
+          })
+        })
+      }
+      _roles = [...new Set(_roles)]
+      return _roles
     },
     getApp(){
       const route =  router.currentRoute.value

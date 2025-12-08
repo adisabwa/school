@@ -82,8 +82,10 @@ const fixedToPosition = {
     let jqEl = jquery(el)
     function setTop(){
       // console.log('run', jqEl, window.scrollY, distance)
+      let top = 'calc(' + (absolute == '1' ? 0 : window.scrollY) + 'px + ' + distance + ')'
+      // console.log('set top', top)
       jqEl.css({
-        top: (absolute == '1' ? 0 : window.scrollY) + distance,
+        top: top
       })
     }
     // console.log('fixed', el, el.getBoundingClientRect(), scrollParent)

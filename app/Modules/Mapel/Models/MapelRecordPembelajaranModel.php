@@ -26,7 +26,7 @@ class MapelRecordPembelajaranModel extends BaseModel
                 'table' => 'sch__guru',
                 'selects' => [
                     "nama nama_guru",
-                    "TRIM(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,''))) nama_guru_lengkap",
+                    "TRIM(REPLACE(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,'')),'-',''))  nama_guru_lengkap",
                 ]
             ],
             'id_kelas' => [
@@ -57,7 +57,7 @@ class MapelRecordPembelajaranModel extends BaseModel
                 'type' => 'left',
                 'selects' => [
                     "nama nama_guru_pengganti",
-                    "TRIM(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,''))) nama_guru_pengganti_lengkap",
+                    "TRIM(REPLACE(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,'')),'-',''))  nama_guru_pengganti_lengkap",
                 ]
             ],
             'created_by' => [
@@ -67,7 +67,7 @@ class MapelRecordPembelajaranModel extends BaseModel
                 'type' => 'left',
                 'selects' => [
                     "nama nama_pembuat",
-                    "TRIM(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,''))) nama_pembuat_lengkap",
+                    "TRIM(REPLACE(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,'')),'-',''))  nama_pembuat_lengkap",
                 ]
             ],
         ];

@@ -15,6 +15,6 @@ class DataGuruModel extends BaseModel
 
     public function getOptions($where = [])
     {
-      return $this->getOptionsData($where, function($d) { return "$d->prefix $d->nama $d->suffix"; });
+      return $this->getOptionsData($where, function($d) { return trim(str_replace("-","","$d->prefix $d->nama $d->suffix")); });
     }
 }

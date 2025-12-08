@@ -29,6 +29,7 @@
                   component: () => import('@/pages/data/GuruList.vue'),
                   meta: {
                       pageTitle: "<b>Daftar Guru</b>",
+                      allowedRoles: ['admin','wamar','guru','walas'],
                   }
                 },
                 {
@@ -37,6 +38,7 @@
                   component: () => import('@/pages/data/SantriList.vue'),
                   meta: {
                       pageTitle: "<b>Data Santri</b>",
+                      allowedRoles: ['admin','walas'],
                   }
                 },
                 {

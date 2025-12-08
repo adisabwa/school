@@ -23,6 +23,7 @@ $routes->group('mapel', [
         $routes->add('download_ledger', [MapelNilai::class, 'download_ledger']);
         $routes->add('download_raport', [MapelNilai::class, 'download_raport']);
         $routes->add('get_progress', [MapelNilai::class, 'get_progress']);
+        $routes->add('download_template', [MapelNilai::class, 'download_template']);
     });
 
     //------------------------------------- Data Pembagian Mapel -----------------------------------------------

@@ -33,6 +33,7 @@ class FileController extends BaseController
         $folders = $this->request->getGetPost('folders') ?? [];
         $zipName = $this->request->getGetPost('zip_name') ?? 'files.zip';
         $deleteOriginal = $this->request->getGetPost('delete_original') ?? FALSE;
+        // var_dump($files, $folders, $zipName, $deleteOriginal);
         return zip_and_download($zipName, $files, $folders, $deleteOriginal);
     }
 }

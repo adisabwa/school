@@ -109,28 +109,34 @@
           </el-table-column>
           <slot :name="'after-'+field.nama_kolom" :field="field"></slot>
         </template>
-        <slot></slot>
+        <slot name="default" :handleActionClick="handleActionClick"></slot>
         <el-table-column v-if="showDropdown"
-          width="100" align="center">
+          width="150px" align="center">
           <template #default="scope">
-            <el-dropdown trigger="click" @command="handleActionClick" class="max-sm:[&_*]:text-[11px]">
-              <el-button type="primary" size="small" > 
+            <el-dropdown trigger="click" @command="handleActionClick" class="max-sm:[&_*]:text-[11px] ">
+              <el-button type="primary" size="small" class=""> 
                 Aksi <icons icon="fe:arrow-down" class="el-icon--right text-[11px] m-0 ml-1" />
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu slot="dropdown" class="max-sm:[&_*]:text-[12px]">
                   <el-dropdown-item class="py-[2px]"
+                    v-if="dropdownItemProps?.view?.show ?? true"
                     :command="{action: 'view', id: scope.row.id}">
                     <icons icon="lsicon:view-filled"/> Lihat Detail</el-dropdown-item>
                   <el-dropdown-item class="py-[2px]"
+                    v-if="dropdownItemProps?.edit?.show ?? true"
                     :command="{action: 'edit', id: scope.row.id}">
                     <icons icon="material-symbols:edit-outline"/> Ubah</el-dropdown-item>
                   <el-dropdown-item class="py-[2px]"
+                    v-if="dropdownItemProps?.delete?.show ?? true"
                     :command="{action: 'delete', id: scope.row.id}">
                     <icons icon="material-symbols:delete-outline"/> Hapus</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
+            <div>
+              <slot name="button-addition" :scope="scope" :field="field"></slot>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -163,7 +169,7 @@
 
     <data-create ref="dateCreate" v-model:show="showAdd"
       v-model:form-value="valueForm"
-      :title="title" :href="href + '/store'" :href-get="href + '/get'"
+      :title="title" :href="hrefStore ?? href + '/store'" :href-get="hrefGet ?? href + '/get'"
       :fields="fieldsCreate"
       :pass-columns="passColumnsInput"
       :show-columns="showColumnsInput"
@@ -173,7 +179,7 @@
     
     <data-view ref="dataView" v-model:show="showView"
       v-model:form-value="valueForm"
-      :title="title" :href-get="href + '/get'"
+      :title="title" :href-get="hrefGet ?? href + '/get'"
       :fields="fieldsCreate"
       :pass-columns="passColumnsInput"
       :show-columns="showColumnsInput"
@@ -194,6 +200,7 @@
   import DataCreate from './DataCreate.vue'
   import DataView from './DataView.vue'
   import ExcelDialog from './ExcelDialog.vue'
+import { dropdownItemProps } from 'element-plus';
 
   export default {
     name: "table-data",
@@ -244,6 +251,14 @@
         type:String,
         default: '',
       },
+      hrefStore:{
+        type:String,
+        default: null,
+      },
+      hrefGet:{
+        type:String,
+        default: null,
+      },
       params:{
         type:Object,
         default: {},
@@ -279,6 +294,10 @@
       formValue: {
         type:[Array, Object],
         default:[],
+      },
+      dropdownItemProps: {
+        type: Object,
+        default: {}
       },
     },
     emits:['update:checkedId','resetField','update:formValue'],
@@ -397,9 +416,6 @@
           return false
         return true
       },
-      hrefGet(){
-        return this.href + '/'
-      },
       checkedIdList(){
         let list = []
         this.datasFilter.forEach(d => {
@@ -454,7 +470,7 @@
         }
         f.sort = sort_val
         if (sort_val != '')
-          o.unshift(ind)
+          o.push(ind)
         this.getData()
       },
       getParams(){
@@ -472,11 +488,10 @@
             ...this.params,
             order:order
           }
-
       },
       async getData(){
         let params = this.getParams()
-        // console.log(params)
+        console.log(params)
         await this.$http.get(this.href, {
           params: params
         })
@@ -598,7 +613,7 @@
       },
       onUpdated: function(teacher) {
         this.showAdd = false;
-        this.showUpload = false;
+        this.showUploadDialog = false;
         this.getData();
         this.$emit('resetField')
         this.$notify({

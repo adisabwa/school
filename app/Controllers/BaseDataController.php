@@ -96,7 +96,7 @@ class BaseDataController extends BaseController
             }
         }
         // // var_dump($posted_data);
-        // var_dump( $posted_data, $this->model->error());
+        var_dump( $posted_data, $this->model->error());
         // Append ID to data
         foreach ($child_table as $table => $values) {
             $fk = $child_key[$table];
@@ -141,15 +141,15 @@ class BaseDataController extends BaseController
             unset($data['tables']);
 
             // Start the transaction
-
+            // var_dump($posted_data);
             if ($posted_data['id'] > 0) {
                 $save = $this->model->update($posted_data['id'], $data);
             } else {
                 $save = $this->model->insert($data, TRUE);
                 $posted_data['id'] = $this->model->insertID();
             }
-            // var_dump($posted_data);
-            var_dump( $this->model->error());
+            // var_dump($this->model->getTableName());
+            // var_dump( $this->model->error());
             // Append ID to data
             foreach ($child_table as $table => $values) {
                 $fk = $child_key[$table];
@@ -337,7 +337,7 @@ class BaseDataController extends BaseController
     }
 
     public function download_excel()
-    {
+    {        
         $where = $this->request->getGetPost('where') ?? [];
         $in = $this->request->getGetPost('in') ?? [];
         $or = $this->request->getGetPost('or') ?? [];
@@ -410,22 +410,44 @@ class BaseDataController extends BaseController
         }
 
 
-        for ($i = 'A'; $i !=  $activeWorksheet->getHighestColumn(); $i++) {
-            $activeWorksheet->getColumnDimension($i)->setAutoSize(TRUE);
+        foreach (range('A', $activeWorksheet->getHighestColumn()) as $col) {
+            $activeWorksheet->getColumnDimension($col)->setAutoSize(true);
         }
+        
+@ini_set('zlib.output_compression', 0);
+@ini_set('output_buffering', 'off');
+@ini_set('implicit_flush', 1);
 
-        header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename="'.$filename.'.xls"');
-        header('Cache-Control: max-age=0');
+        // --- Bersihkan semua buffer ---
+        while (ob_get_level() > 0) {
+            @ob_end_clean();
+        }
+//         echo "TEST";
+// exit;
+        // --- HEADER EKSEL ---
+header('Content-Type: application/vnd.ms-excel');
+header('Content-Disposition: attachment; filename="'.$filename.'.xls"');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Pragma: no-cache');
         // If you're serving to IE 9, then the following may be needed
-        header('Cache-Control: max-age=1');
+        // header('Cache-Control: max-age=1');
         // If you're serving to IE over SSL, then the following may be needed
-        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
-        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
-        header('Pragma: public'); // HTTP/1.0
+        // header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        // header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
+        // header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        // header('Pragma: public'); // HTTP/1.0
+header_remove("X-Content-Type-Options");
+header_remove("X-XSS-Protection");
+header_remove("X-Frame-Options");
+header_remove("Content-Security-Policy");
+header_remove("Strict-Transport-Security");
+header_remove("Referrer-Policy");
+header_remove("Permissions-Policy");
+
         $writer = IOFactory::createWriter($spreadsheet, 'Xls');
         // ob_end_clean();
         $writer->save('php://output');
+        exit;
     }
 }
+?>

@@ -13,20 +13,20 @@
             </template>
             <el-radio-group class="flex flex-col gap-2"
               v-model="selectedRole">
-              <el-radio-button v-for="rl in [...user.akses.all, ...(user.akses[$route?.meta?.app] ?? [])]"
-                :value="rl.role" class="
+              <el-radio-button v-for="rl in roles"
+                :value="rl" class="
                 border border-solid border-teal-700/[0.5]
                 text-teal-800 
                 [&_*]:w-full w-full
                 [&_*]:border-0">
-                {{ ucFirst(rl.role) }}</el-radio-button>
+                {{ ucFirst(rl) }}</el-radio-button>
             </el-radio-group>
             <template #footer>
               <div class="dialog-footer flex justify-between">
                 <el-button @click="showRole = false">Batal</el-button>
                 <el-button type="primary" @click="showRole = false;
                   authStore.changeRole({
-                    app:$route?.meta?.app ?? 'all',
+                    app:'all',
                     role:selectedRole
                   })"
                   class="bg-teal-700 border-0">
@@ -163,6 +163,7 @@ export default {
     ...mapState(useAuthStore,{
       user:'loggedUser',
       role:'role',
+      roles:'roles',
     }),
   },
   data: function() {

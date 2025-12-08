@@ -5,6 +5,7 @@ let data = [
     icon:'ph:notebook-fill',
     label:'Akses Pengguna',
     type:'menu',
+    roles:['admin'],
   },
   {
     index: 'unit-list',
@@ -12,6 +13,7 @@ let data = [
     icon:'fa-solid:school',
     label:'Data Unit Sekolah',
     type:'menu',
+    roles:['admin'],
   },
   {
     index: 'jurusan-list',
@@ -19,6 +21,7 @@ let data = [
     icon:'fluent-mdl2:room',
     label:'Data Jurusan',
     type:'menu',
+    roles:['admin'],
   },
   {
     index: 'teacher-list',
@@ -33,6 +36,7 @@ let data = [
     icon:'mdi:table-chair',
     label:'Data Kelas',
     type:'menu',
+    roles:['admin'],
   },
   {
     index: 'kamar-list',
@@ -40,6 +44,7 @@ let data = [
     icon:'tabler:bed-filled',
     label:'Data Kamar',
     type:'menu',
+    roles:['admin'],
   },
   {
     index: 'santri-list',
@@ -47,6 +52,7 @@ let data = [
     icon:'fa-solid:user',
     label:'Data Santri',
     type:'menu',
+    roles:['admin','walas'],
   },
   {
     index: 'sesi-list',
@@ -54,6 +60,7 @@ let data = [
     icon:'mdi:timetable',
     label:'Sesi Pembelajaran',
     type:'menu',
+    roles:['admin'],
   },
 ]
 export default data

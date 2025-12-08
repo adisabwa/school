@@ -106,3 +106,23 @@ define('BASE_ACCESS', serialize([
         'role' => 'guru',
     ]
 ]));
+
+define('NILAI_PENGASUHAN_KATEGORI', serialize([
+    // "Menghindari Tahayul, Bid’ah dan Khurofat",
+    // "Menghindari Kemusyrikan",
+    "Melakukan shalat berjamaah 5 waktu",
+    "Melakukan shalat 40 rokaat dalam sehari",
+    "Melakukan puasa sunah",
+    "Tahsinul Qiro’ah",
+    "Khatam Al Qur’an sebulan sekali",
+    "Hafal Al Qur’an sesuai target",
+    "Kelakuan dan Kesopanan",
+    "Pengendalian diri (ucapan/perbuatan)",
+    "Jujur dan Amanah",
+    "Kedisiplinan  dan Kerajinan",
+    "Kerapian dan Kebersihan",
+    "Mengisi Lembar Muhasabah Yaumiyah",
+    "Mengikuti Ta’lim dan Taushiyah",
+    "Menggunakan Bahasa Arab dan Inggris",
+    "Mengikuti Kegiatan Ekstrakurikuler",
+]));

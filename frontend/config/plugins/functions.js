@@ -17,6 +17,45 @@ let listFunction = {
   openLink(link){
     window.open(link,'_blank');
   },
+  openPost(url, params = {}) {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = url;
+    form.target = "_blank";
+
+    // Add CSRF token if needed (CI4)
+    const csrf = document.querySelector("meta[name='csrf-token']");
+    if (csrf) {
+        const tokenField = document.createElement("input");
+        tokenField.type = "hidden";
+        tokenField.name = csrf.getAttribute("data-name");
+        tokenField.value = csrf.getAttribute("content");
+        form.appendChild(tokenField);
+    }
+
+    for (let key in params) {
+      if (Array.isArray(params[key])) {
+          // jika value adalah array → buat multiple input
+          params[key].forEach(v => {
+              const input = document.createElement("input");
+              input.type = "hidden";
+              input.name = key + "[]"; 
+              input.value = v;
+              form.appendChild(input);
+          });
+      } else {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = params[key];
+        form.appendChild(input);
+      }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+  },
   copyText(link) {
     console.log(link)
     const textArea = document.createElement("textarea");

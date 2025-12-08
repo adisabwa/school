@@ -13,7 +13,7 @@ use Modules\Data\Controllers\SesiController;
 
 //----------------------------------Section Data-------------------------------------
 
-
+helper('route');
 //----------------------------------Data Guru-------------------------------------
 $routes->group('data/guru', static function ($routes) {
     $routes->add('/', [GuruController::class, 'index']);
@@ -131,6 +131,16 @@ $routes->group('data', [
         $routes->add('search', [SantriController::class, 'search']);
     });
     
+    //----------------------------------Data Santri Kamar -------------------------------------
+    $routes->group('santri-kamar', static function ($routes) {
+        addDefaultRoutes($routes, Modules\Data\Controllers\SantriKamarController::class, 'sch__santri_kamar');
+    });
+
+    //----------------------------------Data Daerah -------------------------------------
+    $routes->group('daerah', static function ($routes) {
+        addDefaultRoutes($routes, Modules\Data\Controllers\DaerahController::class, 'sch__daerah');
+    });
+
     //----------------------------------Data Pengguna-------------------------------------
     $routes->group('pengguna', static function ($routes) {
         $routes->add('/', [PenggunaController::class, 'index']);
