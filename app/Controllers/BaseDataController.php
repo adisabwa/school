@@ -20,7 +20,7 @@ class BaseDataController extends BaseController
         $this->fieldsLibrary = new Fields;
     }
 
-    public function index()
+    public function index($return = false)
     {
         $where = $this->request->getGetPost('where') ?? [];
         $in = $this->request->getGetPost('in') ?? [];
@@ -36,16 +36,19 @@ class BaseDataController extends BaseController
         // var_dump($condition);
         $data = $this->model->addConditions($condition)->getAll(whereAnd: $where, whereOr: $or, whereIn: $in, orWhereIn: $inOr, 
             order: $order, limit: $limit, offset: $offset);
-        
+        // var_dump($this->model->getLastQuery());
         foreach ($data as $key => $d) {
             $d->checked = false;
         }
+        if ($return)
+            return $data;
         return $this->respondCreated($data);
     }
 
     public function get()
     {
         $id = $this->request->getGet('id');
+        if (empty($id)) $id = -1;
         // var_dump($id, method_exists($this->model, 'getData'));
         return $this->respondCreated(method_exists($this->model, 'getData') ? $this->model->getData($id) : $this->model->find($id));
     }
@@ -96,7 +99,7 @@ class BaseDataController extends BaseController
             }
         }
         // // var_dump($posted_data);
-        var_dump( $posted_data, $this->model->error());
+        // var_dump( $posted_data, $this->model->error());
         // Append ID to data
         foreach ($child_table as $table => $values) {
             $fk = $child_key[$table];
@@ -205,6 +208,7 @@ class BaseDataController extends BaseController
         
         $ids = $this->request->getPost('id') ?? -1;
         // var_dump($ids);exit;
+        // return $this->respondCreated();
         $save = $this->model->delete($ids);
 
         if ($this->model->transStatus() === false) {

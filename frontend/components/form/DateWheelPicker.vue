@@ -2,9 +2,10 @@
   <div>
     <el-input v-model="labelModel" :placeholder="placeholder" 
       :clearable="clearable"
+      :readonly="readonly"
       :size="size"
       @clear="resetData"
-      @click="showModal = true">
+      @click="readonly ? true : (showModal = true)">
       <template #prepend v-if="prefix">
         {{ prefix }}
       </template>
@@ -37,6 +38,7 @@
 </template>
 
 <script>
+import { readonly } from 'vue';
 import  { VueScrollPicker } from 'vue-scroll-picker'
 
 export default {
@@ -51,6 +53,7 @@ export default {
     placeholder:{type:[String], default:'',},
     size:{type:[String], default:'',},
     clearable:{type:[Boolean], default:false,},
+    readonly:{type:[Boolean], default:false,},
     prefix:{type:[String], default:'',},
     valueFormat:{type:[String], default:'YYYY-MM-DD',},
     format:{type:[String], default:'DD MMMM YYYY',},

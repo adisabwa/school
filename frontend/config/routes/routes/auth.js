@@ -1,6 +1,3 @@
-import PublicLayout from '@/layouts/PublicLayout.vue'
-import MainLayout from '@/layouts/MainLayout.vue'
-
 import config from '@/config/url'
 const baseUrl = config.baseUrl
 const siteUrl = config.siteUrl
@@ -8,7 +5,7 @@ const siteUrl = config.siteUrl
 let routes = [ 
   {
       path: siteUrl + 'p/',
-      component: PublicLayout,
+      component: () => import('@/layouts/PublicLayout.vue'),
       meta: {
         enterFromClass : "translate-y-full",
         enterToClass : "translate-y-0",
@@ -28,7 +25,7 @@ let routes = [
   },
   {
       path: siteUrl + 'p/',
-      component: PublicLayout,
+      component: () => import('@/layouts/PublicLayout.vue'),
       meta: {
         enterFromClass : "translate-x-full",
         enterToClass : "translate-x-0",
@@ -57,7 +54,7 @@ let routes = [
     },
     {
         path: siteUrl + 'p/',
-        component: MainLayout,
+        component: () => import('@/layouts/MainLayout.vue'),
         meta: {
           enterFromClass : "translate-x-full",
           enterToClass : "translate-x-0",

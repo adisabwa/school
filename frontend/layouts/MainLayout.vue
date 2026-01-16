@@ -75,17 +75,11 @@
   </div>
 </template>
 
-<script setup>
-  import menu from '@/helpers/menus.js';
-  const authStore = useAuthStore()
-   
-</script>
-
 <script>
 import { mapState } from 'pinia';
 import VerticalMenu from './components/VerticalMenu.vue';
 import HorizontalMenu from './components/HorizontalMenu.vue';
-import { useAuthStore } from '../config/store/authStore';
+import { useAuthStore } from '@/config/stores/authStore'
 
 export default {
   name: 'default-layout',
@@ -108,6 +102,7 @@ export default {
     ...mapState(useAuthStore, {
       user: 'loggedUser',
       role:'role',
+      app:'app',
       pageTitle: 'pageTitle',
       pageSubTitle: 'pageSubTitle',
     }),
@@ -121,6 +116,9 @@ export default {
     },
     role(newRole, oldRole) {
       this.routerViewKey++ // Trigger re-render
+    },
+    app(val){
+      this.getMenus(val)
     }
   },
   methods: {
@@ -143,6 +141,7 @@ export default {
       if (!index) index = ''
       
       this.activeMenu = index
+      
     },
     async getMenus(app = 'admin'){
       this.resetStorage('menu')

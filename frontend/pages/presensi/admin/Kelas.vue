@@ -64,7 +64,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(data, key) in dataPresensi"">
+                  <tr v-for="(data, key) in dataPresensi">
                     <td class="align-top">{{ key + 1 }}</td>
                     <td class="text-center align-top">{{ data.kelas }}</td>
                     <td class="align-top">
@@ -125,6 +125,8 @@
   
 <script>
   import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
+import { useDataStore } from '@/config/stores/dataStore'
   
   
   export default {
@@ -143,20 +145,17 @@
             input:'select',
             options:[],
           },
-          komplek:{
-            label:'Komplek',
-            nama_kolom:'komplek',
-            input:'select',
-            options:[
-              { value: 'putra', label: 'Putra' },
-              { value: 'putri', label: 'Putri' },
-            ],
-          },
           tanggal:{
             label:'Tanggal',
             nama_kolom:'tanggal',
             input:'date-wheel',
             format:'dddd, DD MMMM YYYY',
+          },
+          id_kelas:{
+            label:'Kelas',
+            nama_kolom:'id_kelas',
+            input:'select',
+            options:[],
           },
           id_sesi:{
             label:'Sesi',
@@ -228,7 +227,7 @@
         storeFilters: 'filters',
       }),
       labelPosition(){
-        return this.$windowWidth < 800 ? 'top' : 'left'
+        return this.$windowWidth < 500 ? 'top' : 'left'
       },
     },
     methods: {
@@ -257,6 +256,15 @@
               }
             })
             // console.log('filter', this.filter)
+          }).
+          catch(err => {
+            console.error('Error fetching semester options:', err);
+          });
+        await this.$http.get('data/kelas/options')
+          .then(result => {
+            let res = result.data
+            this.filterFields.id_kelas.options = res
+            this.filter.id_kelas = res[0].value
           }).
           catch(err => {
             console.error('Error fetching semester options:', err);
@@ -485,7 +493,7 @@
       // console.log('change-filter', dataStore.filters)
     },
   }
-  </script>
+</script>
   
 <style lang="postcss" scoped>
   :deep(.el-checkbox__inner) {

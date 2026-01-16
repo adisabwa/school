@@ -81,6 +81,7 @@
 import { mapState } from 'pinia';
 
 import { filter } from 'lodash';
+import { useAuthStore } from '@/config/stores/authStore'
 
 export default {
   name: "iqab",

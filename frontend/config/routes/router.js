@@ -8,10 +8,17 @@ import mapelRoute from './routes/mapel'
 import presensiRoute from './routes/presensi'
 import pengasuhanRoute from './routes/pengasuhan'
 import raporRoute from './routes/rapor'
+import perpustakaanRoute from './routes/perpustakaan'
+import kmiRoute from './routes/kmi'
+import ekstraRoute from './routes/ekstra'
+import { useAuthStore } from '@/config/stores/authStore'
 // Vue router
 const routes = new createRouter({
   history: createWebHistory(),
   routes: [
+    ...ekstraRoute,
+    ...kmiRoute,
+    ...perpustakaanRoute,
     ...raporRoute,
     ...pengasuhanRoute,
     ...presensiRoute,
@@ -36,7 +43,7 @@ const routes = new createRouter({
 
 routes.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
+  authStore.setRoute(to)
   try {
     await authStore.checkUser().then(() => {
       console.log('User check completed')

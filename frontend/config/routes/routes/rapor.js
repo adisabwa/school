@@ -14,7 +14,7 @@ let routes = [
         children: [
             {
               path: '',
-              component: MainLayout,
+              component: () => import('@/layouts/MainLayout.vue'),
               meta: {
                   requiresAuth: true,
                   enterFromClass : "translate-x-full opacity-50",

@@ -20,7 +20,7 @@
     <table-data ref="tableData" :fields="fields" href="data/guru"
       :checked="true"  :pass-columns="['prefix','suffix','signature']"
       :showCreate="role == 'admin'" :showUpload="role == 'admin'"
-      :pass-columns-input="[]"
+      :pass-columns-input="['signature']"
       :dropdownItemProps="{
         delete: { show: false }
       }"
@@ -55,6 +55,7 @@
     import { reactive } from 'vue';
     import { mapActions, mapState } from 'pinia';
   import SignaturePad from '@/components/SignaturePad.vue';
+import { useAuthStore } from '@/config/stores/authStore'
   
   export default {
     name: "guru-list",

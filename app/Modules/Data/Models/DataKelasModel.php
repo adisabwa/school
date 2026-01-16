@@ -18,6 +18,7 @@ class DataKelasModel extends BaseModel
             'type' => 'left',
             'selects' => [
                 "nama nama_walas",
+                "prefix prefix_walas","suffix suffix_walas",
                 "TRIM(REPLACE(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,'')),'-',''))  nama_walas_lengkap",
                 "nama_arab nama_walas_arab",
                 "nbm nbm_walas",
@@ -31,6 +32,9 @@ class DataKelasModel extends BaseModel
             'type' => 'left',
             'selects' => ["{n}COUNT(sch__santri.id) jumlah_santri" ],
             'group_by' => ['{n}id_kelas'],
+            'condition' => [
+              "status='0'",
+            ]
           ],
         ];
     }

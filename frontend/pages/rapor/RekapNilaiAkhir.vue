@@ -27,6 +27,9 @@
             <el-button size="small" type="success" @click="downloadLedger">
               <icons icon="ri:file-excel-2-fill" /> Ledger Raport
             </el-button>
+            <el-button v-if="idUnit == 3" size="small" type="primary" @click="downloadRaport('smk')">
+              <icons icon="ri:file-pdf-2-fill" /> Unduh Raport SMK
+            </el-button>
             <el-button size="small" type="primary" @click="downloadRaport">
               <icons icon="ri:file-pdf-2-fill" /> Unduh Raport
             </el-button>
@@ -126,6 +129,7 @@
                   <td v-for="ujian in ['nilai_harian', 'uts', 'uas', 'nilai_rapor']"
                     :key="mKey"
                     :class="['text-center px-2',
+                      ujian == 'nilai_rapor' ? 'bg-emerald-50' : '',
                       mapel[ujian] > 0 && mapel[ujian] < 100 ? '' : 'bg-red-700 text-white']">
                     {{ mapel[ujian] }}
                   </td>
@@ -144,6 +148,8 @@
 <script>
   import { zip } from 'lodash';
 import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
+import { useDataStore } from '@/config/stores/dataStore'
   
   
   export default {
@@ -179,6 +185,7 @@ import { mapState } from 'pinia';
           id_semester:'',
           id_kelas:'',
         },
+        idUnit:'',
         params:{
           where:[],
         },
@@ -198,8 +205,14 @@ import { mapState } from 'pinia';
           this.getData()
       },
       'filter.id_kelas' (val){
-        if (!this.isEmpty(val))
+        if (!this.isEmpty(val)) {
           this.getData()
+          this.$http.get('data/kelas/get',{params:{id:val}})
+            .then(res => {
+              let kelas = res.data
+              this.idUnit = kelas.id_unit
+            })
+        }
       },
     },  
     computed: {
@@ -254,26 +267,42 @@ import { mapState } from 'pinia';
         })
       },
       downloadLedger(){
-        this.openLink(this.$siteUrl + `rapor/download_ledger?id_semester=${this.filter.id_semester}&id_kelas=${this.filter.id_kelas}`)
+        this.openLink(this.$siteUrl + `rapor/download_ledger_akhir?id_semester=${this.filter.id_semester}&id_kelas=${this.filter.id_kelas}&ujian=nilai_rapor`)
       },
       // downloadRaport(){
       //   this.openLink(this.$siteUrl + `rapor/download_raport?id_semester=${this.filter.id_semester}&id_kelas=${this.filter.id_kelas}`)
       // },
-      async downloadRaport() {
+      async downloadRaport(type = false) {
         this.showDownload = true;
         this.generating = true;
         this.files = [];
         let semesterText = this.filterFields.id_semester.options.find(opt => opt.value == this.filter.id_semester)?.label.replace(/\s+/g, '-').toUpperCase() || 'SEMESTER';
         let kelasText = this.filterFields.id_kelas.options.find(opt => opt.value == this.filter.id_kelas)?.label.replace(/\s+/g, '-').toUpperCase() || 'KELAS';
-        for (const santri of this.dataNilai) {
-          const id = santri.id_santri;
+        // for (const santri of this.dataNilai) {
+        //   const id = santri.id_santri;
+        //   try {
+        //     await this.fetchAndDownloadRaport(id);
+        //     console.log(`Report ${id} downloaded.`);
+        //   } catch (error) {
+        //     console.error(`Failed to download report ${id}:`, error);
+        //   }
+        // }
+
+        let i = 0;
+
+        do {
+          const id = this.dataNilai[i].id_santri;
+
           try {
-            await this.fetchAndDownloadRaport(id);
-            console.log(`Report ${id} downloaded.`);
-          } catch (error) {
-            console.error(`Failed to download report ${id}:`, error);
+            // tunggu sampai satu download selesai
+            await this.fetchAndDownloadRaport(id, type);
+            console.log(`Report ${id} selesai`);
+            i++;
+          } catch (e) {
+            console.error(`Gagal download ${id}:`, e);
           }
-        }
+
+        } while (i < this.dataNilai.length);
 
         console.log("All reports processed. Sending to zip...");
         this.generating = false;
@@ -289,7 +318,7 @@ import { mapState } from 'pinia';
           this.openPost(this.$siteUrl + 'download_zip', {
             files:this.files,
             delete_original: true,
-            zip_name: ('RAPORT-AKHIR-'+ semesterText + '-' + kelasText+'.zip').replace(' ', '-').replace('_', '-').replace('/','-'),
+            zip_name: ('RAPORT-AKHIR-'+ (type ? (type + '-') : '') + semesterText + '-' + kelasText+'.zip').replace(' ', '-').replace('_', '-').replace('/','-'),
           });
           this.showDownload = false;
           return
@@ -320,9 +349,9 @@ import { mapState } from 'pinia';
           console.error("Failed to zip/download files:", error);
         }
       },
-      async fetchAndDownloadRaport(id) {
+      async fetchAndDownloadRaport(id, type) {
         try {
-          const result = await this.$http.get('rapor/download_raport', {
+          const result = await this.$http.get('rapor/download_raport' + (type ? `_${type}` : ''), {
             params: {
               id_semester: this.filter.id_semester,
               id_kelas: this.filter.id_kelas,

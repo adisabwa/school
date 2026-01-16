@@ -5,25 +5,29 @@
       mt-7 sm:mt-2">
       <div class="w-full
         grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] [&_button]:m-0
-        gap-x-3 gap-y-2">
+        gap-x-3 gap-y-2
+        *:py-[15px] *:text-[12px]">
         <slot name="before-menu" :action="handleActionClick"></slot>
-        <el-button class="py-[15px]" type="primary" size="small" v-if="showUpload" @click="showUploadDialog = true">
+        <el-button  type="primary" v-if="showUploadNormal" @click="showUploadDialogNormal = true">
+          <icons icon="mdi:upload"/>
+          Upload Data</el-button>
+        <el-button  type="primary" v-if="showUpload" @click="showUploadDialog = true">
           <icons icon="mdi:upload"/>
           Import Data</el-button>
         <template v-if="showCreate">
-          <el-button class="py-[15px]" type="success" size="small" @click="handleActionClick({action:'add'})">
+          <el-button  type="success" @click="handleActionClick({action:'add'})">
             <icons icon="mdi:plus"/>
             Buat Baru</el-button>
-          <el-button class="py-[15px]" type="primary" size="small" @click="handleActionClick({action:'edit-all', id:1})">
+          <el-button  type="primary" @click="handleActionClick({action:'edit-all', id:1})">
             <icons icon="mdi:edit"/>
             Edit Bersama</el-button>
-          <el-button class="py-[15px]" type="danger" size="small" v-if="checked" @click="deleteMany">
+          <el-button  type="danger" v-if="checked" @click="deleteMany">
             <icons icon="mdi:trash"/>
             Delete Checklist</el-button>
         </template>
         <el-button type="success" 
           v-if="showDownload"
-          @click="handleActionClick({action:'download-excel'})" class="py-[15px]">
+          @click="handleActionClick({action:'download-excel'})" >
           <icons icon="mdi:download"/>
           Download Excel</el-button>
         <slot name="menu" :action="handleActionClick"></slot>
@@ -75,7 +79,7 @@
           </template>
         </el-table-column>
         <template v-for="(field, ind) in fields">
-          <slot :name="'before-'+field.nama_kolom" :field="field"></slot>
+          <slot :name="'before-'+field.nama_kolom" :field="field" :fields="fields"></slot>
           <el-table-column v-if="showColumns.length > 0 ? showColumns.includes(field.nama_kolom) : !passColumns.includes(field.nama_kolom)"
             :width="field.width" :align="field.align" :min-width="field.min_width" :max-width="field.max_width">
             <template #header="scope">
@@ -111,7 +115,7 @@
         </template>
         <slot name="default" :handleActionClick="handleActionClick"></slot>
         <el-table-column v-if="showDropdown"
-          width="150px" align="center">
+          width="100px" align="center">
           <template #default="scope">
             <el-dropdown trigger="click" @command="handleActionClick" class="max-sm:[&_*]:text-[11px] ">
               <el-button type="primary" size="small" class=""> 
@@ -167,31 +171,38 @@
       </el-row>
     </el-card>
 
-    <data-create ref="dateCreate" v-model:show="showAdd"
+    <data-create ref="dateCreate" v-model:show="showAdd" :key="keyCreate"
       v-model:form-value="valueForm"
       :title="title" :href="hrefStore ?? href + '/store'" :href-get="hrefGet ?? href + '/get'"
-      :fields="fieldsCreate"
+      :fields="fields"
       :pass-columns="passColumnsInput"
       :show-columns="showColumnsInput"
       :label-position="labelPosition"
+      :label-width="labelWidth"
+      :addValues="addValues"
       :data-id="editId" :type="dataType"
+      @changedValue="changedValue"
       @saved="onUpdated"></data-create>
     
-    <data-view ref="dataView" v-model:show="showView"
+    <data-view ref="dataView" v-model:show="showView" :key="keyCreate"
       v-model:form-value="valueForm"
       :title="title" :href-get="hrefGet ?? href + '/get'"
-      :fields="fieldsCreate"
+      :fields="fields"
       :pass-columns="passColumnsInput"
       :show-columns="showColumnsInput"
       :label-position="labelPosition"
+      :label-width="labelWidth"
       :data-id="editId" :type="dataType"
       :params="{
         id:editId
       }"
+      @changedValue="changedValue"
       @saved="onUpdated"></data-view>
       
     <excel-dialog v-model:show="showUploadDialog" :href="href + '/store_many'"      @saved="onUpdated" :fields="fields" :datas="datas" :options="options"
       :default-value="defaultValue"/>
+
+    <upload-dialog v-model:show="showUploadDialogNormal" :href="href + '/upload'"  @saved="onUpdated"/>
   </div>
 </template>
   
@@ -200,6 +211,7 @@
   import DataCreate from './DataCreate.vue'
   import DataView from './DataView.vue'
   import ExcelDialog from './ExcelDialog.vue'
+  import UploadDialog from './UploadDialog.vue'
 import { dropdownItemProps } from 'element-plus';
 
   export default {
@@ -271,6 +283,10 @@ import { dropdownItemProps } from 'element-plus';
         type:Boolean,
         default: true,
       },
+      showUploadNormal:{
+        type:Boolean,
+        default: false,
+      },
       title:{
         type:String,
         default: '',
@@ -299,19 +315,24 @@ import { dropdownItemProps } from 'element-plus';
         type: Object,
         default: {}
       },
+      labelWidth:{type:[String, Number], default: '150px',},
+      addValues: {type:[Object, Array], default: {}},
     },
-    emits:['update:checkedId','resetField','update:formValue'],
+    emits:['update:checkedId','resetField','update:formValue','changedFormValue'],
     components: {
       DataCreate,
       DataView,
       ExcelDialog,
+      UploadDialog,
     },
     data: function() {
       return {
+        keyCreate:1,
         page: [10,20,30,40,50],
         showAdd: false,
         showView: false,
         showUploadDialog: false,
+        showUploadDialogNormal: false,
         editId: '',
         loading: false,
         datas: [],
@@ -337,6 +358,7 @@ import { dropdownItemProps } from 'element-plus';
         this.paging.dataTotal = val.length;
         let checked = val.filter(d => d.checked).length
         this.checkAll = checked == val.length
+        this.paging.currentPage = 1
       },
       'paging.currentPage': function(val) {
         this.paging.offset = val * this.paging.perPage - this.paging.perPage;
@@ -367,6 +389,12 @@ import { dropdownItemProps } from 'element-plus';
           this.$emit('update:formValue', val);
         }
       },
+      // fields:{
+      //   deep: true,
+      //   handler(val){
+      //     this.keyCreate += 1
+      //   }
+      // }
     },
     computed: {
       datasFilter: function() {
@@ -450,6 +478,10 @@ import { dropdownItemProps } from 'element-plus';
           d.checked = val
         });
       },
+      changedValue(params){
+        // console.log('params', params)
+        this.$emit('changedFormValue', params);
+      },
       changeSort(ind, sort_val){
         let f = this.fields[ind]
         let o = this.order
@@ -525,30 +557,11 @@ import { dropdownItemProps } from 'element-plus';
       handleActionClick: function(obj) {
         var action = obj?.action;
         var id = obj?.id;
-        var cols = obj?.cols ?? [];
-        var pass = obj?.pass ?? [];
         
         if (!action) {
           return
         }
-        // console.log(obj, cols)
-        if (cols.length > 0) {
-          this.fieldsCreate = []
-          for (let index = 0; index < cols.length; index++) {
-            const element = cols[index];
-            this.fieldsCreate[element] = this.fields[element]
-          }
-        } else {
-          this.fieldsCreate = JSON.parse(JSON.stringify(this.fields));
-        }
-
-        if (pass.length > 0) {
-          for (let index = 0; index < pass.length; index++) {
-            const element = pass[index];
-            delete this.fieldsCreate[element]
-          }
-        }
-        // console.log(obj, this.fieldsCreate)
+        
         if (action == 'add') {
           this.showAdd = true;
           this.dataType = 'create';

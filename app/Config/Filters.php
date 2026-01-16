@@ -64,26 +64,32 @@ class Filters extends BaseConfig
     public array $filters = [
         'toolbar' => [
             'except' => [
-        'psb/admin/download_excel',
-        'psb/admin/download_many',
-        '*download_excel*',
-        '*download*',
+                'psb/admin/download_excel',
+                'psb/admin/download_many',
+                'rapor/download_raport_pengasuhan',
+                'rapor/download_raport',
+                '*download_excel*',
+                '*download*',
             ],
         ],
         'honeypot' => [
             'except' => [
-        'psb/admin/download_excel',
-        'psb/admin/download_many',
-        '*download_excel*',
-        '*download*',
+                'psb/admin/download_excel',
+                'psb/admin/download_many',
+                'rapor/download_raport_pengasuhan',
+                'rapor/download_raport',
+                '*download_excel*',
+                '*download*',
             ],
         ],
         'secureheaders' => [
             'except' => [
-        'psb/admin/download_excel',
-        'psb/admin/download_many',
-        '*download_excel*',
-        '*download*',
+            'psb/admin/download_excel',
+            'psb/admin/download_many',
+                'rapor/download_raport_pengasuhan',
+                'rapor/download_raport',
+            '*download_excel*',
+            '*download*',
             ],
         ],
 ];

@@ -81,6 +81,7 @@
   
  <script>
    import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
   
   export default {
     name: "psb",

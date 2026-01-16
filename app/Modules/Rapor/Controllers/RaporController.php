@@ -4,9 +4,10 @@ namespace Modules\Rapor\Controllers;
 
 use App\Controllers\BaseDataController;
 use App\Libraries\PdfBuilder;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\IOFactory as IOFactorySpreadsheet;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpWord\TemplateProcessor;
+use PhpOffice\PhpWord\IOFactory as IOFactoryWord;
 
 class RaporController extends BaseDataController
 {
@@ -32,29 +33,28 @@ class RaporController extends BaseDataController
         $id_semester = $this->request->getGetPost('id_semester');
         $id_kelas = $this->request->getGetPost('id_kelas');
         $id_santri = $this->request->getGetPost('id_santri');
-        $id_pembagian = $this->request->getGetPost('id_pembagian');
         if (empty($id_semester)) $id_semester = -1;
         if (empty($id_kelas)) $id_kelas = -1;
-        $ujian = $this->request->getGetPost('ujian') ?? 'uts';
+        $ujian = $this->request->getGetPost('ujian') ?? 'nilai_rapor';
 
         $order = $this->request->getGetPost('order') ?? ['no_presensi asc','nama asc'];
         $order = implode(',', $order);
 
         // var_dump($id_pembagian);
-        $whereIn = empty($id_pembagian) ? [] : ['id' => $id_pembagian];
+
+        $kelas = model('DataKelasModel')->getData($id_kelas);
 
         $mapel = $this->mapelPembagianModel->getAll(
             whereAnd: ['id_kelas' => $id_kelas, 'id_semester' => $id_semester],
-            whereIn: $whereIn, 
             order: 'nama_mapel asc');
 
         $mapels = [];
-        $mapel_ids = [];
         // $mapel = array_splice($mapel, 0, 15);
         foreach ($mapel as $key => $value) {
-            $mapels[$key] = (object) [
-                'id_pembagian_mapel' => $value->id,
+            $mapels[$value->id_mapel] = (object) [
+                'id_mapel' => $value->id_mapel,
                 'nama_mapel' => $value->nama_mapel,
+                'is_kejuruan' => $value->is_kejuruan,
                 'nama_mapel_arab' => $value->nama_mapel_arab ?? $value->nama_mapel,
                 'nilai_harian' => 0,
                 'uts' => 0,
@@ -62,7 +62,6 @@ class RaporController extends BaseDataController
                 'nilai_rapor' => 0,
                 'katrol1' => 0,
             ];
-            $mapel_ids[$value->id] = $key;
         }
 
         
@@ -130,10 +129,18 @@ class RaporController extends BaseDataController
                 'daerah' => $santri->daerah,
                 'daerah_arab' => $santri->daerah_arab,
                 'id_kelas' => $santri->id_kelas,
+                'tingkat' => $santri->tingkat,
+                'id_jurusan' => $santri->id_jurusan,
                 'rayon' => $kamar->rayon ?? '',
                 'kamar' => $kamar->kamar ?? '',
+                'kamar_arab' => ($kamar->rayon_arab ?? '')." - ".to_arabic_number($kamar->nomor ?? ''),
+                'nama_walas' => $kelas->nama_walas ?? '',
+                'nama_walas_lengkap' => $kelas->nama_walas_lengkap ?? '',
+                'nama_walas_arab' => $kelas->nama_walas_arab ?? '',
+                'nbm_walas' => $kelas->nbm_walas ?? '',
                 'nama_wamar' => $kamar->nama_wamar ?? '',
                 'nama_wamar_lengkap' => $kamar->nama_wamar_lengkap ?? '',
+                'nama_wamar_arab' => $kamar->nama_wamar_arab ?? '',
                 'wamar_signature' => $kamar->wamar_signature ?? '',
                 'nomor' => $kamar->nomor ?? '',
                 'mapel' => unserialize(serialize($mapels)),
@@ -144,14 +151,13 @@ class RaporController extends BaseDataController
         }
 
         // Ambil Nilai Raport KMI
-        $whereIn = empty($id_pembagian) ? [] : ['id_pembagian_mapel' => $id_pembagian];
         $saved_nilai = $this->model->getAll(
-            whereAnd: ['{n}id_kelas' => $id_kelas],
-            whereIn: $whereIn, 
+            whereAnd: ['id_kelas' => $id_kelas, 'id_semester' => $id_semester],
         );
+        // var_dump($saved_nilai);
         foreach ($saved_nilai as $key => $nilai) {
             $id_santri = $nilai->id_santri;
-            $ind_mapel = $mapel_ids[$nilai->id_pembagian_mapel];
+            $ind_mapel = $nilai->id_mapel;
             // var_dump($id_santri, $id_pembagian_mapel, $result[$id_santri]->nama, $nilai->uts);
             if(isset($result[$id_santri]) && isset($result[$id_santri]->mapel[$ind_mapel])){
                 $result[$id_santri]->mapel[$ind_mapel]->id = $nilai->id;
@@ -198,7 +204,7 @@ class RaporController extends BaseDataController
                 $index = "nilai_".($key+1);
                 if (isset($result[$id_santri]) && isset($result[$id_santri]->pengasuhan[$index])){
                     $result[$id_santri]->pengasuhan[$index]->nilai = $nilai->$index;
-                    $result[$id_santri]->total_nilai_pengasuhan += $nilai->$index;
+                    $result[$id_santri]->total_nilai_pengasuhan += (int)$nilai->$index;
                 }
             }
             
@@ -215,6 +221,7 @@ class RaporController extends BaseDataController
         }
 
         $newArr = unserialize(serialize($result));
+        // var_dump($ujian);
         usort($newArr, function($a, $b) use ($ujian){
             $compare = 0;
             if ($ujian) {
@@ -294,7 +301,7 @@ class RaporController extends BaseDataController
 
     public function get_nilai_rdm_all()
     {
-        $id_semester = model('DataSemesterModel')->get_semester_now()->id ?? -1;
+        $id_semester = model('DataSemesterModel')->getSemesterNow()->id ?? -1;
         $kelas = ['1','2','3','4','5','6'];
         $mapel = model('MapelModel')->getAll();
         foreach ($kelas as $key => $k) {
@@ -316,7 +323,7 @@ class RaporController extends BaseDataController
         
         $filename = APPPATH . '../templates/ledger-mid.xlsx';
         /**  Create a new Reader of the type that has been identified  **/
-        $spreadsheet = IOFactory::load($filename);
+        $spreadsheet = IOFactorySpreadsheet::load($filename);
         $sheet = $spreadsheet->setActiveSheetIndex(0);
 
         $images = backupImageInfo($spreadsheet);
@@ -334,13 +341,30 @@ class RaporController extends BaseDataController
             // duplicateColumn($spreadsheet, $cols[$i], $cols[$i+1]);
         }
         $sheet->mergeCells("D14:".$cols[$count_mapel - 1]."14");
-        $sheet->setCellValue("A10", "DAFTAR NILAI UJIAN TENGAH SEMESTER ".strtoupper($semester->semester ?? ''));
+        switch ($ujian) {
+            case 'uts':
+                $title = "UJIAN TENGAH SEMESTER";
+                break;
+            case 'uas':
+                $title = "UJIAN AKHIR SEMESTER";
+                break;
+            case 'nilai_rapor':
+                $title = "RAPOR AKHIR SEMESTER";
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+        $sheet->setCellValue("A10", "DAFTAR NILAI $title ".strtoupper($semester->semester ?? ''));
         $sheet->setCellValue("A11", "KMI PONDOK PESANTREN MUHAMMADIYAH DARUL ARQAM PATEAN ");
         $sheet->setCellValue("A12", "TAHUN AJARAN ".strtoupper($semester->tahun_ajaran ?? ''));
         reApplyImageInfo($spreadsheet, $images);
 
         $row = 16;
         // var_dump($kelas);exit;
+        $total = "total_$ujian";
+        $rata = "rata_$ujian";
         foreach ($result as $key => $santri) {
             duplicateRow($spreadsheet, $row, $row + 1);
             $sheet->setCellValue("A$row", $key + 1);
@@ -349,10 +373,10 @@ class RaporController extends BaseDataController
             
             $santri->mapel = array_values($santri->mapel);
             foreach ($santri->mapel as $key => $mapel) {
-               $sheet->setCellValue($cols[$key] . $row, $mapel->uts);
+               $sheet->setCellValue($cols[$key] . $row, $mapel->$ujian);
             }
-            $sheet->setCellValue($cols[$count_mapel] . $row, $santri->total_uts);
-            $sheet->setCellValue($cols[$count_mapel + 1] . $row, $santri->rata_uts);
+            $sheet->setCellValue($cols[$count_mapel] . $row, $santri->$total);
+            $sheet->setCellValue($cols[$count_mapel + 1] . $row, $santri->$rata);
             $sheet->setCellValue($cols[$count_mapel + 2] . $row, $santri->ranking);
             // $sheet->insertNewRowBefore($row + 1);
             $row++;
@@ -363,7 +387,7 @@ class RaporController extends BaseDataController
             $sheet->getColumnDimension($col)->setWidth(3.2);
         }
         
-        $filename = "LEDGER MID SEMESTER";
+        $filename = "LEDGER $title";
         // exit;
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename="'.$filename.'.xlsx"');
@@ -376,7 +400,153 @@ class RaporController extends BaseDataController
         header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
         header('Pragma: public'); // HTTP/1.0
 
-        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer = IOFactorySpreadsheet::createWriter($spreadsheet, 'Xlsx');
+        // ob_end_clean();
+        $writer->save('php://output');
+    }
+
+    public function download_ledger_akhir()
+    {
+        $id_semester = $this->request->getGetPost('id_semester');
+        $id_kelas = $this->request->getGetPost('id_kelas');
+        $semester = model('DataSemesterModel')->getData($id_semester);
+        $kelas = model('DataKelasModel')->getData($id_kelas);
+        $ujian = $this->request->getGetPost('ujian') ?? 'uts';
+
+        $result = array_values($this->rekapitulasi(TRUE));
+        // return $this->respondCreated($result);
+        $filename = APPPATH . '../templates/ledger-akhir.xlsx';
+        /**  Create a new Reader of the type that has been identified  **/
+        $spreadsheet = IOFactorySpreadsheet::load($filename);
+        $sheet = $spreadsheet->setActiveSheetIndex(0);
+
+        $images = backupImageInfo($spreadsheet);
+        // var_dump($images);exit;
+        switch ($ujian) {
+            case 'uts':
+                $title = "UJIAN TENGAH SEMESTER";
+                break;
+            case 'uas':
+                $title = "UJIAN AKHIR SEMESTER";
+                break;
+            case 'nilai_rapor':
+                $title = "RAPOR AKHIR SEMESTER";
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+        // $sheet->setCellValue("A10", "DAFTAR NILAI $title ".strtoupper($semester->semester ?? ''));
+        // $sheet->setCellValue("A11", "KMI PONDOK PESANTREN MUHAMMADIYAH DARUL ARQAM PATEAN ");
+        // $sheet->setCellValue("A12", "TAHUN AJARAN ".strtoupper($semester->tahun_ajaran ?? ''));
+        // reApplyImageInfo($spreadsheet, $images);
+
+        $start = 'L';
+        $cols = excelColumnRange($start,'AAA');
+        $mapels = array_values(reset($result)->mapel);
+        $count_mapel = count($mapels);
+        // $count_mapel = 2;
+        // var_dump($cols, $count_mapel);
+        for ($i=0; $i < $count_mapel; $i++) { 
+            $next = $i + 1;
+            $_1 = ($i * 4) ;
+            $_2 = ($i * 4) + 1;
+            $_3 = ($i * 4) + 2;
+            $_4 = ($i * 4) + 3;
+            // var_dump($cols[$_1],$cols[$_2],$cols[$_3],$cols[$_4]);
+            $sheet->setCellValue($cols[$_1] ."2", "NH");
+            $sheet->setCellValue($cols[$_2] ."2", "UTS");
+            $sheet->setCellValue($cols[$_3] ."2", "UAS");
+            $sheet->setCellValue($cols[$_4] ."2", "Rpr");
+            // var_dump($cols[$_1] ."1:".$cols[$_4] ."1");
+            if ((($next + 1) < $count_mapel)) {
+                $_nc = $_4+1;
+                $sheet->insertNewColumnBefore($cols[$_nc], 4);
+            }
+            // $sheet->mergeCells($cols[$_1] ."1:".$cols[$_4] ."1");
+            $sheet->setCellValue($cols[$_1] ."1", $mapels[$i]->nama_mapel ?? '');
+            $sheet->getColumnDimension($cols[$_1])->setWidth(4);
+            $sheet->getColumnDimension($cols[$_2])->setWidth(4);
+            $sheet->getColumnDimension($cols[$_3])->setWidth(4);
+            $sheet->getColumnDimension($cols[$_4])->setWidth(4);
+            for ($j=1; $j <= 50 ; $j++) { 
+                $sheet->getStyle($cols[$_1].$j)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+                $sheet->getStyle($cols[$_2].$j)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+                $sheet->getStyle($cols[$_3].$j)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+                $sheet->getStyle($cols[$_4].$j)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+                $sheet->getStyle($cols[$_1].$j)->getFill()->getStartColor()->setRGB('33CCCC'); // biru
+                $sheet->getStyle($cols[$_2].$j)->getFill()->getStartColor()->setRGB('33CCCC'); // biru
+                $sheet->getStyle($cols[$_3].$j)->getFill()->getStartColor()->setRGB('33CCCC'); // biru
+                $sheet->getStyle($cols[$_4].$j)->getFill()->getStartColor()->setRGB('AAD08E'); // biru
+            }
+            $sheet->mergeCells($cols[$_1] ."1:".$cols[$_4] ."1");
+            // duplicateColumn($spreadsheet, $cols[$i], $cols[$i+1]);
+        }
+        $row = 3;
+        // var_dump($kelas);exit;
+        foreach ($result as $key => $santri) {
+            $sheet->setCellValue("A$row", $key + 1);
+            $sheet->setCellValue("B$row", $santri->nama);
+            $sheet->setCellValue("C$row", $santri->nama_arab);
+            $sheet->setCellValue("D$row", $kelas->kelas ?? '');
+            $sheet->setCellValue("E$row", $kelas->kelas_arab ?? '');
+            $sheet->setCellValue("F$row", $santri->stb);
+            $sheet->setCellValue("G$row", $santri->nama_walas_lengkap);
+            $sheet->setCellValue("H$row", $santri->nama_walas_arab);
+            $sheet->setCellValue("I$row", $santri->nbm_walas);
+            $sheet->setCellValue("J$row", $santri->daerah);
+            $sheet->setCellValue("K$row", $santri->daerah_arab);
+            
+            $santri->mapel = array_values($santri->mapel);
+            foreach ($santri->mapel as $key => $mapel) {
+                $_1 = ($key * 4) ;
+                $_2 = ($key * 4) + 1;
+                $_3 = ($key * 4) + 2;
+                $_4 = ($key * 4) + 3;
+               $sheet->setCellValue($cols[$_1] . $row, $mapel->nilai_harian);
+               $sheet->setCellValue($cols[$_2] . $row, $mapel->uts);
+               $sheet->setCellValue($cols[$_3] . $row, $mapel->uas);
+               $sheet->setCellValue($cols[$_4] . $row, $mapel->nilai_rapor);
+            }
+            $last_col = $count_mapel * 4;
+            $sakit = $santri->pengasuhan['sakit']->nilai ?? 0;
+            $izin = $santri->pengasuhan['izin']->nilai ?? 0;
+            $alfa = $santri->pengasuhan['alfa']->nilai ?? 0;
+            $sheet->setCellValue($cols[$last_col] . $row, $sakit);
+            $sheet->setCellValue($cols[$last_col + 1] . $row, $izin);
+            $sheet->setCellValue($cols[$last_col + 2] . $row, $alfa);
+
+            $kelakuan = $santri->pengasuhan['nilai_7']->nilai ?? 0;
+            $kebersihan = $santri->pengasuhan['nilai_11']->nilai ?? 0;
+            $eskul = $santri->pengasuhan['nilai_15']->nilai ?? 0;
+            $sheet->setCellValue($cols[$last_col + 3] . $row, get_sikap_short($kelakuan));
+            $sheet->setCellValue($cols[$last_col + 4] . $row, get_sikap_short($kebersihan));
+            $sheet->setCellValue($cols[$last_col + 5] . $row, get_sikap_short($kebersihan));
+            $sheet->setCellValue($cols[$last_col + 6] . $row, get_sikap_short($eskul));
+            $sheet->setCellValue($cols[$last_col + 7] . $row, get_sikap_short($eskul));
+            $sheet->setCellValue($cols[$last_col + 8] . $row, get_sikap_short($eskul));
+            $sheet->setCellValue($cols[$last_col + 9] . $row, $santri->total_nilai_rapor);
+            $sheet->setCellValue($cols[$last_col + 10] . $row, $santri->rata_nilai_rapor);
+            $sheet->setCellValue($cols[$last_col + 11] . $row, $santri->ranking);
+            // $sheet->insertNewRowBefore($row + 1);
+            $row++;
+        }
+        
+        $filename = "LEDGER $title";
+        // // exit;
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="'.$filename.'.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0
+
+        $writer = IOFactorySpreadsheet::createWriter($spreadsheet, 'Xlsx');
         // ob_end_clean();
         $writer->save('php://output');
     }
@@ -388,7 +558,7 @@ class RaporController extends BaseDataController
         $id_santri = $this->request->getGetPost('id_santri');
         $semester = model('DataSemesterModel')->getData($id_semester);
         $kelas = model('DataKelasModel')->getData($id_kelas);
-
+        
         $result = array_values($this->rekapitulasi(TRUE));
         $ujian = $this->request->getGetPost('ujian') ?? 'uts';
         // $result = array_splice($result, 0, 4);
@@ -409,7 +579,7 @@ class RaporController extends BaseDataController
             return $this->respond([
                 'message' => 'Tidak ada data santri',
             ], 401);
-        // return $this->respondCreated($kelas);
+        // return $this->respondCreated($santri);
         $templateProcessor->setValue("tahun_ajaran", $semester->tahun_ajaran);
         $templateProcessor->setValue("nama", strtoupper($santri->nama));
         $templateProcessor->setValue("nama_arab", $santri->nama_arab);
@@ -421,7 +591,8 @@ class RaporController extends BaseDataController
         $templateProcessor->setValue("semester_small_arab", $semester->semester == 'gasal' ? 'ٱلْفَصْلُ ٱلْفَرْدِيُّ' : 'ٱلْفَصْلُ الزَّوْجِيُّ');
         $templateProcessor->setValue("kelas", $kelas->kelas);
         $kelas_part = str_split($kelas->kelas);
-        $templateProcessor->setValue("kelas_arab", class_to_arabic($kelas_part[0]).'"'.to_arabic_number($kelas_part[1] ?? '').'"');
+        $templateProcessor->setValue("kelas_huruf_arab", class_to_arabic($kelas_part[0]));
+        $templateProcessor->setValue("kelas_arab", to_arabic_number($kelas_part[1] ?? ''));
         $templateProcessor->cloneRow('no', count($santri->mapel));
 
         foreach ($santri->mapel as $index => $mapel) {
@@ -451,9 +622,9 @@ class RaporController extends BaseDataController
         $templateProcessor->setValue("total_santri_arab", to_arabic_number($kelas->jumlah_santri));
 
         //Kelakuan dan Kepribadian
-        $kelakuan = $santri->pengasuhan['nilai_9']->nilai ?? 0;
-        $kebersihan = $santri->pengasuhan['nilai_13']->nilai ?? 0;
-        $eskul = $santri->pengasuhan['nilai_17']->nilai ?? 0;
+        $kelakuan = $santri->pengasuhan['nilai_7']->nilai ?? 0;
+        $kebersihan = $santri->pengasuhan['nilai_11']->nilai ?? 0;
+        $eskul = $santri->pengasuhan['nilai_15']->nilai ?? 0;
         $templateProcessor->setValue("kelakuan", get_sikap($kelakuan));
         $templateProcessor->setValue("kelakuan_arab", get_sikap_arab($kelakuan));
         $templateProcessor->setValue("kebersihan", get_sikap($kebersihan));
@@ -488,8 +659,143 @@ class RaporController extends BaseDataController
         else 
             $templateProcessor->setValue("ttd", "");
 
+        $nama_walas = trim(shortenName(ucwords(strtolower($kelas->nama_walas)), 32));
+        $nama_walas = trim($kelas->prefix_walas).$nama_walas.trim($kelas->suffix_walas);
+        // var_dump($kelas->nama_walas_lengkap, $nama_walas);
         $templateProcessor->setValue("nbm_walas", $kelas->nbm_walas ?? '-');
-        $templateProcessor->setValue("nama_walas", $kelas->nama_walas_lengkap ?? '-');
+        $templateProcessor->setValue("nama_walas", $nama_walas ?? '-');
+        $templateProcessor->setValue("nama_walas_arab", $kelas->nama_walas_arab ?? '-');
+
+        // Set HTTP headers to force download
+        $fileName = "$santri->nama.docx";
+        $savePath = WRITEPATH . 'documents/' . $fileName;
+
+        // Make sure directory exists
+        if (!is_dir(WRITEPATH . 'documents')) {
+            mkdir(WRITEPATH . 'documents', 0777, true);
+        }
+
+        // Save the processed file
+        $templateProcessor->saveAs($savePath);
+        
+        return $this->respondCreated($savePath);
+
+    }
+    
+    public function download_raport_smk()
+    {
+        $id_semester = $this->request->getGetPost('id_semester');
+        $id_kelas = $this->request->getGetPost('id_kelas');
+        $id_santri = $this->request->getGetPost('id_santri');
+        $semester = model('DataSemesterModel')->getData($id_semester);
+        $kelas = model('DataKelasModel')->getData($id_kelas);
+        
+        $result = array_values($this->rekapitulasi(TRUE));
+        $ujian = $this->request->getGetPost('ujian') ?? 'uts';
+        // $result = array_splice($result, 0, 4);
+        $templatePath = APPPATH . '../templates/raport-smk.docx';
+        $templateProcessor = new TemplateProcessor($templatePath);
+
+        $santri = [];
+        foreach ($result as $key => $value) {
+            if ($value->id_santri == $id_santri)
+                $santri = $value;
+        }
+
+        if (empty($santri))
+            return $this->respond([
+                'message' => 'Tidak ada data santri',
+            ], 401);
+        // return $this->respondCreated($santri);
+        $templateProcessor->setValue("tahun_ajaran", $semester->tahun_ajaran);
+        $templateProcessor->setValue("nama", strtoupper($santri->nama));
+        $templateProcessor->setValue("stb", $santri->stb ?? '');
+        $templateProcessor->setValue("nisn", $santri->nisn ?? '');
+        $templateProcessor->setValue("semester_small", ucfirst($semester->semester));
+        $templateProcessor->setValue("kelas", $kelas->kelas);
+        switch ($kelas->tingkat) {
+            case '4': $fase = 'D'; break;
+            case '5': $fase = 'E'; break;
+            case '6': $fase = 'F'; break;
+            default: $fase = '-'; break;
+        }
+        $templateProcessor->setValue("fase", $fase);
+
+        $list_mapels = [];
+        foreach ($santri->mapel as $index => $mapel) {
+            $list_mapels[$mapel->id_mapel] = $mapel;
+        }
+
+        $list_mapel = unserialize(RAPOR_SMK_MAPEL_KET);
+        $mapels = $list_mapel[$kelas->tingkat][$kelas->id_jurusan];
+
+        // return $this->respondCreated($mapels);
+        $templateProcessor->cloneRow('no', count($mapels['umum']));
+        $i = 1;
+        foreach ($mapels['umum'] as $index => $mapel) {
+            $score = $list_mapels[$index];
+            $templateProcessor->setValue("no#{$i}", $i);
+            $templateProcessor->setValue("mapel#{$i}", $mapel['label']);
+            $templateProcessor->setValue("kompetensi#{$i}", $mapel['kompetensi'] ?? '-');
+            $templateProcessor->setValue("{$ujian}#{$i}", $score->{$ujian});
+            $i++;
+        }
+
+        $templateProcessor->cloneRow('no_kejuruan', count($mapels['kejuruan']));
+        $i = 1;
+        foreach ($mapels['kejuruan'] as $index => $mapel) {
+            $score = $list_mapels[$index];
+            $templateProcessor->setValue("no_kejuruan#{$i}", $i);
+            $templateProcessor->setValue("mapel_kejuruan#{$i}", $mapel['label']);
+            $templateProcessor->setValue("kompetensi_kejuruan#{$i}", $mapel['kompetensi'] ?? '-');
+            $templateProcessor->setValue("{$ujian}_kejuruan#{$i}", $score->{$ujian});
+            $i++;
+        }
+        $total_text = "total_{$ujian}";
+        $templateProcessor->setValue("$total_text", $santri->$total_text);
+        
+        //Kelakuan dan Kepribadian
+        $kelakuan = $santri->pengasuhan['nilai_7']->nilai ?? 0;
+        $kebersihan = $santri->pengasuhan['nilai_11']->nilai ?? 0;
+        $eskul = $santri->pengasuhan['nilai_15']->nilai ?? 0;
+        $templateProcessor->setValue("kelakuan", get_sikap($kelakuan));
+        $templateProcessor->setValue("kelakuan_arab", get_sikap_arab($kelakuan));
+        $templateProcessor->setValue("kebersihan", get_sikap($kebersihan));
+        $templateProcessor->setValue("hw", get_sikap($eskul));
+        $templateProcessor->setValue("muhadloroh", get_sikap($eskul));
+        $templateProcessor->setValue("ts", get_sikap($eskul));
+        $templateProcessor->setValue("hw_aktif", get_sikap_aktif($eskul));
+        $templateProcessor->setValue("muhadloroh_aktif", get_sikap_aktif($eskul));
+        $templateProcessor->setValue("ts_aktif", get_sikap_aktif($eskul));
+        //Kehadiran
+        $sakit = $santri->pengasuhan['sakit']->nilai ?? 0;
+        $templateProcessor->setValue("sakit", $sakit);
+        $templateProcessor->setValue("sakit_arab", to_arabic_number($sakit));
+        $izin = $santri->pengasuhan['izin']->nilai ?? 0;
+        $templateProcessor->setValue("izin", $izin);
+        $templateProcessor->setValue("izin_arab", to_arabic_number($izin));
+        $alfa = $santri->pengasuhan['alfa']->nilai ?? 0;
+        $templateProcessor->setValue("alfa", $alfa);   
+        $templateProcessor->setValue("alfa_arab", to_arabic_number($alfa));
+
+        $templateProcessor->setValue("catatan", '');   
+        $templateProcessor->setValue("kokurikuler", '');   
+
+        // Wali Kelas
+        if (!empty($kelas->walas_signature))
+            $templateProcessor->setImageValue('ttd', [
+                'path' => $kelas->walas_signature,
+                'height' => 80,
+                'ratio' => true
+            ]);
+        else 
+            $templateProcessor->setValue("ttd", "");
+
+        $nama_walas = trim(shortenName(ucwords(strtolower($kelas->nama_walas)), 32));
+        $nama_walas = trim($kelas->prefix_walas).$nama_walas.trim($kelas->suffix_walas);
+        // var_dump($kelas->nama_walas_lengkap, $nama_walas);
+        $templateProcessor->setValue("nbm_walas", $kelas->nbm_walas ?? '-');
+        $templateProcessor->setValue("nama_walas", $nama_walas ?? '-');
         $templateProcessor->setValue("nama_walas_arab", $kelas->nama_walas_arab ?? '-');
 
         // Set HTTP headers to force download
@@ -508,12 +814,14 @@ class RaporController extends BaseDataController
 
     }
 
-    
     public function download_raport_pengasuhan()
     {
+        while (ob_get_level() > 0) { ob_end_clean(); }
+
         $id_semester = $this->request->getGetPost('id_semester');
         $id_kelas = $this->request->getGetPost('id_kelas');
         $semester = model('DataSemesterModel')->getData($id_semester);
+        $id_santri = $this->request->getGetPost('id_santri');
         // $kelas = model('DataKelasModel')->getData($id_kelas);
 
         $result = array_values($this->rekapitulasi(TRUE));
@@ -522,7 +830,16 @@ class RaporController extends BaseDataController
 
         $templateProcessor = new TemplateProcessor($templatePath);
 
-        $santri = reset($result);
+        $santri = [];
+        foreach ($result as $key => $value) {
+            if ($value->id_santri == $id_santri)
+                $santri = $value;
+        }
+
+        if (empty($santri))
+            return $this->respond([
+                'message' => 'Tidak ada data santri',
+            ], 401);
         
         // return $this->respondCreated($santri);
         $templateProcessor->setValue("tahun_ajaran", $semester->tahun_ajaran);
@@ -536,7 +853,8 @@ class RaporController extends BaseDataController
         $templateProcessor->setValue("semester_small_arab", $semester->semester == 'gasal' ? 'ٱلْفَصْلُ ٱلْفَرْدِيُّ' : 'ٱلْفَصْلُ الزَّوْجِيُّ');
         $templateProcessor->setValue("kelas", $santri->kelas);
         $kelas_part = str_split($santri->kelas);
-        $templateProcessor->setValue("kelas_arab", class_to_arabic($kelas_part[0]).'"'.to_arabic_number($kelas_part[1] ?? '').'"');
+        $templateProcessor->setValue("kelas_huruf_arab", class_to_arabic($kelas_part[0]));
+        $templateProcessor->setValue("kelas_arab", to_arabic_number($kelas_part[1] ?? ''));
 
         for ($i=1; $i < 18; $i++) { 
             $index = "nilai_$i";
@@ -560,29 +878,61 @@ class RaporController extends BaseDataController
 
         // Wali Kamar
         // $santri->wamar_signature = model('DataGuruModel')->getData(1)->signature ?? '';
-        if (!empty($santri->wamar_signature))
+        if (!empty($santri->wamar_signature)) {
+            parse_str(parse_url($santri->wamar_signature, PHP_URL_QUERY), $params);
+            $relative = $params['file'] ?? '';
+            $relative = urldecode($relative);
+            $filepath = WRITEPATH. $relative;
+            // var_dump($filepath);exit;
             $templateProcessor->setImageValue('ttd', [
-                'path' => $santri->wamar_signature,
+                'path' => $filepath,
                 'height' => 80,
                 'ratio' => true
             ]);
+        }
+        else 
+            $templateProcessor->setValue("ttd", "");
+
         $templateProcessor->setValue("nbm_wamar", $santri->nbm_wamar ?? '-');
         $templateProcessor->setValue("nama_wamar", $santri->nama_wamar_lengkap ?? '-');
         $templateProcessor->setValue("nama_wamar_arab", $santri->nama_wamar_arab ?? '-');
 
         // Set HTTP headers to force download
-        $fileName = "$santri->nama.docx";
-        $savePath = WRITEPATH . 'documents/' . $fileName;
+        $fileName = "$santri->nama-PENGASUHAN";
+        $fileName =  preg_replace('/[^A-Za-z0-9_\-]/', '-',$fileName);
+        $savePath = WRITEPATH . "documents/$fileName.docx";
 
         // Make sure directory exists
         if (!is_dir(WRITEPATH . 'documents')) {
             mkdir(WRITEPATH . 'documents', 0777, true);
         }
 
+        // @ob_end_clean();
+        // ini_set('output_buffering', 'off');
+        // ini_set('zlib.output_compression', '0');
         // Save the processed file
         $templateProcessor->saveAs($savePath);
-        
+
         return $this->respondCreated($savePath);
+
+
+        // var_dump(file_exists($savePath), $savePath);
+        // Convert ke PDFif (!file_exists($savePath)) {
+        $zip = new \ZipArchive();
+        if ($zip->open($savePath) === TRUE) {
+            // zip valid
+            $zip->close();
+        } else {
+            return $this->fail("DOCX is internally corrupted");
+        }
+        $phpWord = IOFactoryWord::load($savePath, 'Word2007');
+        \PhpOffice\PhpWord\Settings::setPdfRendererPath(ROOTPATH . 'vendor/dompdf/dompdf');
+        \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
+
+        $pdfFile = WRITEPATH . "documents/$fileName.pdf";
+        IOFactoryWord::createWriter($phpWord, 'PDF')->save($pdfFile);
+
+        return $this->respondCreated($pdfFile);
 
     }
 }

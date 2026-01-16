@@ -72,6 +72,7 @@
     
     import { reactive } from 'vue';
     import { mapActions, mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
   
   export default {
     name: "santri-list",
@@ -119,8 +120,8 @@
           id_kelas:{nama_kolom:'id_kelas', view_kolom:'kelas', label:'Kls', sortable:true, width:'60px', align:'center'},
           nama:{nama_kolom:'nama', label:'Nama Santri', sortable:true, min_width:'150px'},
           nama_arab:{nama_kolom:'nama_arab', label:'Nama Arab', sortable:true, min_width:'100px'},
-          id_daerah:{nama_kolom:'id_daerah', view_kolom:'daerah', label:'Asal', sortable:true, width:'100px', options:[],input:'select', align:'center'},
-          stb:{nama_kolom:'stb', label:'STB', sortable:true, width:'60px', align:'center'},
+          id_daerah:{nama_kolom:'id_daerah', view_kolom:'daerah', label:'Asal', sortable:true, width:'150px', options:[],input:'select', align:'center'},
+          stb:{nama_kolom:'stb', label:'STB', sortable:true, width:'100px', align:'center'},
         },
         fieldsAdd:{
           id_kamar:{
@@ -179,7 +180,11 @@
     methods: {
       getInitial: async function() {
           this.loading = true;
-          await this.$http.get('/data/kamar/options')
+          await this.$http.get('/data/kamar/options',{
+            params:{
+              order:['komplek','rayon'],
+            }
+          })
             .then(result => {
               this.loading = false;
               var res = result.data;

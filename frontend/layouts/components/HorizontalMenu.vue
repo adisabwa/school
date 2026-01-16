@@ -173,13 +173,9 @@
   </div>
 </template>
 
-<script setup>
-  const authStore = useAuthStore()
-   
-</script>
-
 <script>
 import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
 
 export default {
   name: 'horizontal-menu',

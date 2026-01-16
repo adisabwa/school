@@ -1,5 +1,3 @@
-import PublicLayout from '@/layouts/PublicLayout.vue'
-import MainLayout from '@/layouts/MainLayout.vue'
 
 import config from '@/config/url'
 const baseUrl = config.baseUrl
@@ -16,7 +14,7 @@ let routes = [
         children: [
           {
               path: '',
-              component: PublicLayout,
+              component: () => import('@/layouts/PublicLayout.vue'),
               meta: {
                 enterFromClass : "translate-x-full opacity-0",
                 enterToClass : "opacity-50",
@@ -69,7 +67,7 @@ let routes = [
           },
           {
               path: 'admin',
-              component: MainLayout,
+              component: () => import('@/layouts/MainLayout.vue'),
               meta: {
                 requiresAuth: true,
                 allowedRoles:['admin'],

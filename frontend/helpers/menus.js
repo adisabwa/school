@@ -41,9 +41,9 @@ let topMenu = [
   },
   {
     app:'presensi',
-    label:"Presensi Guru",
+    label:"Presensi",
     route:{
-      admin:'kelas-presensi',
+      all:'presensi-dashboard',
     },
     color:'orange-100',
     darkColor:'orange-500',
@@ -54,12 +54,24 @@ let topMenu = [
     app:'kmi',
     label:"KMI",
     route:{
-      admin:'admin-kmi',
+      all:'kmi-dashboard',
     },
     color:'green-100',
     darkColor:'green-500',
     textColor:'orange-700',
     image:baseUrl + 'assets/images/icons/online-learning.png',
+  },
+  {
+    app:'perpustakaan',
+    label:"Perpustakaan",
+    route:{
+      admin:'perpustakaan-dashboard',
+      guru:'perpustakaan-dashboard',
+    },
+    color:'rose-100',
+    darkColor:'rose-500',
+    textColor:'purple-700',
+    image:baseUrl + 'assets/images/icons/library.png',
   },
   {
     app:'saving',

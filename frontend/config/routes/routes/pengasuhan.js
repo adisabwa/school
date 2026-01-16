@@ -14,7 +14,7 @@ let routes = [
         children: [
             {
                 path: '',
-                component: MainLayout,
+                component: () => import('@/layouts/MainLayout.vue'),
                 meta: {
                     requiresAuth: true,
                     enterFromClass : "scale-0 opacity-50",
@@ -24,6 +24,15 @@ let routes = [
                     allowedRoles: ['admin','wamar'],
                 },
                 children: [
+                  {
+                    path: 'teacher',
+                    name: 'teacher-check-pengasuhan', 
+                    component: () => import('@/pages/data/GuruList.vue'),
+                    meta: {
+                        pageTitle: "<b>Verifikasi Data Guru</b>",
+                        allowedRoles: ['admin','wamar','guru','walas'],
+                    }
+                  },
                   {
                     path: '',
                     name: 'admin-pengasuhan', 

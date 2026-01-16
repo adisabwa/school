@@ -34,7 +34,7 @@
       <div>
         <div class="mt-[110px] mx-5 text-white z-[2]
           flex flex-col items-center">
-          <div class="w-full px-6 mt-0 z-[1]
+          <div class="w-full mt-0 z-[1]
             text-white leading-[1.3]">
             Assalamu'alaikum,<br/>
             <div class="text-xl font-semibold truncate">{{ user.nama }}</div>
@@ -144,13 +144,9 @@
   </div>
 </template>
 
-<script setup>
-  const authStore = useAuthStore()
-   
-</script>
-
 <script>
 import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
 
 export default {
   name: 'vertical-menu',

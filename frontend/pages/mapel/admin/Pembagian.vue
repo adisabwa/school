@@ -17,6 +17,8 @@
         href="mapel/admin/pembagian" 
         :params="params"
         :show-search="false"
+        :show-upload="false"
+        :show-upload-normal="true"
         :title="'Data Mata Pelajaran'"
         v-model:checked-id="ids"
         :fields="fields"
@@ -55,6 +57,8 @@
 
 <script>
 import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
+import { useDataStore } from '@/config/stores/dataStore'
 
 
 export default {
@@ -73,15 +77,21 @@ export default {
           input:'select',
           options: [],
         },
-        'id_guru' : {
-          nama_kolom:'id_guru',
-          label:'Nama Guru',
-          input:'select',
-          options: [],
-        },
         'id_kelas' : {
           nama_kolom:'id_kelas',
           label:'Kelas',
+          input:'select',
+          options: [],
+        },
+        'id_mapel' : {
+          nama_kolom:'id_mapel',
+          label:'Mata Pelajaran',
+          input:'select',
+          options: [],
+        },
+        'id_guru' : {
+          nama_kolom:'id_guru',
+          label:'Nama Guru',
           input:'select',
           options: [],
         },
@@ -91,6 +101,7 @@ export default {
         id_guru:null,
         id_kelas:null,
         id_semester:null,
+        id_mapel:null,
       },
       params:{
         where:[],
@@ -146,6 +157,12 @@ export default {
             this.filter.id_semester = res[0].value
             this.loading = false
           });
+        await this.$http.get('/mapel/admin/options')
+          .then(result => {
+            var res = result.data;
+            this.filterFields.id_mapel.options = res
+            this.loading = false
+          });
       },
   },
   created: function() {
@@ -156,11 +173,6 @@ export default {
   },
   mounted: function() {
     let vm = this
-    vm.sizeWindow = window.innerWidth
-    window.addEventListener('resize', () => {
-      vm.sizeWindow = window.innerWidth
-    });
-    this.searchData()
   },
 }
 </script>

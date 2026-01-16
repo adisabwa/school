@@ -32,7 +32,7 @@ class MapelRecordPembelajaranController extends BaseDataController
         $tanggal = '2025-08-28';
         // var_dump($semester_now, $check_sesi);
 
-        $hari = get_hari($tanggal);
+        $hari = getHari($tanggal);
         $check_record = $this->model->getAll(whereAnd: [
             'id_sesi' => $id_sesi,
             'tanggal' => $tanggal,

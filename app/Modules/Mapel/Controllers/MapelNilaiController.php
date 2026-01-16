@@ -24,51 +24,54 @@ class MapelNilaiController extends BaseDataController
 
     public function index($return_data = FALSE)
     {
-        $id_pembagian_mapel = $this->request->getGetPost('id_pembagian_mapel') ?? -1;
-        $id_pembagian_mapels = $this->request->getGetPost('id_pembagian_mapels') ?? ['-1'];
+        $id_semester = $this->request->getGetPost('id_semester') ?? -1;
+        $id_kelas = $this->request->getGetPost('id_kelas') ?? -1;
+        $id_mapel = $this->request->getGetPost('id_mapel') ?? -1;
+        if (!is_array($id_kelas))
+            $id_kelas = [$id_kelas];
+        if (!is_array($id_mapel))
+            $id_mapel = [$id_mapel];
         $order = $this->request->getGetPost('order') ?? ['no_presensi asc','nama asc'];
         $order = implode(',', $order);
-        $pembagian = $this->mapelPembagianModel->find($id_pembagian_mapel) ?? NULL;
-        $pembagianss = $this->mapelPembagianModel->getAll(whereIn: ['id' => $id_pembagian_mapels]) ?? [];
-        // var_dump($this->mapelPembagianModel->getLastQuery());
-        $saved_nilai = $this->model->getAll(
-            whereAnd: ['id_pembagian_mapel' => $id_pembagian_mapel],
-            orWhereIn: ['id_pembagian_mapel' => $id_pembagian_mapels],
-        );
-        // var_dump($saved_nilai);exit;
-        $id_kelas = $pembagian->id_kelas ?? -1;
-        $id_kelass = empty($pembagianss) ? [-1] : array_unique(array_map(function($a){
-            return $a->id_kelas;
-        }, $pembagianss));
-        // var_dump($id_kelas, $id_kelass);
-        // exit;
-        $santris = $this->santriModel->getAll(
-            whereAnd: ['id_kelas' => $id_kelas, 'status' => '0'], 
-            orWhereIn: ['id_kelas' => $id_kelass],
-            order: $order
-        );
+
 
         $result = [];
-        foreach ($saved_nilai as $key => $value) {
-            $result[$value->id_santri] = $value;
+        foreach ($id_kelas as $key => $_id_kelas) {
+            foreach ($id_mapel as $key => $_id_mapel) {
+                // var_dump($this->mapelPembagianModel->getLastQuery());
+                $saved_nilai = $this->model->getAll(whereAnd:[
+                    'id_semester' => $id_semester,
+                    'id_kelas' => $_id_kelas,
+                    'id_mapel' => $_id_mapel,
+                ]);
+                
+                $santris = $this->santriModel->getAll(whereAnd: [
+                    'id_kelas' => $_id_kelas,
+                ], order: $order );
+
+                foreach ($saved_nilai as $key => $value) {
+                    $result[$value->id_santri] = $value;
+                }
+                // var_dump($santris, $result);
+                array_walk($santris, function($a) use ($id_semester, $_id_kelas, $_id_mapel, $result) {
+                    $a->id_santri = $id_santri = $a->id;
+                    // var_dump($id_santri, $result[$id_santri]);
+                    $a->id = $result[$id_santri]->id ?? -1;
+                    $a->id_semester = $id_semester;
+                    $a->id_kelas = $_id_kelas;
+                    $a->id_mapel = $_id_mapel;
+                    $a->nilai = (object)[
+                        'nilai_harian' => $result[$id_santri]->nilai_harian ?? 0,
+                        'uts' => $result[$id_santri]->uts ?? 0,
+                        'uas' => $result[$id_santri]->uas ?? 0,
+                        'nilai_rapor' => $result[$id_santri]->nilai_rapor ?? 0,
+                        'katrol1' => $result[$id_santri]->katrol1 ?? 0,
+                        'katrol2' => $result[$id_santri]->katrol2 ?? 0,
+                    ];
+                    return $a;
+                });
+            }
         }
-        
-        // var_dump($santris, $result);
-        array_walk($santris, function($a) use ($id_pembagian_mapel, $result) {
-            $a->id_santri = $id_santri = $a->id;
-            // var_dump($id_santri, $result[$id_santri]);
-            $a->id = $result[$id_santri]->id ?? -1;
-            $a->id_pembagian_mapel = $id_pembagian_mapel;
-            $a->nilai = (object)[
-                'nilai_harian' => $result[$id_santri]->nilai_harian ?? 0,
-                'uts' => $result[$id_santri]->uts ?? 0,
-                'uas' => $result[$id_santri]->uas ?? 0,
-                'nilai_rapor' => $result[$id_santri]->nilai_rapor ?? 0,
-                'katrol1' => $result[$id_santri]->katrol1 ?? 0,
-                'katrol2' => $result[$id_santri]->katrol2 ?? 0,
-            ];
-            return $a;
-        });
 
         if ($return_data)
             return $santris;
@@ -151,6 +154,8 @@ class MapelNilaiController extends BaseDataController
             $mapels[$key] = (object) [
                 'id_pembagian_mapel' => $value->id,
                 'nama_mapel' => $value->nama_mapel,
+                'nama_guru' => $value->nama_guru,
+                'nama_guru_arab' => $value->nama_guru_arab,
                 'nama_mapel_arab' => $value->nama_mapel_arab ?? $value->nama_mapel,
                 'nilai_harian' => 0,
                 'uts' => 0,
@@ -246,160 +251,15 @@ class MapelNilaiController extends BaseDataController
 
         return $this->respondCreated(array_values($result));
     }
-
-    public function download_ledger()
+    
+    public function get_progres()
     {
         $id_semester = $this->request->getGetPost('id_semester');
         $id_kelas = $this->request->getGetPost('id_kelas');
-        $semester = model('DataSemesterModel')->getData($id_semester);
-        $kelas = model('DataKelasModel')->getData($id_kelas);
-        $ujian = $this->request->getGetPost('ujian') ?? 'uts';
-
-        $result = array_values($this->rekapitulasi(TRUE));
+        $id_guru = $this->request->getGetPost('id_guru');
         
-        $filename = APPPATH . '../templates/ledger-mid.xlsx';
-        /**  Create a new Reader of the type that has been identified  **/
-        $spreadsheet = IOFactory::load($filename);
-        $sheet = $spreadsheet->setActiveSheetIndex(0);
-
-        $images = backupImageInfo($spreadsheet);
-        // var_dump($images);exit;
-        $cols = excelColumnRange('D','AAA');
-        $mapels = array_values(reset($result)->mapel);
-        $count_mapel = count($mapels);
-        // var_dump($cols, $count_mapel);
-        for ($i=0; $i < $count_mapel; $i++) { 
-            $next = $i + 1;
-            // var_dump($cols[$i], $cols[$next]);
-            $sheet->setCellValue($cols[$i] ."15", $mapels[$i]->nama_mapel ?? '');
-            if ($next < $count_mapel)
-                $sheet->insertNewColumnBefore($cols[$next]);
-            // duplicateColumn($spreadsheet, $cols[$i], $cols[$i+1]);
-        }
-        $sheet->mergeCells("D14:".$cols[$count_mapel - 1]."14");
-        $sheet->setCellValue("A10", "DAFTAR NILAI UJIAN TENGAH SEMESTER ".strtoupper($semester->semester ?? ''));
-        $sheet->setCellValue("A11", "KMI PONDOK PESANTREN MUHAMMADIYAH DARUL ARQAM PATEAN ");
-        $sheet->setCellValue("A12", "TAHUN AJARAN ".strtoupper($semester->tahun_ajaran ?? ''));
-        reApplyImageInfo($spreadsheet, $images);
-
-        $row = 16;
-        // var_dump($kelas);exit;
-        foreach ($result as $key => $santri) {
-            duplicateRow($spreadsheet, $row, $row + 1);
-            $sheet->setCellValue("A$row", $key + 1);
-            $sheet->setCellValue("B$row", $santri->nama);
-            $sheet->setCellValue("C$row", $kelas->kelas ?? '');
-            
-            $santri->mapel = array_values($santri->mapel);
-            foreach ($santri->mapel as $key => $mapel) {
-               $sheet->setCellValue($cols[$key] . $row, $mapel->uts);
-            }
-            $sheet->setCellValue($cols[$count_mapel] . $row, $santri->total_uts);
-            $sheet->setCellValue($cols[$count_mapel + 1] . $row, $santri->rata_uts);
-            $sheet->setCellValue($cols[$count_mapel + 2] . $row, $santri->ranking);
-            // $sheet->insertNewRowBefore($row + 1);
-            $row++;
-        }
-        for ($i=0; $i < $count_mapel; $i++) { 
-            $col = $cols[$i];
-            // $sheet->getColumnDimension($col)->setAutoSize(true);
-            $sheet->getColumnDimension($col)->setWidth(3.2);
-        }
-        
-        $filename = "LEDGER MID SEMESTER";
-        // exit;
-        header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename="'.$filename.'.xlsx"');
-        header('Cache-Control: max-age=0');
-        // If you're serving to IE 9, then the following may be needed
-        header('Cache-Control: max-age=1');
-        // If you're serving to IE over SSL, then the following may be needed
-        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
-        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
-        header('Pragma: public'); // HTTP/1.0
-
-        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        // ob_end_clean();
-        $writer->save('php://output');
-    }
-
-    public function download_raport()
-    {
-        $id_semester = $this->request->getGetPost('id_semester');
-        $id_kelas = $this->request->getGetPost('id_kelas');
-        $semester = model('DataSemesterModel')->getData($id_semester);
-        $kelas = model('DataKelasModel')->getData($id_kelas);
-
-        $result = array_values($this->rekapitulasi(TRUE));
-        $ujian = $this->request->getGetPost('ujian') ?? 'uts';
-        // $result = array_splice($result, 0, 4);
-        if ($ujian == 'uts'){
-            $templatePath = APPPATH . '../templates/raport-mid.docx';
-        } else {
-            $templatePath = APPPATH . '../templates/raport-akhir.docx';
-        }
-        $templateProcessor = new TemplateProcessor($templatePath);
-
-        $santri = reset($result);
-        // return $this->respondCreated($kelas);
-        $templateProcessor->setValue("tahun_ajaran", $semester->tahun_ajaran);
-        $templateProcessor->setValue("nama", strtoupper($santri->nama));
-        $templateProcessor->setValue("nama_arab", $santri->nama_arab);
-        $templateProcessor->setValue("stb", $santri->stb ?? '');
-        $templateProcessor->setValue("stb_arab", to_arabic_number($santri->stb) ?? '');
-        $templateProcessor->setValue("daerah", $santri->daerah ?? '');
-        $templateProcessor->setValue("daerah_arab", $santri->daerah_arab ?? '');
-        $templateProcessor->setValue("semester_small", ucfirst($semester->semester));
-        $templateProcessor->setValue("semester_small_arab", $semester->semester == 'gasal' ? 'ٱلْفَصْلُ ٱلْفَرْدِيُّ' : 'ٱلْفَصْلُ الزَّوْجِيُّ');
-        $templateProcessor->setValue("kelas", $kelas->kelas);
-        $kelas_part = str_split($kelas->kelas);
-        $templateProcessor->setValue("kelas_arab", class_to_arabic($kelas_part[0]).'"'.to_arabic_number($kelas_part[1] ?? '').'"');
-        $templateProcessor->cloneRow('no', count($santri->mapel));
-
-        foreach ($santri->mapel as $index => $mapel) {
-            $i = $index + 1;
-            $templateProcessor->setValue("no#{$i}", $i);
-            $templateProcessor->setValue("mapel#{$i}", $mapel->nama_mapel);
-            $templateProcessor->setValue("{$ujian}#{$i}", $mapel->{$ujian});
-            $templateProcessor->setValue("{$ujian}_bilangan#{$i}", number_to_words($mapel->{$ujian}));
-            $templateProcessor->setValue("no_arab#{$i}", to_arabic_number($i));
-            $templateProcessor->setValue("mapel_arab#{$i}", $mapel->nama_mapel_arab ?? $mapel->nama_mapel);
-            $templateProcessor->setValue("{$ujian}_arab#{$i}", to_arabic_number($mapel->{$ujian}));
-            $templateProcessor->setValue("{$ujian}_bilangan_arab#{$i}", number_to_words($mapel->{$ujian},'ar'));
-        }
-        $total_text = "total_{$ujian}";
-        $rata_text = "rata_{$ujian}";
-        $templateProcessor->setValue("$total_text", $santri->$total_text);
-        $templateProcessor->setValue("$rata_text", $santri->$rata_text);
-        $templateProcessor->setValue("{$total_text}_arab", to_arabic_number($santri->$total_text));
-        $templateProcessor->setValue("{$rata_text}_arab", to_arabic_number($santri->$rata_text));
-        $templateProcessor->setValue("tanggal", dateIndo(date('Y-m-d')));
-        $templateProcessor->setValue("tanggal_arab", dateIndoArabic(date('Y-m-d')));
-        $templateProcessor->setValue("predikat", get_predikat($santri->$rata_text));
-        $templateProcessor->setValue("predikat_arab", get_predikat_arab($santri->$rata_text));
-        $templateProcessor->setValue("peringkat", $santri->ranking);
-        $templateProcessor->setValue("peringkat_arab", to_arabic_number($santri->ranking));
-        $templateProcessor->setValue("total_santri", $jumlah_santri);
-        $templateProcessor->setValue("total_santri_arab", to_arabic_number($jumlah_santri));
-
-        
-        $templateProcessor->setValue("nbm_walas", $kelas->nbm_walas ?? '-');
-        $templateProcessor->setValue("nama_walas", $kelas->nama_walas_lengkap ?? '-');
-        $templateProcessor->setValue("nama_walas_arab", $kelas->nama_walas_arab ?? '-');
-        // Set HTTP headers to force download
-        $fileName = "$santri->nama.docx";
-        $savePath = WRITEPATH . 'documents/' . $fileName;
-
-        // Make sure directory exists
-        if (!is_dir(WRITEPATH . 'documents')) {
-            mkdir(WRITEPATH . 'documents', 0777, true);
-        }
-
-        // Save the processed file
-        $templateProcessor->saveAs($savePath);
-        
-        return $this->respondCreated($savePath);
-
+        $summary = $this->model->get_progres($id_semester, $id_kelas, $id_guru);
+        // var_dump($this->model->getLastQuery());
+        return $this->respondCreated($summary);
     }
 }

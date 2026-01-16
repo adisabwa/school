@@ -29,6 +29,7 @@
 
 <script>
 import { mapState, mapActions } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
 
 export default {
   name: "filter-anggota",

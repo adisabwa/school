@@ -43,10 +43,11 @@
       </div>
       <div class="h-20 w-full"/>
     </div>
-  </template>
+</template>
   
 <script>
    import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
   
   export default {
     name: "psb",

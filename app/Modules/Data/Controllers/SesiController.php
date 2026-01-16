@@ -18,7 +18,7 @@ class SesiController extends BaseDataController
     
     public function semester_now()
     {
-        $data = $this->model->get_semester_now();
+        $data = $this->model->getSemesterNow();
         return $this->respond($data);
     }
 }

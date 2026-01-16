@@ -125,6 +125,7 @@
 <script>
   import { mapState } from 'pinia';
   import ViewTable from '@/components/form/ViewTable.vue'
+import { useAuthStore } from '@/config/stores/authStore'
   
   export default {
     name: "psb",

@@ -49,6 +49,9 @@ class Autoload extends AutoloadConfig
         'Modules\Presensi'      => APPPATH . 'Modules/Presensi',
         'Modules\Pengasuhan'      => APPPATH . 'Modules/Pengasuhan',
         'Modules\Rapor'      => APPPATH . 'Modules/Rapor',
+        'Modules\Perpustakaan'      => APPPATH . 'Modules/Perpustakaan',
+        'Modules\Kmi'      => APPPATH . 'Modules/Kmi',
+        'Modules\Ekstra'      => APPPATH . 'Modules/Ekstra',
     ];
 
     /**

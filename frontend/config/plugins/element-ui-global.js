@@ -9,6 +9,7 @@ import File from '@/components/File.vue'
 import Star from '@/components/Star.vue'
 import FloatingScroll from '@/components/FloatingScroll.vue'
 import Form from '@/components/form/Form.vue'
+import ViewTable from '@/components/form/ViewTable.vue'
 import DateWheelPicker from '@/components/form/DateWheelPicker.vue'
 import FloatingSelect from '@/components/form/FloatingSelect.vue'
 import TableData from '@/components/table/TableData.vue'
@@ -30,6 +31,7 @@ export default {
     app.component('date-wheel-picker', DateWheelPicker)
     app.component('floating-select', FloatingSelect)
     app.component('form-comp', Form)
+    app.component('view-table', ViewTable)
     app.component('table-data', TableData)
     app.component('table-freeze', TableFreeze)
     app.component('floating-scroll', FloatingScroll)

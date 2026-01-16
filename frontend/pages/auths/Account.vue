@@ -91,6 +91,8 @@
 import { mapState } from 'pinia';
 import ViewTable from '@/components/form/ViewTable.vue';
 import { unset } from 'lodash';
+import { useAuthStore } from '@/config/stores/authStore'
+
 const authStore = useAuthStore()
 
 export default {

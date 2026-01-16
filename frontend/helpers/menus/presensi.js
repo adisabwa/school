@@ -1,11 +1,17 @@
 let saving = [
   {
-    index: 'kelas-presensi',
-    route: 'kelas-presensi',
-    icon:'codicon:checklist',
-    label:'Presensi Guru',
+    index: 'presensi-dashboard',
+    route: 'presensi-dashboard',
+    icon:'material-symbols:dashboard',
+    label:'Dashboard',
     type:'menu',
-    roles:['admin'],
+  },
+  {
+    index: 'presensi-report',
+    route: 'presensi-report',
+    icon:'carbon:report',
+    label:'Laporan',
+    type:'menu',
   },
 ]
 export default saving

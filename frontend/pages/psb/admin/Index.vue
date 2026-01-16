@@ -84,6 +84,7 @@
   import { mapState } from 'pinia';
   import { setStatusText, setStatusType } from '@/helpers/psb'
   import PsbView from '../View.vue'
+import { useAuthStore } from '@/config/stores/authStore'
   
 
   export default {

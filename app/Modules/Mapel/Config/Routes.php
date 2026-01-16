@@ -22,12 +22,17 @@ $routes->group('mapel', [
         $routes->add('rekapitulasi', [MapelNilai::class, 'rekapitulasi']);
         $routes->add('download_ledger', [MapelNilai::class, 'download_ledger']);
         $routes->add('download_raport', [MapelNilai::class, 'download_raport']);
-        $routes->add('get_progress', [MapelNilai::class, 'get_progress']);
+        $routes->add('download_raport_smk', [MapelNilai::class, 'download_raport_smk']);
+        $routes->add('get_progres', [MapelNilai::class, 'get_progres']);
         $routes->add('download_template', [MapelNilai::class, 'download_template']);
     });
 
     //------------------------------------- Data Pembagian Mapel -----------------------------------------------
     $routes->add('pembagian/get', [MapelPembagianAdmin::class, 'get']);
+
+    
+    //------------------------------------- Data Penjadwalan Mapel -----------------------------------------------
+    $routes->add('penjadwalan', [MapelPenjadwalanAdmin::class, 'index']);
 
 });
 
@@ -44,6 +49,7 @@ $routes->group('mapel/admin', [
     $routes->group('pembagian', static function ($routes) {
         $routes->add('/', [MapelPembagianAdmin::class,'index']);
         $routes->add('get', [MapelPembagianAdmin::class, 'get']);
+        $routes->add('get_where', [MapelPembagianAdmin::class, 'get_where']);
         $routes->add('store', [MapelPembagianAdmin::class, 'store'], [ 'filter' => 'api-validation:sch_aka_pembagian_mapel']);
         $routes->add('store_many', [MapelPembagianAdmin::class, 'store_many'], [ 'filter' => 'api-validation:sch_aka_pembagian_mapel,true']);
         $routes->add('dashboard', [MapelPembagianAdmin::class, 'dashboard']);
@@ -53,6 +59,7 @@ $routes->group('mapel/admin', [
         $routes->add('download_many', [MapelPembagianAdmin::class,'download_many']);
         $routes->add('options', [MapelPembagianAdmin::class,'options']);
         $routes->add('options_penjadwalan', [MapelPembagianAdmin::class,'options_penjadwalan']);
+        $routes->add('upload', [MapelPembagianAdmin::class,'upload']);
 
     });
 
@@ -66,17 +73,7 @@ $routes->group('mapel/admin', [
         $routes->add('delete/(:any)', [MapelPenjadwalanAdmin::class,'delete/$1']);
         $routes->add('delete_many', [MapelPenjadwalanAdmin::class,'delete_many']);
         $routes->add('options', [MapelPenjadwalanAdmin::class,'options']);
-        
-        //------------------------------------- Penjadwalan Detail Mapel -----------------------------------------------
-        $routes->group('detail', static function ($routes) {
-            $routes->add('/', [MapelPenjadwalanDetailAdmin::class,'index']);
-            $routes->add('get', [MapelPenjadwalanDetailAdmin::class, 'get']);
-            $routes->add('store', [MapelPenjadwalanDetailAdmin::class, 'store'], [ 'filter' => 'api-validation:sch_aka_penjadwalan_detail']);
-            $routes->add('store_many', [MapelPenjadwalanDetailAdmin::class, 'store_many'], [ 'filter' => 'api-validation:sch_aka_penjadwalan_detail,true']);
-            $routes->add('delete/(:any)', [MapelPenjadwalanDetailAdmin::class,'delete/$1']);
-            $routes->add('delete_many', [MapelPenjadwalanDetailAdmin::class,'delete_many']);
-            $routes->add('options', [MapelPenjadwalanDetailAdmin::class,'options']);
-        });
+        $routes->add('upload', [MapelPenjadwalanAdmin::class,'upload']);
     });
 });
 

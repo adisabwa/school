@@ -11,6 +11,7 @@
     
     import { reactive } from 'vue';
     import { mapActions, mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
   
   export default {
     name: "sesi-list",

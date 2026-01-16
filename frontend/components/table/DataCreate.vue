@@ -19,6 +19,8 @@
           :show-columns="showColumns"
           :href="href"
           :href-get="hrefGet"
+          :addValues="addValues"
+          @changedValue="changedValue"
           @saved="submitted"  
           @error="saving=false"
           :show-submit="false"
@@ -93,8 +95,9 @@
         type: String,
         default: 'top'
       },
+      addValues: {type:[Object, Array], default: {}},
     },
-    emits:['update:show','saved','update:formValue'],
+    emits:['update:show','saved','update:formValue','changedValue'],
     data: function() {
       return {
         saving: false,
@@ -124,6 +127,13 @@
           this.valueForm = val;
         }
       },
+      fields: {
+        deep: true,
+        handler(val) {
+        //  this.key += 1
+        //  console.log('key', this.key)
+        }
+      },
       valueForm: {
         deep: true,
         handler(val) {
@@ -145,10 +155,13 @@
           this.key = this.key + 1
           // console.log('reset-form',this.key)
         }, 300)
+      },
+      changedValue(params){
+        this.$emit('changedValue', params)
       }
     },
-    created() {
-  
+    mounted() {
+      console.log('field-data', this.fields)
     }
   }
   </script>

@@ -7,7 +7,7 @@
       v-fixed-to-position="'90vh'"
       target="#table-base-wrapper"
       offset-y="90vh"
-      width="100%"/>
+      width="95%"/>
     <div id="table-base-wrapper" class="mx-3 overflow-x-auto mb-5" @scroll="(event) => {
       let tFreezeHead = jquery('#table-freeze-head')
       let target = event.target

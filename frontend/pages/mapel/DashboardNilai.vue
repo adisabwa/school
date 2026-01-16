@@ -21,21 +21,24 @@
         </form-comp>
         <div v-loading="loading">
           <div class="m-2 p-3 border border-solid border-slate-200 shadow-md">
-            <h2 class="text-lg font-bold m-0 mb-1">Total Progress Pengisian Nilai</h2>
+            <h2 class="text-lg font-bold m-0 mb-1">Total Progress Pengisian Nilai {{ role == 'guru' ? user.nama : runFunction({
+              data: this.filter.id_kelas, 
+              options: this.filterFields.id_kelas.options,
+            }) }}</h2>
             <table class="w-full">
               <tbody>
                 <tr v-for="u in ujians">
                   <td width="100">{{ getLabel(u) }}</td>
                   <td width="10">:</td>
                   <td>
-                    <el-progress :percentage="percentage[u]"
+                    <el-progress :percentage="percentage[`persentase_${u}`]"
                       class="w-full"
                       :stroke-width="18"
                       :show-text="true"
-                      :status="percentage[u] < 100 ? 'warning' : ''"
+                      :status="percentage[`persentase_${u}`] < 100 ? 'warning' : ''"
                       striped
                       >
-                      {{ percentage[u] }} % 
+                      {{ percentage[`persentase_${u}`] }} % 
                     </el-progress>
                   </td>
                 </tr>
@@ -61,7 +64,7 @@
                                 <icons v-if="role == 'guru'" icon="bxs:edit" class="m-0"/>
                                 <icons v-else icon="mdi:eye" class="m-0"/>
                             </el-button>
-                            {{ role == 'guru' ? 'Kelas ' + mapel.kelas + ' - ': ''}} {{ mapel.nama_mapel }}
+                            {{ role == 'guru' ? 'Kelas ' + mapel.kelas + ' - ': ''}} {{ mapel.nama_mapel }} | {{ mapel.nama_guru }}
                           </div>
                         </td>
                       </tr>
@@ -69,14 +72,14 @@
                         <td width="80">{{ getLabel(u) }}</td>
                         <td width="10">:</td>
                         <td>
-                          <el-progress :percentage="mapel[u]"
+                          <el-progress :percentage="mapel[`persentase_${u}`]"
                             class="w-full *:text-sm"
                             :stroke-width="18"
                             :show-text="true"
-                            :status="mapel[u] < 100 ? 'warning' : ''"
+                            :status="mapel[`persentase_${u}`] < 100 ? 'warning' : ''"
                             striped
                             >
-                            {{ mapel[u] }} %
+                            {{ mapel[`persentase_${u}`] }} %
                           </el-progress>
                         </td>
                       </tr>
@@ -92,8 +95,11 @@
 </template>
   
 <script>
+import { formItemValidateStates } from 'element-plus';
 import { forEach, isObject } from 'lodash';
 import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
+import { useDataStore } from '@/config/stores/dataStore'
   
   
   export default {
@@ -118,26 +124,23 @@ import { mapState } from 'pinia';
             nama_kolom:'id_kelas',
             input:'select',
             options:{},
-            hidden:true,
-            multiple:true,
+            hidden:false,
           },
         },
         filter:{
-          id_semester:'',
-          id_kelas:'',
+          id_semester:'-1',
+          id_kelas:'-1',
         },
-        ids_kelas:[],
         params:{
           where:[],
         },
         editId:-1,
         ids:[],
         formKey:0,
-        dataNilai:[],
         percentage:{
-          nilai_harian:0,
-          uts:0,
-          uas:0,
+          persentase_nilai_harian:0,
+          persentase_uts:0,
+          persentase_uas:0,
         },
         percentageMapel:[],
         ujians:['nilai_harian','uts','uas'],
@@ -159,22 +162,15 @@ import { mapState } from 'pinia';
     watch: {
       'filter.id_semester' (val){
         if (!this.isEmpty(val)) {
-          let all_kelas = this.filterFields.id_semester.options[val]?.options ?? []
-          // console.log(all_kelas, isObject(all_kelas), Object.values(all_kelas))
-          all_kelas = isObject(all_kelas) ? Object.values(all_kelas) : all_kelas
-          this.filterFields.id_kelas.options = all_kelas
-          if (this.role == 'guru')
-            this.ids_kelas = all_kelas.map(d => d.value)
-          else
-            this.filter.id_kelas = this.storeFilters?.id_kelas ?? all_kelas[0]?.value
+          if (this.role == 'admin') this.filter.id_kelas = this.filterFields.id_kelas.options[0].value
+          if (this.role == 'guru') {
+            this.filter.id_kelas = ''
+            this.getData()
+          }
+          else this.filter.id_kelas = this.user.id_kelas
         }
       },
       'filter.id_kelas' (val){
-        if (!this.isEmpty(val))
-          this.ids_kelas = [val]
-      },
-      'ids_kelas' (val){
-        console.log('ids_kelas', val)
         if (!this.isEmpty(val))
           this.getData()
       },
@@ -193,133 +189,56 @@ import { mapState } from 'pinia';
     },
     methods: {
       getInitial: async function() {
-          this.loading = true;
-          this.initial = true
-          let where = {}
-          switch (this.role) {
-            case 'guru':
-              where.id_guru = this.user.id_guru
-              break;
-            case 'walas':
-              where.id_kelas = this.user.id_kelas
-              // where.id_kelas = 1
-              break;
-            default:
-              break;
-          }
-          this.$http.get('mapel/admin/pembagian/options',{
-            params:{
-              where:where
-            }
+        this.initial = true
+        await this.$http.get('data/kelas/options')
+          .then(res => {
+            this.initial = false
+            let data = res.data
+            this.filterFields.id_kelas.options = data
           })
-            .then(res => {
-              let data = res.data
-              this.filterFields.id_semester.options = data
-              this.filter.id_semester = this.storeFilters?.id_semester ? this.storeFilters?.id_semester : Object.values(data)[0]?.value
-              setTimeout(() => {
-                if (this.role == 'guru') {
-
-                } else {
-                  this.filterFields.id_kelas.hidden = false
-                  if (this.role == 'walas') {
-                    this.filterFields.id_kelas.readonly = true
-                  }
-                }
-              },500)
-              setTimeout(() => {
-                this.initial = false
-              },1000)
-              this.loading = false
+        await this.$http.get('data/semester/options')
+          .then(res => {
+            let data = res.data
+            this.filterFields.id_semester.options = data
+            this.filter.id_semester = this.storeFilters?.id_semester ? this.storeFilters?.id_semester : data[0]?.value
+            console.log('id_semester', this.filter.id_semester)
+            if (this.role != 'admin') this.filterFields.id_kelas.hidden = true;
           })
       },
       async getData(){
-        this.dataNilai = []
         this.percentageMapel = []
-        for (const id_kelas of this.ids_kelas) {
-          let optKelas = this.filterFields.id_kelas?.options ?? {}
-          // console.log('optKelas', optKelas)
-          let kelas = Object.values(optKelas).find(d => d.value === id_kelas)
-          try {
-            await this.fetchData(kelas);
-            console.log(`Get Data `);
-          } catch (error) {
-            console.error(`Failed to get data`, error);
+        this.$http.get('mapel/nilai/get_progres',{
+          params: {
+            id_semester: this.filter.id_semester,
+            id_kelas: this.filter.id_kelas,
+            id_guru: this.role == 'guru' ? this.user.id_guru : null,
           }
-        }
-        
-        try {
-          console.log("Counting percentages...");
-          // this.countPercentage()
-        } catch (error) {
-          console.error("Failed to count:", error);
-        }
+        }).then(result => {
+          this.loading = false
+          let res = result.data
+          this.percentageMapel = res
+          this.countPercentage()
+        })
       },
-      async fetchData(kelas) {
-        try {
-          this.loading = true
-          let id_pembagian = (kelas?.options ?? []).map(d => d.value)
-          this.$http.get('mapel/nilai/rekapitulasi',{
-            params: {
-              id_semester: this.filter.id_semester,
-              id_kelas: kelas.value,
-              id_pembagian: id_pembagian,
-            }
-          }).then(result => {
-            this.loading = false
-            let res = result.data
-            this.dataNilai = [...this.dataNilai, ...res]
-            this.countPercentage(res)
-          })
-        } catch (error) {
-          console.error(`Error get data:`, error);
-          throw error; // allow caller to handle it
-        }
-      },
-      countPercentage(data){
-        let percentage = []
-        let countStudent = data.length
-        if (countStudent <= 0)
-          return
-        let countMapel = data[0].mapel.length
-        data[0].mapel.forEach(d => {
-          percentage.push({
-            nama_mapel:d.nama_mapel,
-            kelas:data[0].kelas,
-            id_kelas:data[0].id_kelas,
-            nilai_harian:0,
-            uts:0,
-            uas:0,
-          })
+      countPercentage(){
+        this.percentage.persentase_nilai_harian = 0
+        this.percentage.persentase_uts = 0
+        this.percentage.persentase_uas = 0
+
+        this.percentageMapel.forEach(m => {
+          m.persentase_nilai_harian = Math.floor(m.persentase_nilai_harian * 100)
+          m.persentase_uts = Math.floor(m.persentase_uts * 100)
+          m.persentase_uas = Math.floor(m.persentase_uas * 100)
+          this.percentage.persentase_nilai_harian += m.persentase_nilai_harian
+          this.percentage.persentase_uts += m.persentase_uts
+          this.percentage.persentase_uas += m.persentase_uas
         })
 
-        data.forEach(s => {
-          s.mapel.forEach((m, key) => {
-            if (m.nilai_harian > 0)
-              percentage[key].nilai_harian++
-            if (m.uts > 0)
-              percentage[key].uts++
-            if (m.uas > 0)
-              percentage[key].uas++
-          })
-        })
-
-        this.percentage.nilai_harian = 0
-        this.percentage.uts = 0
-        this.percentage.uas = 0
-
-        percentage.forEach(m => {
-          m.nilai_harian = Math.floor(m.nilai_harian / countStudent * 100)
-          m.uts = Math.floor(m.uts / countStudent * 100)
-          m.uas = Math.floor(m.uas / countStudent * 100)
-          this.percentage.nilai_harian += m.nilai_harian
-          this.percentage.uts += m.uts
-          this.percentage.uas += m.uas
-        })
-
-        this.percentageMapel = [...this.percentageMapel, ...percentage]
-        this.percentage.nilai_harian = Math.floor(this.percentage.nilai_harian / countMapel)
-        this.percentage.uts = Math.floor(this.percentage.uts / countMapel)
-        this.percentage.uas = Math.floor(this.percentage.uas / countMapel)
+        let countMapel = this.percentageMapel.length
+        this.percentage.persentase_nilai_harian = Math.floor(this.percentage.persentase_nilai_harian / countMapel)
+        this.percentage.persentase_uts = Math.floor(this.percentage.persentase_uts / countMapel)
+        this.percentage.persentase_uas = Math.floor(this.percentage.persentase_uas / countMapel)
+        console.log(this.percentage)
       }
     },
     created: function() {

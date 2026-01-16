@@ -65,6 +65,7 @@
 <script>
 import { topMenu } from '@/helpers/menus.js'
 import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
 
 export default {
   data: function() {

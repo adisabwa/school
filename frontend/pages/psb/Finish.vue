@@ -31,10 +31,11 @@
         </div>
       </div>
     </div>
-  </template>
+</template>
   
-  <script>
+<script>
    import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
   
   export default {
     name: "psb",
@@ -63,4 +64,4 @@
     mounted: function() {
     },
   }
-  </script>
+</script>

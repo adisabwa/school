@@ -91,8 +91,8 @@
             <template #header="{data}">
               <tr class="*:border *:border-solid *:border-slate-300">
                 <th width="20px" class="fixed-col" >No</th>
-                <th class="fixed-col min-w-[100px]" >Kamar</th>
                 <th class="fixed-col min-w-[160px]" >Nama</th>
+                <th class="min-w-[100px]" >Kamar</th>
                 <th v-for="(mapel, key) in data[0].pengasuhan"
                   :key="key"
                   class="text-center">
@@ -104,8 +104,8 @@
               <tr v-for="(d, key) in data"
                 class="*:border *:border-solid *:border-slate-300">
                 <td>{{ key + 1 }}</td>
-                <td>{{ d.kamar }}</td>
                 <td>{{ d.nama }}</td>
+                <td>{{ d.kamar }}</td>
                 <template v-for="(mapel, mKey) in d.pengasuhan">
                   <td :class="['text-center px-2',
                       mapel.nilai > 0 && mapel.nilai < 100  || mapel.type == 'number'? '' : 'bg-red-700 text-white']">
@@ -125,6 +125,8 @@
 </script>
 <script>
 import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
+import { useDataStore } from '@/config/stores/dataStore'
   
   
   export default {
@@ -270,7 +272,7 @@ import { mapState } from 'pinia';
           this.openPost(this.$siteUrl + 'download_zip', {
             files:this.files,
             delete_original: true,
-            zip_name: ('RAPORT-AKHIR-'+ semesterText + '-' + kelasText+'.zip').replace(' ', '-').replace('_', '-').replace('/','-'),
+            zip_name: ('RAPORT-AKHIR-PENGASUHAN-'+ semesterText + '-' + kelasText+'.zip').replace(' ', '-').replace('_', '-').replace('/','-'),
           });
           this.showDownload = false;
           return

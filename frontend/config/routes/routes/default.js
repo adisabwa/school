@@ -1,5 +1,3 @@
-import PublicLayout from '@/layouts/PublicLayout.vue'
-import MainLayout from '@/layouts/MainLayout.vue'
 
 import config from '@/config/url'
 const baseUrl = config.baseUrl
@@ -10,18 +8,20 @@ let routes = [
     children: [
       {
         path: baseUrl,
-        component: PublicLayout,
+        component: () => import('@/layouts/MainLayout.vue'),
         children: [
           {
             path: '',
             alias: ['index.php','index.php/p'],
-            name: 'default', 
-            component: () => import('@/pages/Default.vue'),
+            name: 'dashboard', 
+            component: () => import('@/pages/Dashboard.vue'),
             meta: {
-              enterFromClass : "-translate-x-full opacity-0",
+              requiresAuth: true,
+              app:'admin',
+              enterFromClass : "-translate-y-full opacity-0",
               enterToClass : "opacity-50",
               leaveFromClass : "opacity-50",
-              leaveToClass : "translate-x-full opacity-0",
+              leaveToClass : "translate-y-full opacity-0",
               pageTitle: '<b>Darul Arqom Patean Boarding School</b>',
             }
           }
@@ -29,18 +29,17 @@ let routes = [
       },
       {
         path: siteUrl + 'p/',
-        component: MainLayout,
+        component: () => import('@/layouts/PublicLayout.vue'),
         children: [
           {
-            path: 'dashboard',
-            name: 'dashboard', 
-            component: () => import('@/pages/Dashboard.vue'),
+            path: 'default',
+            name: 'default', 
+            component: () => import('@/pages/Default.vue'),
             meta: {
-              requiresAuth: true,
-              enterFromClass : "-translate-x-full opacity-0",
+              enterFromClass : "-translate-y-full opacity-0",
               enterToClass : "opacity-50",
               leaveFromClass : "opacity-50",
-              leaveToClass : "translate-x-full opacity-0",
+              leaveToClass : "translate-y-full opacity-0",
             }
           },
         ]

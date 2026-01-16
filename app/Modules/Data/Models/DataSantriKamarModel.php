@@ -16,7 +16,7 @@ class DataSantriKamarModel extends BaseModel
             'foreign_key' => 'id_kamar',
             'model' => 'DataKamarModel',
             'type' => 'left',
-            'selects' => ['rayon','nomor','nama_wamar','nama_wamar_lengkap', 'wamar_signature',
+            'selects' => ['rayon','rayon_arab','nomor','nama_wamar','nama_wamar_lengkap', 'wamar_signature','nama_wamar_arab',
             "{n}CONCAT(rayon,' - ',nomor) kamar" ],
           ],
           'id_santri' => [

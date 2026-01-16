@@ -10,6 +10,41 @@ moment.updateLocale('id', {
 });
 
 let listFunction = {
+  
+    getTime(time, passZero = false){
+      if (typeof time != 'number') return false
+      let second = time % 60
+      time = parseInt(time / 60)
+      let minute = time % 60
+      time = parseInt(time / 60)
+      let hour = time % 24
+      time = parseInt(time / 24)
+      let day = time % 24
+      time = parseInt(time / 30)
+      let month = time % 30
+      let res = {}
+      let els = {
+        month:month,
+        day:day,
+        hour:hour,
+        minute:minute,
+        second:second,
+      }
+      let write = false
+        Object.keys(els).forEach(key => {
+          let el = els[key]
+          if (el > 0) {
+            write = true
+          }
+          if (!passZero || write)
+            res[key] = {
+              value: el < 10 ? '0' + el : el.toString(),
+              label: key,
+            }
+        })
+        console.log(res)
+      return res
+    },
     dateNow() {
       return moment().format('yyyy-MM-DD');
     },

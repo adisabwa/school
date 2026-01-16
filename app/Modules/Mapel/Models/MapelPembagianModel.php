@@ -28,14 +28,18 @@ class MapelPembagianModel extends BaseModel
                 'selects' => [
                     "nama nama_guru",
                     "TRIM(REPLACE(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,'')),'-',''))  nama_guru_lengkap",
+                    "nama_arab nama_guru_arab",
                 ]
             ],
             'id_kelas' => [
                 'foreign_key' => 'id_kelas',
-                'table' => 'sch__kelas',
+                'model' => 'DataKelasModel',
                 'selects' => [
                     'kelas',
                     'tingkat',
+                    'nama_walas',
+                    'nama_walas_lengkap',
+                    'nama_walas_arab',
                 ]
             ],
             'id_mapel' => [
@@ -44,6 +48,7 @@ class MapelPembagianModel extends BaseModel
                 'selects' => [
                     'nama_mapel',
                     'nama_mapel_arab',
+                    'is_kejuruan',
                 ]
             ]
         ];
@@ -66,8 +71,9 @@ class MapelPembagianModel extends BaseModel
                     
         foreach ($data as $key => $d) {
             $option = (object)[
-                'value' => "$d->id",
+                'value' => "$d->id_mapel",
                 'label' => "$d->nama_mapel ( $d->nama )",
+                'pembagian_mapel' => $d,
             ];
             if (empty($options[$d->id_semester])) {
                 $options[$d->id_semester] = (object) [

@@ -89,6 +89,7 @@ export default {
   data: function() {
     return {
       vModel:'',
+      initial:true,
       showSelect:false,
       searchData:'',
       labelModel:'',
@@ -191,7 +192,8 @@ export default {
   methods:{
     changedValue(val){
       // console.log('change float')
-      this.$emit('change',val)
+      if (!this.initial)
+        this.$emit('change',val)
     },
     selectOption(val){
       // console.log('selectOption', val)
@@ -250,6 +252,7 @@ export default {
   },
   mounted(){
     // console.log('mounted', this.vModel)
+    this.initial = false
     if (this.multiple && !Array.isArray(this.vModel)) {
       this.vModel = []
     }

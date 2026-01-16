@@ -50,13 +50,13 @@ class ValidationFilter implements FilterInterface
 
             // var_dump($datas, $validationRule);
                 // return failValidationErrors([]);
-            if (empty($validationRule))
-                return TRUE;
+            if (!empty($validationRule))
+                if (!$validation->setRules($validationRule)->run($postData)) {
+                    $errors[$key] = $validation->getErrors();
+                    continue;
+                }
 
-            if (!$validation->setRules($validationRule)->run($postData)) {
-                $errors[$key] = $validation->getErrors();
-                continue;
-            }
+            // var_dump($datas, $postData);
 
             $postData = $this->groupingData($datas, $oldPost, $model, $folders);
             
@@ -72,8 +72,8 @@ class ValidationFilter implements FilterInterface
                         if (!empty($postData["old_$inputName"])) {
                             $this->deleteFileFromUrl($postData["old_$inputName"]);
                         }
-                        unset($postData["old_$inputName"]);
                     }
+                    unset($postData["old_$inputName"]);
                     
                     $uploadPath = WRITEPATH . "uploads/$folders[$inputName]";// Ensure this directory exists with the correct permissions
                     // Move the file to the upload folder
@@ -107,6 +107,7 @@ class ValidationFilter implements FilterInterface
         //     if (empty($value))
         //         $value = NULL;
         // });
+        // var_dump($posts);
         $newRequest = $request->setGlobal('post', $posts);
         return $newRequest;
     }

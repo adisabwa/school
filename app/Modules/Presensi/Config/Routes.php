@@ -1,23 +1,22 @@
 <?php
 
-use Modules\Presensi\Controllers\Admin\PresensiKelasController as PresensiKelas;
+use Modules\Presensi\Controllers\Admin\PresensiMengajarController as PresensiMengajar;
+use Modules\Presensi\Controllers\Admin\PresensiSantriController as PresensiSantri;
 
 //-------------------------------------KMI Mapel -----------------------------------------------
-$routes->group('presensi/admin', [
-    'filter' => 'api-auth:mapel.admin',
+$routes->group('presensi', [
+    'filter' => 'api-auth:presensi.all',
 ], static function ($routes) {    
 
+helper('route');
     //-------------------------------------Presensi Mengajar di Kelas -----------------------------------------------
-    $routes->group('kelas', static function ($routes) {
-        $routes->add('/', [PresensiKelas::class,'index']);
-        $routes->add('get', [PresensiKelas::class, 'get']);
-        $routes->add('delete/(:any)', [PresensiKelas::class,'delete/$1']);
-        $routes->add('store', [PresensiKelas::class, 'store']);
-        $routes->add('store_many', [PresensiKelas::class, 'store_many']);
-        $routes->add('delete_many', [PresensiKelas::class,'delete_many']);
-        $routes->add('download/(:any)', [PresensiKelas::class,'download/$1']);
-        $routes->add('download_many', [PresensiKelas::class,'download_many']);
-        $routes->add('options', [PresensiKelas::class,'options']);
+    $routes->group('mengajar', static function ($routes) {
+        addDefaultRoutes($routes, PresensiMengajar::class, 'sch_pre_mengajar_kelas');
+        $routes->add('get_all', [PresensiMengajar::class, 'getAll']);
+    });
+    //-------------------------------------Presensi Santri di Kelas -----------------------------------------------
+    $routes->group('santri', static function ($routes) {
+        addDefaultRoutes($routes, PresensiSantri::class, 'sch_pre_harian');
     });
 });
 

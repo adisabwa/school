@@ -16,7 +16,7 @@ class DataSantriModel extends BaseModel
             'foreign_key' => 'id_kelas',
             'model' => 'DataKelasModel',
             'type' => 'left',
-            'selects' => ['kelas'],
+            'selects' => ['kelas','tingkat','id_jurusan'],
           ],
           'id_daerah' => [
             'foreign_key' => 'id_daerah',

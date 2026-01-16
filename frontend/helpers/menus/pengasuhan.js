@@ -1,5 +1,12 @@
 let saving = [
   {
+    index: 'teacher-check-pengasuhan',
+    route: 'teacher-check-pengasuhan',
+    icon:'mdi:teacher',
+    label:'Verifikasi Wali Kamar',
+    type:'menu',
+  },
+  {
     index: 'santri-kamar-list',
     route: 'santri-kamar-list',
     icon:'fa-solid:user',

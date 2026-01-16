@@ -57,14 +57,14 @@
             v-else class="mb-12">
             <template #header="{data}">
               <tr class="*:border *:border-solid *:border-slate-300">
-                <th width="20px" class="fixed-col">No</th>
+                <th width="15px" class="fixed-col">No</th>
                 <th class="fixed-col min-w-[150px]">Nama</th>
-                <template v-for="(ujian) in data[0].nilai">
+                <template v-for="(ujian, key) in data[0].nilai">
                   <th class="text-center">
                     <div class="flex items-center justify-center">
                       <el-tooltip content="Reset Data" placement="bottom-start" class="shrink-0"
                         v-if="allowEdit">
-                        <icons icon="ri:reset-left-line" class="border-0 cursor-pointer text-[15px] shrink-0" @click="resetData(ujian)"/>
+                        <icons icon="ri:reset-left-line" class="border-0 cursor-pointer text-[15px] shrink-0" @click="resetData(key)"/>
                       </el-tooltip>
                       {{ ujian.kategori }}
                     </div>
@@ -109,9 +109,9 @@
 </template>
   
 <script>
-  import { event } from 'jquery';
 import { head } from 'lodash';
 import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
   
   
   export default {
@@ -139,8 +139,8 @@ import { mapState } from 'pinia';
           },
         },
         filter:{
-          id_semester:'',
-          id_kelas:'',
+          id_semester:'-1',
+          id_kelas:'-1',
         },
         params:{
           where:[],
@@ -230,9 +230,9 @@ import { mapState } from 'pinia';
           }, 300)
         })
       },
-      resetData(ujian){
+      resetData(key){
         this.dataNilai.forEach(d => {
-          d.nilai[ujian] = 0
+          d.nilai[key].nilai = null
         })
       },
       saveScore() {

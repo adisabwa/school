@@ -16,73 +16,54 @@
       </form-comp>
       <table-data ref="tableData" 
         :key="tableKey"
-        href="mapel/admin/penjadwalan/detail" 
+        href="mapel/admin/penjadwalan" 
         :params="params"
         :show-search="false"
-        :title="'Data Mata Pelajaran'"
+        :show-upload="false"
+        :show-upload-normal="true"
+        :title="'Data Penjadwalan'"
         v-model:form-value="formValue"
         :fields="fields"
-        :pass-columns="['id_penjadwalan']"
-        :default-value="[
-         {
-          key:'id_penjadwalan',
-          value:filter.id_penjadwalan,
-         }
-        ]"
         @reset-field="getInitial"
+        :pass-columns-input="['kelas','nama_guru']"
         class="p-0">
-        <template #before-menu>
-          <el-button type="success" class="h-full" size="small"
-            @click="showAdd = true"
-            ><icons icon="mdi:plus"/>Buat Jadwal Baru</el-button>
-        </template>
         <template #menu>
           <el-button type="primary" class="float-right h-full" size="small"
             @click="searchData"
             ><icons icon="mdi:search"/>Cari</el-button>
         </template>
       </table-data>
-      
-      <data-create v-model:show="showAdd"
-        v-model:form-value="valuePenjadwalan"
-        title="Versi Penjadwalan" :href="'mapel/admin/penjadwalan/store'" :href-get="'mapel/admin/penjadwalan/get'"
-        :fields="fieldsPenjadwalan"
-        :label-position="labelPosition"
-        :data-id="editIdPenjadwalan" :type="dataType"
-        @saved="onUpdated"></data-create>
     </el-card>
   </div>
 </template>
 
 <script>
 import { mapState } from 'pinia';
-import DataCreate from '@/components/table/DataCreate.vue'
+import { useAuthStore } from '@/config/stores/authStore'
 
 export default {
   name: "mapel",
   components: {
-    DataCreate,
   },
   data: function() {
     return {
       loading: false,
       showAdd: false,
-      editIdPenjadwalan:-1,
-      dataType:'create',
-      fieldsPenjadwalan:{},
-      valuePenjadwalan:{},
       filterKey:-1,
       filterFields: {
-        'id_penjadwalan' : {
-          nama_kolom:'id_penjadwalan',
-          label:'Versi Jadwal',
-          input:'select',
-          clearable:false,
-        },
         'hari' : {
           nama_kolom:'hari',
           label:'Hari',
           input:'select',
+          options:[
+            { value: 'senin', label: 'Senin' },
+            { value: 'selasa', label: 'Selasa' },
+            { value: 'rabu', label: 'Rabu' },
+            { value: 'kamis', label: 'Kamis' },
+            { value: 'jumat', label: 'Jumat' },
+            { value: 'sabtu', label: 'Sabtu' },
+            { value: 'ahad', label: 'Ahad' }
+          ],
         },
         'id_kelas' : {
           nama_kolom:'id_kelas',
@@ -98,7 +79,6 @@ export default {
         },
       },
       filter:{
-        id_penjadwalan:null,
         id_kelas:null,
         hari:null,
         id_guru:null,
@@ -112,15 +92,7 @@ export default {
     };
   },
   watch: {
-    'filter.id_penjadwalan'(val){
-      if (this.fields.id_penjadwalan) {
-        this.fields.id_penjadwalan.default = val
-        this.newPenjadwalan(val)
-      }
-    },
-    'formValue.id_penjadwalan'(val){
-      this.newPenjadwalan(val)
-    }
+    
   },  
   computed: {
     ...mapState(useAuthStore, {
@@ -131,69 +103,35 @@ export default {
     },
   },
   methods: {
-    newPenjadwalan(id){
-      this.$http.get('/mapel/admin/penjadwalan/get',{
-        params:{
-          id:id
-        }
-      }).then(result => {
-        var res = result.data;
-        let idSemester = res.id_semester
-        this.$http.get('/mapel/admin/pembagian/options_penjadwalan',{
-            params:{
-              where:{
-                id_semester:idSemester ?? -1
-              }
-            }
-          }).then(result => {
-            var res = result.data;
-            this.fields.id_pembagian_mapel.options = res
-            // console.log(idSemester, res, this.fields)
-            this.$refs.tableData.resetDataCreate()
-          })
-      })
-    },
     searchData(){
-      this.params = {
+      let params = {
         where:{
           hari:this.filter.hari,
-          id_penjadwalan:this.filter.id_penjadwalan,
         },
         condition:{
-          id_pembagian_mapel: {
-            id_kelas: this.filter.id_kelas,
-            id_guru: this.filter.id_guru
-          },
+          id_pembagian_mapel: {}
         }
       }
+      if (this.filter.id_kelas)
+        params.condition.id_pembagian_mapel.id_kelas = this.filter.id_kelas
+      if (this.filter.id_guru)
+        params.condition.id_pembagian_mapel.id_guru = this.filter.id_guru
+      
+      this.params = params
     },
     getInitial: async function() {
         this.loading = true;
-        await this.$http.get('/kolom/preparation?table=sch_aka_penjadwalan_detail',{
-          params: {
-            grouping:'0',
-            input:'0',
-          }
-        })
-          .then(result => {
-            var res = result.data;
-            this.fields = res
-            this.fields.id_pembagian_mapel.similar_criteria = 0.95
-            this.filterFields = this.fillObjectValue(this.filterFields, JSON.parse(JSON.stringify(res)))
-            this.filterFields.id_penjadwalan.clearable = false
-            this.filterFields.id_penjadwalan.required = '0'
-            this.filterFields.id_kelas.required = '0'
-            this.filterFields.hari.required = '0'
-            this.filter.id_penjadwalan = res?.id_penjadwalan?.options[0]?.value ?? ''
-            this.filterKey++
-            this.tableKey++
-            this.loading = false
-            this.searchData()
-          });
         await this.$http.get('/kolom/preparation?table=sch_aka_penjadwalan&grouping=0&input=0')
           .then(result => {
             var res = result.data;
-            this.fieldsPenjadwalan = res
+            this.fields = {...{
+              kelas:{
+                nama_kolom:'kelas',label:'Kelas',width:'50px',
+              },
+              nama_guru:{
+                nama_kolom:'nama_guru',label:'Guru',
+              }
+            },...res}
             this.loading = false
           });
         await this.$http.get('/data/kelas/options')
@@ -211,7 +149,6 @@ export default {
       },
     onUpdated(data){
       this.getInitial()
-      this.filter.id_penjadwalan = data.id
     }
   },
   created: function() {

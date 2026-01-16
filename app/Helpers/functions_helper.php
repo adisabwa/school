@@ -2,6 +2,25 @@
 use NumberToWords\NumberToWords;
 use CodeIgniter\HTTP\ResponseInterface;
 
+function array_average($array) {
+    $count = count(array_filter($array, fn($n) => $n > 0));
+    $count = $count == 0 ? 1 : $count;
+    return array_sum($array) / $count;
+}
+
+function cari_elemen_terbanyak($arr) {
+    // Counts the occurrences of each value in the array
+    $freqArray = array_count_values($arr);
+
+    // Finds the maximum frequency value
+    $maxFreq = max($freqArray);
+
+    // Finds the key (original value) associated with the maximum frequency
+    $mostFrequent = array_search($maxFreq, $freqArray);
+
+    return $mostFrequent;
+}
+
 function setRandomColor() {
     // Generate random values for each RGB component
     $r = rand(0, 255); // Red
@@ -78,12 +97,45 @@ function get_date_interval($start, $end)
 }
 
 
-function get_hari($tanggal){
+function getHari($tanggal){
     $haris = ['ahad','senin','selasa','rabu','kamis','jumat','sabtu'];
     $day = date('w', strtotime($tanggal));
     return $haris[$day];
 }
 
+function nextDateByDay(string $targetDay, string $timezone = 'Asia/Jakarta'): string
+{
+    $map = [
+        'ahad' => 0,
+        'senin' => 1,
+        'selasa' => 2,
+        'rabu' => 3,
+        'kamis' => 4,
+        'jumat' => 5,
+        'sabtu' => 6,
+    ];
+
+    $targetDay = strtolower($targetDay);
+
+    if (!isset($map[$targetDay])) {
+        throw new InvalidArgumentException('Nama hari tidak valid');
+    }
+
+    $now = new DateTime('now', new DateTimeZone($timezone));
+    $todayIndex = (int) $now->format('w'); // 0=Ahad
+    $targetIndex = $map[$targetDay];
+
+    $diff = ($targetIndex - $todayIndex + 7) % 7;
+
+    // kalau hari sama → ambil minggu depan
+    if ($diff === 0) {
+        $diff = 7;
+    }
+
+    $now->modify("+$diff days");
+
+    return $now->format('Y-m-d');
+}
 
 if ( ! function_exists('dateIndo')) {
 	function dateIndo($date, $showDay = false)
@@ -102,6 +154,45 @@ if ( ! function_exists('dateIndo')) {
 
 		return $tgl_indo;
 	}
+}
+
+function format_tanggal_indonesia($dateString, $withTime = false, $pattern = 'd MMMM yyyy')
+{
+    $locale = 'id_ID';
+    $formatter = new \IntlDateFormatter(
+        $locale,
+        \IntlDateFormatter::LONG,
+        $withTime ? \IntlDateFormatter::SHORT : \IntlDateFormatter::NONE,
+        'Asia/Jakarta',
+        \IntlDateFormatter::GREGORIAN
+    );
+    
+    $timestamp = strtotime($dateString);
+    $formatter->setPattern($pattern); // Only month and year
+    return $formatter->format($timestamp);
+}
+
+
+function penulisan_jarak_tanggal($tanggal1, $tanggal2)
+{
+    $text = '';
+    $days = explode(' ', $tanggal1);
+    $days2 = explode(' ', $tanggal2);
+    if ($tanggal1 == $tanggal2) {
+        $text = $tanggal1;
+    } else if ($days[2] == $days2[2]) {
+        $text = $days[2];
+        if ($days[1] == $days2[1]) {
+            $text = $days[0].' - '.$days2[0].' '.$days[1]. ' ' .$text;
+        } else {
+            $text = $days[0] . ' ' . $days[1] . ' - ' . $days2[0] . ' ' . $days2[1] . ' ' . $text;
+        }
+    } else {
+        $text = $tanggal1 . ' - ' . $tanggal2;
+    }
+
+    return $text;
+    
 }
 
 if (! function_exists('number_to_words')) {
@@ -267,6 +358,46 @@ if (!function_exists('delete_folder_recursive')) {
     }
 }
 
+function shortenName($fullName, $minChar = 20) {
+    $parts = explode(" ", trim($fullName));
+    $result = [];
+
+    // daftar variasi "Muhammad"
+    $muhammadVariants = ["muhammad", "muhamad", "mohammad", "mohamad", "mohd","moechammad"];
+
+    $countChar = 0;
+    $prev = "";
+    foreach ($parts as $index => $word) {
+        // cek nama pertama termasuk variasi Muhammad
+        if ($index === 0 && in_array(strtolower($word), $muhammadVariants)) {
+            $result[] = "M";
+            $countChar += 2;
+            continue;
+        }
+
+        $countChar += strlen($word) + 1;
+
+        if (strlen($word) <= 2) {
+            $prev = $word;
+            continue;
+        } else {
+            $word  = empty($prev) ? $word : $prev." ".$word;
+            $prev = '';
+        }
+
+        if ($countChar <= $minChar) {
+            // 3 kata pertama (kecuali Muhammad) ditulis utuh
+            $result[] = $word;
+        } else {
+            // sisanya inisial
+            $countChar += 1;
+            $result[] = strtoupper(substr($word, 0, 1)).".";
+        }
+    }
+
+    return implode(" ", $result);
+}
+
 function get_predikat($score) {
     if ($score >= 91) {
         return 'Istimewa';
@@ -311,7 +442,7 @@ function get_sikap_arab($score) {
             break;
         
         default:
-            return 'جَيِّد';
+            return '-';
             break;
     }
 }
@@ -329,6 +460,27 @@ function get_sikap($score) {
             break;
         case '1':
             return 'Kurang';
+            break;
+        
+        default:
+            return '-';
+            break;
+    }
+}
+
+function get_sikap_aktif($score) {
+    switch ($score) {
+        case '4':
+            return 'Sangat Aktif';
+            break;
+        case '3':
+            return 'Aktif';
+            break;
+        case '2':
+            return 'Cukup Aktif';
+            break;
+        case '1':
+            return 'Kurang Aktif';
             break;
         
         default:

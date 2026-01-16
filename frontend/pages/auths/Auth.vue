@@ -57,7 +57,8 @@
 </template>
 
 <script>
-  const authStore = useAuthStore()
+import { useAuthStore } from '@/config/stores/authStore'
+const authStore = useAuthStore()
 
 export default {
   name: 'auth',

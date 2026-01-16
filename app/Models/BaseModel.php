@@ -49,10 +49,10 @@ class BaseModel extends Model
         return $this->table_label;
     }
     
-    public function getOptionsData(array $where = [], ?callable $concatFunc = null, ?callable $addOptions = null)
+    public function getOptionsData(array $where = [], ?callable $concatFunc = null, ?callable $addOptions = null, string $order = '')
     {
       $options = [];
-      $data = $this->getAll(whereAnd: $where, groupBy: ['id']);
+      $data = $this->getAll(whereAnd: $where, groupBy: ['id'], order: $order);
         // var_dump($data);
       foreach ($data as $key => $d) {
         $option = (object)[
@@ -207,11 +207,12 @@ class BaseModel extends Model
         // var_dump($this->relations);
         // exit;
         if ($relations === NULL) {
-            $relations = array_keys($this->relations);
+            $relations = $this->relations;
+        } else {
+            $relations = array_merge($relations, $this->relations);
         }
         // var_dump($relations);
-        foreach ($relations as $key => $relation) {
-            $rel = $this->relations[$relation];
+        foreach ($relations as $key => $rel) {
             if ($rel) {
                 // var_dump($relation, $rel);
                 $model = false;
@@ -241,18 +242,28 @@ class BaseModel extends Model
                     $query = $model->getAll(whereAnd:($rel['condition'] ?? []), return_data: TRUE, order: ($j_order ?? ''), groupBy: ($rel['group_by'] ?? []));
                     // var_dump($query);
                     $builder->select($this->addTableBefore($table_alias, $rel['selects']));
+                    $condition = [
+                        "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
+                    ];
+                    if ($rel['condition'] ?? false)
+                        $condition = array_merge($condition,
+                        $this->addTableBefore($table_alias, $rel['condition'])
+                    );
+                    // var_dump($condition);
                     $builder->join("($query) $table_alias", 
-                        "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id'),
+                        implode(" AND ", $condition),
                         $rel['type'] ?? 'inner'
-                        );
+                    );
                 } else {
                     $table_alias = $alias ?? $table;
                     $builder->select($this->addTableBefore($table_alias, $rel['selects']));
                     // var_dump($this->addTableBefore($table_alias, $rel['selects']));
                     // echo "<br/>";
-                    $condition = [
-                        "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
-                    ];
+                    if ($rel['foreign_key'] ?? false)
+                        $condition = [
+                            "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
+                        ];
+                        
                     if ($rel['condition'] ?? false)
                         $condition = array_merge($condition,
                         $this->addTableBefore($table_alias, $rel['condition'])

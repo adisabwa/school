@@ -55,6 +55,14 @@ let data = [
     roles:['admin','walas'],
   },
   {
+    index: 'semester-list',
+    route: 'semester-list',
+    icon:'solar:calendar-bold',
+    label:'Data Semester',
+    type:'menu',
+    roles:['admin'],
+  },
+  {
     index: 'sesi-list',
     route: 'sesi-list',
     icon:'mdi:timetable',

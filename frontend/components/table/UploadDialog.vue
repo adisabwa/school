@@ -8,6 +8,7 @@
     <el-dialog  
       v-model="showDialog"
       class="p-7"
+      append-to-body
       :close-on-click-modal="false"
       width="500px">
       <template #header>
@@ -17,7 +18,7 @@
         <el-upload
           class="upload-demo mt-4"
           ref="upload" drag
-          :action="`${$siteUrl}/${link}/upload${params}`"
+          :action="$siteUrl + href"
           :on-change="handleChange" :on-success="handleSuccess" :on-error="handleError"
           :file-list="fileList"  :auto-upload="false">
           <icons icon="material-symbols:cloud-upload" class="text-5xl text-blue-600"/>
@@ -46,6 +47,7 @@
     <el-dialog 
       title="Konfirmasi" 
       width="1000px"
+      append-to-body
       v-model="showErrorDialog">
       <h3>Ada data yang keliru</h3>
       <br>
@@ -85,16 +87,16 @@ export default {
       type:String,
       default:'Peminatan',
     },
-    link: {
+    href: {
       type:String,
-      default:'data/peminatan',
+      default:'',
     },
-    params: {
+    hrefTemplate: {
       type:String,
       default:'',
     },
   },
-  emits:['update:show'],
+  emits:['update:show','saved'],
   data: function() {
     return {
       saving: false,
@@ -165,18 +167,18 @@ export default {
       this.saving = false;
     },
     handleError(err,file, fileList) {
-      this.$refs.upload.clearFiles();
+      // this.$refs.upload.clearFiles();
       this.saving = false;
       let message = JSON.parse(err.message)
       this.$notify({
         type:'error',
         title: 'Gagal',
-        message: message.messages.file,
+        // message: message?.messages?.file,
         position: 'bottom-right'
       });
     },
     downloadTemplate:  function() {
-      window.open(`${this.$siteUrl}${this.link}/template`,"_blank");
+      window.open(this.hrefTemplate,"_blank");
     },
   }
 }

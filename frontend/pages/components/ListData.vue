@@ -67,6 +67,7 @@
 
 <script>
 import { mapActions, mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
 
 export default {
   name: "ListData",

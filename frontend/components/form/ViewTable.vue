@@ -8,7 +8,7 @@
           border-0 border-b border-solid border-gray-300`,
           ind == fields.length - 1 ? 'border-b-0' : '',
           labelPosition == 'left' ? 'flex items-center [&_*]:leading-[1.5] py-2 ' : 'flex flex-col [&_*]:leading-[1.7] py-[8px]']"
-          v-if="showColumns.length > 0 ? showColumns.includes(field.nama_kolom) : !passColumns.includes(field.nama_kolom)">
+          v-if="(field.hidden != '1' && field.hidden !== true) && (showColumns.length > 0 ? showColumns.includes(field.nama_kolom) : !passColumns.includes(field.nama_kolom))">
           <template #label>
             <div class="font-semibold my-2"> {{ field.label }} </div>
           </template>
@@ -35,9 +35,11 @@
                 }) }}
               </div>
             </template>
+            <slot :name="'inside_' + field.nama_kolom" :form="form" :field="field" :fields="fields"></slot>
           </div>
         </el-form-item>
       </template>
+      <slot :form="form" :fields="fields"></slot>
     </el-form>
     <slot name="outside-form" :form="form"/>
 	</div>

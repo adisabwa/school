@@ -9,8 +9,9 @@
       :class="[gridClass,formClass]">
     <slot name="before" :errors="errors" :form="form" :fields="fieldsData"></slot>
       <template  v-for="(field, ind) in fieldsData">
+          <!-- {{ field.nama_kolom }}/{{ field.hidden }}/{{ field.readonly }}/{{ field.disabled }} -->
         <el-form-item :class="['grow-0', gridItemClass(field?.colspan), formItemClass, formItemClass[field.nama_kolom], formItemClass['all']]"
-          v-show="field.hidden != '1' && (resolvedShowColumns.length > 0 ? resolvedShowColumns.includes(field.nama_kolom) : !resolvedPassColumns.includes(field.nama_kolom))"
+          v-show="(field.hidden != '1' && field.hidden !== true) && (resolvedShowColumns.length > 0 ? resolvedShowColumns.includes(field.nama_kolom) : !resolvedPassColumns.includes(field.nama_kolom))"
           :error="field.input == 'array' ? '' : errors[field.nama_kolom]">
           <template #label v-if="showLabel">
             <span :class="[field.required == '1' ? 'required' : '','leading-[1.5] mt-2', labelClass]"> {{ field.label }} </span>
@@ -174,6 +175,7 @@
               <el-radio-group v-model="form[field.nama_kolom]"
                 :class="[inputClass]" 
                 :readonly="field.readonly"
+                :disabled="field.disabled"
                 @change="changedValue(field.nama_kolom)"
                 :style="{width:field.width_input + ' !important'}">
                 <template 
@@ -289,6 +291,22 @@
                 </div>
               </div>
             </template> 
+            <template v-else-if="field.input == 'color-picker'">
+              <div class="w-full">
+                <el-color-picker v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
+                :class="['w-full flex-1',inputClass]" 
+                @change="changedValue(field.nama_kolom)" @input="form[field.nama_kolom] = runFunction({
+                  func:field.function_input, 
+                  data:form[field.nama_kolom]
+                })"
+                :size="size"
+                :readonly="field.readonly"
+                :style="{width:field.width_input + ' !important'}"
+                :validate-event="false"
+                color-format="hex"
+                show-alpha />
+              </div>
+            </template>
           </div>
         </el-form-item>
       </template>
@@ -413,7 +431,8 @@ export default {
     cols:{
       type:[String, Number],
       default:'6',
-    }
+    },
+    addValues: {type:[Object, Array], default: {}},
   },
   inject: ['sharedState'],
   emits:['update:id','saved','error','get','changeId','update:formValue','changedValue','update:errorValue'],
@@ -433,12 +452,12 @@ export default {
   },
   watch: {
     fieldsData: function(val, oldVal) {
-      console.log('field', val)
+      // console.log('field', val)
     },
     id: {
       immediate: true,
       async handler(val) {
-        console.log(val)
+        // console.log(val)
         this.dataId = val;
         this.showOriginal = val instanceof Array
       }
@@ -635,10 +654,17 @@ export default {
       this.resetObjectValue(this.errors)
       let vm = this
       let form = this.form
+      // console.log('form',this.form)
       let backUpForm = JSON.parse(JSON.stringify(vm.form))
       Object.keys(vm.original).forEach(ind => {
         if (vm.original[ind]) 
           delete form[ind]
+      });
+      vm.passColumns.forEach(ind => {
+        delete form[ind]
+      });
+      Object.keys(vm.addValues).forEach(ind => {
+        form[ind] = vm.addValues[ind]
       });
       form.id = this.dataId
       form = this.convertNullToEmptyString(form)
@@ -709,7 +735,7 @@ export default {
           }
         });
 
-        console.log('form isi', vm.form);
+        // console.log('form isi', vm.form);
       vm.fillObjectValue(vm.form, vm.formValue)
       setTimeout(() => {
         vm.fillObjectValue(vm.form, vm.formValue)

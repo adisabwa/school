@@ -1,10 +1,9 @@
-  import MainLayout from '@/layouts/MainLayout.vue'
 
   import { siteUrl } from '@/config/url'
 
   let routes = [
     {
-      component: MainLayout,
+      component: () => import('@/layouts/MainLayout.vue'),
       meta:{
         enterFromClass : "scale-y-0 opacity-50",
         enterToClass : "opacity-100",
@@ -89,6 +88,15 @@
               component: () => import('@/pages/data/PenghasilanList.vue'),
               meta: {
                   pageTitle: "<b>Daftar Unit</b>",
+                  allowedRoles: ['admin'],
+              }
+            },
+            {
+              path: 'semester',
+              name: 'semester-list', 
+              component: () => import('@/pages/data/SemesterList.vue'),
+              meta: {
+                  pageTitle: "<b>Daftar Semester</b>",
                   allowedRoles: ['admin'],
               }
             },
