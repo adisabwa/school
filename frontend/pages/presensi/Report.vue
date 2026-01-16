@@ -101,10 +101,23 @@
           @click="selectedReport = log"
           class="bg-white p-4 rounded-lg border shadow-sm cursor-pointer hover:shadow-md transition"
         >
-          <h3 class="font-bold text-base m-0">{{ log.nama_mapel }}</h3>
-          <p class="text-[11px] text-slate-400 m-0">
-            {{ dateDayIndo(log.tanggal) }} • {{ log.kelas }}
-          </p>
+          <div class="flex items-start justify-between mb-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                <Clock size={24} />
+              </div>
+              <div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                  {{ dateDayIndo(log.date)}}</div>
+                <h3 class="font-bold text-lg text-slate-800">
+                  {{ log.nama_mapel }}
+                </h3>
+              </div>
+            </div>
+            <div class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
+              KELAS {{ log.kelas }}
+            </div>
+          </div>
           <div class="bg-slate-50/50 p-3 rounded-2xl mb-2 border border-transparent group-hover:bg-white group-hover:border-slate-100 transition-all" >
             <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">
               Materi:
