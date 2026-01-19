@@ -27,7 +27,7 @@
               <table class="kalender">
                 <thead>
                   <tr style="background-color: #67C23A;">
-                    <th colspan="7"><?= format_tanggal_indonesia($bulan, false, 'MMMM yyyy') ?></th>
+                    <th colspan="7"><?= formatTanggalIndonesia($bulan, false, 'MMMM yyyy') ?></th>
                   </tr>
                   <tr>
                     <td>Sen</td>
@@ -76,7 +76,7 @@
                   <?php foreach (array_values($keterangan[$bulan]) as $key => $value): ?>
                     <tr style="background-color: <?= $key % 2 == 0 ? '#d7f9c6' : '' ?>;">
                       <td><?= penulisan_jarak_tanggal(
-                        format_tanggal_indonesia($value->tanggal_mulai, false, 'd MMMM '),format_tanggal_indonesia($value->tanggal_selesai, false, 'd MMMM ')
+                        formatTanggalIndonesia($value->tanggal_mulai, false, 'd MMMM '),formatTanggalIndonesia($value->tanggal_selesai, false, 'd MMMM ')
                         ) ?>
                       </td>
                       <td><?= $value->keterangan ?></td>
@@ -90,7 +90,7 @@
         <tr>
           <td></td>
           <td style="position:relative">
-            Patean, <?= format_tanggal_indonesia($semester->tanggal_mulai, false, 'd MMMM Y') ?>
+            Patean, <?= formatTanggalIndonesia($semester->tanggal_mulai, false, 'd MMMM Y') ?>
             <br>
             Direktur KMI
             <br>

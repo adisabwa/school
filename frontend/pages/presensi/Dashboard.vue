@@ -161,6 +161,10 @@
               <p class="text-[13px] text-slate-400 font-bold uppercase tracking-wider">
                 {{ lastClassSummary.kelas }} • {{ dateDayIndo(lastClassSummary.tanggal) }}
               </p>
+              <p v-if="lastClassSummary.id_pengganti > 0"
+                class="text-[13px] text-slate-400 font-bold tracking-wider">
+                Mengganti {{ lastClassSummary?.nama_guru }}
+              </p>
             </div>
 
             <div class="flex gap-2 mt-2 pt-3 border-t border-slate-50 text-center leading-[1]">
@@ -184,7 +188,7 @@
 
               <div class="ml-auto self-center">
                 <el-button
-                  @click="setCurrentStep('REPORTS')"
+                  @click="$router.replace({name:'presensi-report'})"
                   class="w-7 h-7 border-0 bg-slate-50 text-slate-400 rounded-md flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all"
                 >
                   <icons icon="fa:arrow-right" class="text-[15px] m-0" />
@@ -325,7 +329,10 @@ export default {
         params:{
           where:{
             '{n}id_semester':this.idSemester,
-            '{n}id_guru':this.idGuru
+          },
+          or:{
+            '{n}id_guru':this.idGuru,
+            '{n}id_pengganti':this.idGuru,
           },
           order:['tanggal desc','id_sesi desc']
         }

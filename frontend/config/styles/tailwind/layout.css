@@ -6,6 +6,13 @@
     }
     body {
         @apply font-sans;
+    }  
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .el-dialog {
+        @apply mb-0 !important;
     }
 }
 

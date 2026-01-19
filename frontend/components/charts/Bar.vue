@@ -83,7 +83,7 @@ export default {
 				layout: { padding: 0 },
 				scales: {
 					y: {
-						suggestedMin: -1,
+						suggestedMin: 0,
 						suggestedMax: 5,
 						ticks: {
 							stepSize: 1,

@@ -20,6 +20,7 @@
 import { mapState } from 'pinia'
 import md5 from 'js-md5'; // or require('js-md5')
 import { useAuthStore } from '@/config/stores/authStore'
+import { useDataStore } from '@/config/stores/dataStore'
 
 export default {
   name: "default",

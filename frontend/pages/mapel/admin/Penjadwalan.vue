@@ -40,6 +40,7 @@
 <script>
 import { mapState } from 'pinia';
 import { useAuthStore } from '@/config/stores/authStore'
+import { useDataStore } from '@/config/stores/dataStore'
 
 export default {
   name: "mapel",

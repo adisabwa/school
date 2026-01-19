@@ -42,8 +42,9 @@
             - Tidak ada data -
           </div>
           <template v-if="$slots.footer">
-            <el-divider class="my-2"/>
-            <slot name="footer" />
+            <div class="px-5 pt-2">
+              <slot name="footer" />
+            </div>
           </template>
         </div>
         <div v-else-if="type=='scroll'"

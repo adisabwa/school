@@ -120,6 +120,34 @@ let listFunction = {
     addDay(date, sum, unit = 'days'){
       return moment(date).add(sum, unit).format('yyyy-MM-DD');
     },
+    getStartAndEndOfMonth(date){
+      console.log(this.addDay(moment(date).format('yyyy-MM-01'), +1, 'months'))
+      return {
+        startOfMonth:moment(date).format('yyyy-MM-01'),
+        endOfMonth:this.addDay(this.addDay(moment(date).format('yyyy-MM-01'), +1, 'months'), -1),
+      }
+    },
+    getStartAndEndOfWeek(date = new Date()) {
+      const d = new Date(date)
+      const day = d.getDay() // 0=Min,1=Sen,2=Sel,3=Rab,4=Kam,5=Jum,6=Sab
+
+      // Sabtu = 6 → jadikan start
+      const diffToSaturday = day < 6 ? day + 1 : 0
+      // console.log(day, diffToSaturday)
+      const startOfWeek = new Date(d)
+      startOfWeek.setDate(d.getDate() - diffToSaturday)
+      startOfWeek.setHours(0, 0, 0, 0)
+
+      const endOfWeek = new Date(startOfWeek)
+      endOfWeek.setDate(startOfWeek.getDate() + 6)
+      endOfWeek.setHours(23, 59, 59, 999)
+
+      // console.log(date, startOfWeek, endOfWeek  )
+      return { 
+        startOfWeek:startOfWeek.toISOString().slice(0, 10), 
+        endOfWeek: endOfWeek.toISOString().slice(0, 10),
+      }
+    },
     getWeeklyRanges(lastDateStr, numberOfWeeks) {
       const result = [];
       const lastDate = new Date(lastDateStr);

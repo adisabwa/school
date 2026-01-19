@@ -17,19 +17,22 @@
           body-class="relative px-0 text-[16px] ">
         <div :class="['flex justify-center items-center gap-4 p-4 rounded-xl']" >
           <div class="shrink-0 relative h-[200px] w-[60px]">
-            <icons icon="fe:arrow-up" class="absolute z-[20] left-1/2 -translate-x-1/2"/>
-            <icons icon="fe:arrow-down" class="absolute z-[20] bottom-0 left-1/2 -translate-x-1/2"/>
-            <ScrollPicker :options="days" v-model:modelValue="day" />
+            <icons icon="fe:arrow-up" class="cursor-pointer absolute z-[20] left-1/2 -translate-x-1/2" @click="day = moveOptions(day, -1, days)"/>
+            <icons icon="fe:arrow-down" class="cursor-pointer absolute z-[20] bottom-0 left-1/2 -translate-x-1/2" @click="day = moveOptions(day, +1, days)"/>
+            <span class="locked-value" v-if="dayLocked">{{ day }}</span>
+            <ScrollPicker v-else :options="days" v-model:modelValue="day" />
           </div>
           <div class="shrink-0 relative h-[200px] w-[60px]">
-              <icons icon="fe:arrow-up" class="absolute z-[20] left-1/2 -translate-x-1/2"/>
-              <icons icon="fe:arrow-down" class="absolute z-[20] bottom-0 left-1/2 -translate-x-1/2"/>
-            <ScrollPicker :options="months" v-model:modelValue="month" />
+            <icons icon="fe:arrow-up" class="cursor-pointer absolute z-[20] left-1/2 -translate-x-1/2" @click="month = moveOptions(month, -1, months)"/>
+            <icons icon="fe:arrow-down" class="cursor-pointer absolute z-[20] bottom-0 left-1/2 -translate-x-1/2" @click="month = moveOptions(month, 1, months)"/>
+            <span class="locked-value" v-if="monthLocked">{{ month }}</span>
+            <ScrollPicker v-else :options="months" v-model:modelValue="month" />
           </div>
           <div class="shrink-0 relative h-[200px] w-[80px]">
-            <icons icon="fe:arrow-up" class="absolute z-[20] left-1/2 -translate-x-1/2"/>
-            <icons icon="fe:arrow-down" class="absolute z-[20] bottom-0 left-1/2 -translate-x-1/2"/>
-            <ScrollPicker :options="years" v-model:modelValue="year" />
+            <icons icon="fe:arrow-up" class="cursor-pointer absolute z-[20] left-1/2 -translate-x-1/2" @click="year = moveOptions(year, -1, years)"/>
+            <icons icon="fe:arrow-down" class="cursor-pointer absolute z-[20] bottom-0 left-1/2 -translate-x-1/2" @click="year = moveOptions(year, 1, years)"/>
+            <span class="locked-value" v-if="yearLocked">{{ year }}</span>
+            <ScrollPicker v-else :options="years" v-model:modelValue="year" />
           </div>
         </div>
       </el-dialog>
@@ -57,6 +60,9 @@ export default {
     prefix:{type:[String], default:'',},
     valueFormat:{type:[String], default:'YYYY-MM-DD',},
     format:{type:[String], default:'DD MMMM YYYY',},
+    dayLocked:{type:[Boolean], default:false,},
+    monthLocked:{type:[Boolean], default:false,},
+    yearLocked:{type:[Boolean], default:false,},
   },
   data() {
     const currentYear = new Date().getFullYear()
@@ -136,8 +142,24 @@ export default {
         this.day = maxDay.toString().padStart(2, '0')
       }
     },
+    moveOptions(val, direction, options){
+      // console.log(val, options)
+      let ind = options.findIndex(d => typeof d == 'string' ? d == val : d.value == val)
+      // console.log(ind)
+      let newInd = (ind + direction)
+      // console.log(newInd)
+      let data = options[newInd]
+      if (newInd >= 0 && newInd <= (options.length - 1))
+        return typeof data == 'string' ? data : data.value
+      else
+        return val
+    },
     selectOption(val){
       this.labelModel = this.formatDate(val, this.format)
+      let days = val.split('-')
+      this.year = days[0] ?? ''
+      this.month = days[1] ?? ''
+      this.day = days[2] ?? ''
     }
   },
   created(){
@@ -170,6 +192,11 @@ export default {
     text-align:center;
     line-height:36px;
     color:var(--text-color, #000);
+}
+.locked-value {
+  @apply absolute z-[20] top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2;
+  @apply text-teal-500;
+  font-size: 20px;
 }
 .vue-scroll-picker-item[aria-selected=true]{
     @apply text-teal-500;

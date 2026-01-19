@@ -101,6 +101,14 @@ let routes = [
                         pageTitle: '<b>Laporan Presensi</b>',
                     }
                   },
+                  {
+                    path: 'report-walas',
+                    name: 'presensi-report-walas', 
+                    component: () => import('@/pages/presensi/ReportWalas.vue'),
+                    meta: {
+                        pageTitle: '<b>Laporan Presensi</b>',
+                    }
+                  },
                 ],
             }
         ],

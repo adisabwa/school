@@ -18,7 +18,13 @@ class PresensiMengajarModel extends BaseModel
                     COUNT(IF(kehadiran='alfa',1,NULL)) alfa,
                     COUNT(IF(kehadiran='sakit',1,NULL)) sakit
                 FROM sch_pre_harian GROUP BY id_mengajar_kelas)",
-                'selects' => ['hadir','izin','alfa','sakit'],
+                'selects' => [
+                    'hadir','izin','alfa','sakit',
+                    '({f}.hadir * jam) as total_hadir',
+                    '({f}.izin * jam) as total_izin',
+                    '({f}.alfa * jam) as total_alfa',
+                    '({f}.sakit * jam) as total_sakit',
+                ],
                 'local_key' => 'id_mengajar_kelas',
                 'foreign_key' => 'id',
                 'alias' => 'harian',

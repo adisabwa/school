@@ -51,7 +51,7 @@
           <div class="dialog-footer flex justify-between">
             <el-button @click="showRole = false">Batal</el-button>
             <el-button type="primary" @click="showRole = false;
-              authStore.changeRole({
+              changeRole({
                 app:'all',
                 role:selectedRole
               })"
@@ -184,7 +184,7 @@ const authStore = useAuthStore()
 </script>
 
 <script>
-import { mapState } from 'pinia';
+import { mapState, mapActions } from 'pinia';
 import { topMenu } from '@/helpers/menus.js'
 import { meanBy } from 'lodash';
 
@@ -231,6 +231,9 @@ export default {
     }
   },
 	methods:{
+    ...mapActions(useAuthStore,{
+      changeRole: 'changeRole',
+    }),
 		doLogout: function() {
       useAuthStore().logout().then(() => {
         this.$router.replace({name:'default'})

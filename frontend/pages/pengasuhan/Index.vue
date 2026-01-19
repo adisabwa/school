@@ -112,6 +112,7 @@
 import { head } from 'lodash';
 import { mapState } from 'pinia';
 import { useAuthStore } from '@/config/stores/authStore'
+import { useDataStore } from '@/config/stores/dataStore'
   
   
   export default {

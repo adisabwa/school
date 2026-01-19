@@ -53,4 +53,28 @@ class PresensiSantriController extends BaseDataController
         return $this->respondCreated($santris);
     }
 
+    public function getSummary()
+    {
+        $ids = $this->request->getGetPost('ids');
+        $ids = explode(',', $ids);
+        if (empty($ids)) {
+            $ids = [-1];
+        }
+        $this->model->selects = [
+            'id_santri',
+            'COUNT(IF({f}.kehadiran="hadir",1,NULL)) * jam as total_hadir',
+            'COUNT(IF({f}.kehadiran="izin",1,NULL)) * jam as total_izin',
+            'COUNT(IF({f}.kehadiran="alfa",1,NULL)) * jam as total_alfa',
+            'COUNT(IF({f}.kehadiran="sakit",1,NULL)) * jam as total_sakit',
+        ];
+        $data = $this->model->getAll(whereIn: [
+            'id_mengajar_kelas' => $ids,
+        ], groupBy: ['id_santri']);
+
+        foreach ($data as $key => $value) {
+            $value->presentase_hadir = round(($value->total_hadir / ($value->total_hadir + $value->total_izin + $value->total_alfa + $value->total_sakit)) * 100);
+        }
+        return $this->respondCreated($data);
+    }
+
 }

@@ -156,7 +156,7 @@ if ( ! function_exists('dateIndo')) {
 	}
 }
 
-function format_tanggal_indonesia($dateString, $withTime = false, $pattern = 'd MMMM yyyy')
+function formatTanggalIndonesia($dateString, $withTime = false, $pattern = 'd MMMM yyyy')
 {
     $locale = 'id_ID';
     $formatter = new \IntlDateFormatter(

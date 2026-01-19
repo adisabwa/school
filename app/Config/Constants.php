@@ -222,7 +222,7 @@ define('RAPOR_SMK_MAPEL_KET', serialize( [
                 ],
             ],
             'kejuruan' => [
-                '22' => [
+                '23' => [
                     'label' => 'Kreativitas, Inovasi dan Kewirausahaan',
                     'kompetensi' => 'Perlu penguatan dalam hal Membuat desain/rancangan produk layanan dan perlu penguatan dalam Menyusun proses kerja pembuatan prototipe.',
                 ],
@@ -250,7 +250,7 @@ define('RAPOR_SMK_MAPEL_KET', serialize( [
                     'label' => 'Bahasa Indonesia',
                     'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis Teks Berita Berdasarkan Strukturnya.',
                 ],
-                '50' => [
+                '78' => [
                     'label' => 'Pendidikan Jasmani, Olahraga, dan Kesehatan',
                     'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar serta baik dalam hal Menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
                 ],
@@ -276,7 +276,7 @@ define('RAPOR_SMK_MAPEL_KET', serialize( [
                 ],
             ],
             'kejuruan' => [
-                '22' => [
+                '23' => [
                     'label' => 'Kreativitas, Inovasi dan Kewirausahaan',
                     'kompetensi' => 'Perlu penguatan dalam hal Membuat desain/rancangan produk layanan dan perlu penguatan dalam Menyusun proses kerja pembuatan prototipe.',
                 ],
@@ -410,7 +410,7 @@ define('RAPOR_SMK_MAPEL_KET', serialize( [
                     'label' => 'Bahasa Indonesia',
                     'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis Teks Berita Berdasarkan Strukturnya.',
                 ],
-                '50' => [
+                '58' => [
                     'label' => 'Pendidikan Jasmani, Olahraga, dan Kesehatan',
                     'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar serta baik dalam hal Menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
                 ],

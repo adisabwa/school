@@ -123,6 +123,7 @@ class RaporController extends BaseDataController
             $result[$santri->id] = (object) [
                 'id_santri' => $santri->id,
                 'stb' => $santri->stb,
+                'nisn' => $santri->nisn,
                 'nama' => $santri->nama,
                 'nama_arab' => $santri->nama_arab,
                 'kelas' => $santri->kelas,
@@ -727,7 +728,7 @@ class RaporController extends BaseDataController
         }
 
         $list_mapel = unserialize(RAPOR_SMK_MAPEL_KET);
-        $mapels = $list_mapel[$kelas->tingkat][$kelas->id_jurusan];
+        $mapels = $list_mapel[$kelas->id_jurusan][$kelas->tingkat];
 
         // return $this->respondCreated($mapels);
         $templateProcessor->cloneRow('no', count($mapels['umum']));
@@ -769,17 +770,20 @@ class RaporController extends BaseDataController
         $templateProcessor->setValue("ts_aktif", get_sikap_aktif($eskul));
         //Kehadiran
         $sakit = $santri->pengasuhan['sakit']->nilai ?? 0;
+        $sakit = $sakit > 3 ? 3 : $sakit;
         $templateProcessor->setValue("sakit", $sakit);
         $templateProcessor->setValue("sakit_arab", to_arabic_number($sakit));
         $izin = $santri->pengasuhan['izin']->nilai ?? 0;
+        $izin = $izin > 3 ? 3 : $izin;
         $templateProcessor->setValue("izin", $izin);
         $templateProcessor->setValue("izin_arab", to_arabic_number($izin));
         $alfa = $santri->pengasuhan['alfa']->nilai ?? 0;
+        $alfa = $alfa > 3 ? 3 : $alfa;
         $templateProcessor->setValue("alfa", $alfa);   
         $templateProcessor->setValue("alfa_arab", to_arabic_number($alfa));
 
         $templateProcessor->setValue("catatan", '');   
-        $templateProcessor->setValue("kokurikuler", '');   
+        $templateProcessor->setValue("kokurikuler", 'Pada semester ini, ananda menunjukkan capaian yang cukup baik dalam penguatan profil lulusan, yang ditunjukkan melalui kegiatan kokurikuler Gerakan olah raga pagi dan sholat dhuha berjamaah. Pada dimensi keimanan dan ketaqwaan terhadap Allah SWT, ananda berkembang dalam subdimensi hubungan dengan Tuhan yang Maha Esa. Pada dimensi kemandirian, ananda berkembang dalam subdimensi bertanggung jawab. Pada dimensi kesehatan, ananda cakap dalam subdimensi kebugaran, kesehatan fisik, dan kesehatan mental.');   
 
         // Wali Kelas
         if (!empty($kelas->walas_signature))
@@ -797,6 +801,7 @@ class RaporController extends BaseDataController
         $templateProcessor->setValue("nbm_walas", $kelas->nbm_walas ?? '-');
         $templateProcessor->setValue("nama_walas", $nama_walas ?? '-');
         $templateProcessor->setValue("nama_walas_arab", $kelas->nama_walas_arab ?? '-');
+        // $templateProcessor->setValue("tanggal", dateIndo('2025-12-19'));
 
         // Set HTTP headers to force download
         $fileName = "$santri->nama.docx";

@@ -13,10 +13,13 @@ helper('route');
     $routes->group('mengajar', static function ($routes) {
         addDefaultRoutes($routes, PresensiMengajar::class, 'sch_pre_mengajar_kelas');
         $routes->add('get_all', [PresensiMengajar::class, 'getAll']);
+        $routes->add('get_all_grouping', [PresensiMengajar::class, 'getAllGrouping']);
+        $routes->add('summary', [PresensiMengajar::class, 'getSummary']);
     });
     //-------------------------------------Presensi Santri di Kelas -----------------------------------------------
     $routes->group('santri', static function ($routes) {
         addDefaultRoutes($routes, PresensiSantri::class, 'sch_pre_harian');
+        $routes->add('summary', [PresensiSantri::class, 'getSummary']);
     });
 });
 

@@ -5,10 +5,10 @@
     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
       <div class="space-y-0.5">
         <h2 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mb-1">
-          {{ 'Ringkasan Pelajaran' }}
+          {{ role === 'walas' ? 'Monitoring Kelas ' + user?.kelas : 'Laporan Akademik Pusat'}}
         </h2>
         <div class="mt-0 text-sm text-slate-500 font-medium">
-          {{ 'Statistik kehadiran santri pada mata pelajaran yang Anda ampu.' }}
+          {{ role === 'walas' ? 'Pantau kedisiplinan dan kehadiran santri di kelas binaan Anda.' : 'Analisis kehadiran santri di seluruh jenjang kelas.' }}
         </div>
       </div>
 
@@ -30,50 +30,51 @@
       </div>
     </div>
 
-    <!-- STATS -->
-    <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
-      <div class="grid grid-cols-2 lg:grid-cols-1 gap-3">
+    <div class="grid grid-cols-1 lg:grid-cols-5 lg:grid-rows-[100px_1fr]  gap-6">
+      <!-- STATS -->
+      <div class="lg:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-3">
 
-        <div class="bg-white p-4 rounded-[1.3rem] border shadow-sm">
-          <div class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-            Kehadiran
+          <div class="bg-white p-4 rounded-[1.3rem] border shadow-sm">
+            <div class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+              Kehadiran
+            </div>
+            <div class="text-2xl font-black text-slate-900 mt-1">
+              {{ presenceRate }}%
+            </div>
           </div>
-          <div class="text-2xl font-black text-slate-900 mt-1">
-            {{ presenceRate }}%
-          </div>
-        </div>
 
-        <div class="bg-white p-4 rounded-[1.3rem] border shadow-sm">
-          <div class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-            Total Izin/Sakit (Jam)
+          <div class="bg-white p-4 rounded-[1.3rem] border shadow-sm">
+            <div class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+              Total Izin/Sakit (Jam)
+            </div>
+            <div class="text-2xl font-black text-blue-600">
+              {{ aggregatedStats.sakit + aggregatedStats.izin }}
+            </div>
           </div>
-          <div class="text-2xl font-black text-blue-600">
-            {{ aggregatedStats.sakit + aggregatedStats.izin }}
-          </div>
-        </div>
 
-        <div class="bg-white p-4 rounded-[1.3rem] border shadow-sm">
-          <div class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-            Total Alfa (Jam)
+          <div class="bg-white p-4 rounded-[1.3rem] border shadow-sm">
+            <div class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+              Total Alfa (Jam)
+            </div>
+            <div class="text-2xl font-black text-red-600">
+              {{ aggregatedStats.alfa }}
+            </div>
           </div>
-          <div class="text-2xl font-black text-red-600">
-            {{ aggregatedStats.alfa }}
-          </div>
-        </div>
 
-        <div class="bg-emerald-600 p-4 rounded-[1.3rem] shadow-lg text-white relative">
-          <div class="text-[11px] font-black uppercase tracking-widest opacity-60">
-            Kualitas
+          <div class="bg-emerald-600 p-4 rounded-[1.3rem] shadow-lg text-white relative">
+            <div class="text-[11px] font-black uppercase tracking-widest opacity-60">
+              Kualitas
+            </div>
+            <span class="text-lg font-black">
+              {{ getRank(presenceRate) }}
+            </span>
           </div>
-          <span class="text-lg font-black">
-            {{ getRank(presenceRate) }}
-          </span>
-        </div>
 
       </div>
 
+      
       <!-- CHART -->
-      <div class="bg-white p-4 lg:p-5 rounded-[1.8rem] border shadow-sm">
+      <div class="lg:col-span-2 row-span-2 relative flex flex-col w-full bg-white p-4 lg:p-5 rounded-[1.8rem] border shadow-sm">
         <floating-select v-if="activePeriod == 'SEMESTER'" v-model:value="idSemester" :options="optionsSemester"
           class="mb-3"/>
         <div v-else
@@ -81,7 +82,7 @@
           <date-wheel-picker
             size="large" v-model:value="dateFrom" placeholder="Pilih Tanggal"
             ref="dateSelect" class="w-full" :day-locked="activePeriod == 'BULANAN'"
-            @change="getSummary">
+            @change="getData">
           </date-wheel-picker>
           <template v-if="activePeriod !== 'HARIAN'">
             <span class="text-[12px] mx-2">Sampai</span>
@@ -90,92 +91,78 @@
           </template> 
         </div>
         <div class="font-bold text-xl mb-1">Statistik Kehadiran Santri</div>
-        <div v-if="!isEmpty(statistic.datasets)">
-          <BarChart chart-class="h-[250px]"
-            :add-options="{
-              responsive: true,
-              plugins:{
-                tooltip: {
-                  callbacks: {
-                    label(context) {
-                      const label = context.dataset.label || ''
-                      const value = context.raw
+        <div v-if="!isEmpty(statistic.datasets)" class="overflow-hidden">
+          <div>
+            <div v-for="(d, key) in statistic.datasets[0].data">
+              <div class="flex justify-between text-[12px] font-bold mt-2 px-2">
+                <span>{{ statistic.labels[key] }}</span>
+                <span>{{ d }} %</span>
+              </div>
+              <div class="h-[20px] rounded-full"
+                :style="{
+                  width:d + '%',
+                  backgroundColor: statistic.datasets[0].backgroundColor
+                }">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                      return `${label}: ${value} %`
-                    }
-                  }
-                }
-              },
-              scales: {
-                y: {
-                  title: {
-                    display: true,
-                    text: 'Presentase Kehadiran (%)'
-                  },
-                  beginAtZero: true,
-                  ticks: {
-                    stepSize: 5
-                  }
-                }
-              }
-            }"
-            :statistic="statistic" :max="100" :min="10" />
+      <!-- SUMMARY ALL LESSON -->
+      <div class="lg:col-span-3">
+        <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
+          <div v-for="(sub,i) in summaryStudents" :key="i" @click="selectedReport=sub;showSummaryDetail=true;" class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm group hover:border-emerald-200 hover:shadow-xl transition-all cursor-pointer overflow-hidden relative">
+            <div class="flex gap-x-3 items-center w-full">
+              <div class="shrink-0 w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center relative z-10
+                font-bold text-xl">
+                {{ sub.kelas }}
+              </div>
+              <div class="flex flex-col w-full">
+                <div class="font-black text-slate-800 text-xl relative z-10">{{ sub.nama }}</div>
+              </div>
+              <el-button
+                class="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center
+                  text-slate-300 group-hover:bg-emerald-600
+                  group-hover:text-white" >
+                <icons icon="mdi:arrow-right" class="m-0 text-[18px]"/>
+              </el-button>
+            </div>
+            <div class="flex pt-5 border-t border-slate-50 relative z-10">
+              <div class="w-full flex gap-x-5">
+                <div class="w-fit">
+                  <div class="text-[12px] font-black text-slate-300 uppercase">Sesi</div><div class="text-2xl font-black text-slate-700">{{ sub?.ids?.length }}</div>
+                </div>
+                <div class="w-fit">
+                  <div class="text-[12px] font-black text-slate-300 uppercase">Jam</div><div class="text-2xl font-black text-slate-700">{{ sub.jam }}</div>
+                </div>
+                <div class="w-fit">
+                  <div class="text-[12px] font-black text-orange-300 uppercase">S / I</div><div class="text-2xl font-black text-orange-700">{{ parseInt(sub.total_izin) + parseInt(sub.total_sakit) }}</div>
+                </div>
+                <div class="w-fit">
+                  <div class="text-[12px] font-black text-red-300 uppercase">Alfa</div><div class="text-2xl font-black text-red-700">{{ sub.total_alfa }}</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-[12px] font-black text-emerald-400 uppercase">Hadir</div>
+                <div class="text-2xl font-black text-emerald-600">{{ sub.presentase_hadir}}&nbsp;%</div>
+              </div>
+            </div>
+            <div class="absolute -right-3 -bottom-3 opacity-5 group-hover:opacity-10 transition-opacity">
+              <icons icon="lucide:book-open" class="text-[80px]" />
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center justify-center flex-col
+          text-emerald-700 font-bold h-[100px]"
+            v-if="isEmpty(summaryMengajar)">
+          <icons icon="ph:empty" class="m-0 text-[45px]"/>
+          <div class="text-[20px]">Tidak ada data</div>
         </div>
       </div>
     </div>
 
-    <!-- SUMMARY ALL LESSON -->
-    <div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div v-for="(sub,i) in summaryMengajar" :key="i" @click="selectedReport=sub;showSummaryDetail=true;" class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm group hover:border-emerald-200 hover:shadow-xl transition-all cursor-pointer overflow-hidden relative">
-          <div class="flex gap-x-3 items-center w-full">
-            <div class="shrink-0 w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center relative z-10
-              font-bold text-xl">
-              {{ sub.kelas }}
-            </div>
-            <div class="flex flex-col w-full">
-              <div class="font-black text-slate-800 text-xl relative z-10">{{ sub.nama_mapel }}</div>
-              <div class="text-[13px] text-slate-400 font-bold uppercase tracking-widest mb-1 relative z-10 leading-[1.3]">Terakhir : {{ dateIndo(sub.tanggal) }}</div>
-            </div>
-            <el-button
-              class="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center
-                text-slate-300 group-hover:bg-emerald-600
-                group-hover:text-white" >
-              <icons icon="mdi:arrow-right" class="m-0 text-[18px]"/>
-            </el-button>
-          </div>
-          <div class="flex pt-5 border-t border-slate-50 relative z-10">
-            <div class="w-full flex gap-x-5">
-              <div class="w-fit">
-                <div class="text-[12px] font-black text-slate-300 uppercase">Sesi</div><div class="text-2xl font-black text-slate-700">{{ sub.ids.length }}</div>
-              </div>
-              <div class="w-fit">
-                <div class="text-[12px] font-black text-slate-300 uppercase">Jam</div><div class="text-2xl font-black text-slate-700">{{ sub.jam }}</div>
-              </div>
-              <div class="w-fit">
-                <div class="text-[12px] font-black text-orange-300 uppercase">S / I</div><div class="text-2xl font-black text-orange-700">{{ parseInt(sub.total_izin) + parseInt(sub.total_sakit) }}</div>
-              </div>
-              <div class="w-fit">
-                <div class="text-[12px] font-black text-red-300 uppercase">Alfa</div><div class="text-2xl font-black text-red-700">{{ sub.total_alfa }}</div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-[12px] font-black text-emerald-400 uppercase">Hadir</div>
-              <div class="text-2xl font-black text-emerald-600">{{ sub.presentase_hadir}}&nbsp;%</div>
-            </div>
-          </div>
-          <div class="absolute -right-3 -bottom-3 opacity-5 group-hover:opacity-10 transition-opacity">
-            <icons icon="lucide:book-open" class="text-[80px]" />
-          </div>
-        </div>
-      </div>
-      <div class="flex items-center justify-center flex-col
-        text-emerald-700 font-bold h-[100px]"
-          v-if="isEmpty(summaryMengajar)">
-        <icons icon="ph:empty" class="m-0 text-[45px]"/>
-        <div class="text-[20px]">Tidak ada data</div>
-      </div>
-    </div>
+    
 
     <!-- DETAIL RANGKUMAN -->
     <el-dialog v-model="showSummaryDetail"
@@ -457,11 +444,8 @@ export default {
       let params = {
         where:{
           'id_semester':this.idSemester,
+          'id_kelas':this.user.id_kelas,
         },
-        or:{
-          'id_guru':this.idGuru,
-          'id_pengganti':this.idGuru,
-        }
       }
       switch (this.activePeriod) {
         case 'HARIAN':
@@ -513,7 +497,6 @@ export default {
     },
     dateFrom(val){
       this.findDateEnd()
-      this.getSummary()
       this.getData()
     }
   },
@@ -600,6 +583,7 @@ export default {
         }
       }).then(res => {
         this.summaryMengajar = res.data
+        this.getSummary()
       })
     },
     getListMengajar(){
@@ -618,7 +602,25 @@ export default {
       this.$http.get('presensi/mengajar/summary',{
         params: this.paramsStatistic
       }).then(res => {
-        this.statistic = res.data
+        let statistic = res.data
+        let ids = []
+        this.summaryMengajar.forEach(d => {
+          console.log(d)
+          ids = [...ids, ...d.ids]
+        })
+        this.$http.get('presensi/santri/summary',{
+          params:{
+            ids: ids.join(','),
+          }
+        }).then(res => {
+          this.summaryStudents = res.data
+          this.summaryStudents.forEach(s => {
+            statistic.labels.push(s.nama)
+            statistic.datasets[0].data.push(s.presentase_hadir)
+          })
+          this.statistic = statistic
+          console.log(this.statistic  )
+        })
       })
     }
   },

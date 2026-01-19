@@ -28,14 +28,17 @@
 					</h2>
 					
 					<div
-						class="flex items-center gap-2 justify-center md:justify-start text-emerald-50 text-md font-bold mb-2"
+						class="flex flex-col lg:flex-row items-center gap-x-2 gap-y-1 justify-center md:justify-start text-emerald-50 text-md font-bold mb-2"
 					>
-						{{ dataMengajar.nama_guru }}
+						{{ dataMengajar.nama_guru }} 
+						<span v-if="dataMengajar.id_pengganti > 0">
+							(<span class="text-emerald-100">Diganti oleh {{ dataMengajar.nama_guru_pengganti }}</span>)
+						</span>
 					</div>
 					<div
 						class="flex items-center gap-2 justify-center md:justify-start text-emerald-50 text-sm italic font-medium opacity-80"
 					>
-						{{ dataMengajar.topik }}
+						"{{ dataMengajar.topik }}"
 					</div>
 				</div>
 

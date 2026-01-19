@@ -3,14 +3,14 @@
     <div class="max-w-[600px] shadow-xl p-3 py-5 md:p-5 mx-auto rounded-3xl">
       <div class="text-left">
         <div class="">
-          <div class="flex flex-col md:flex-row items-center gap-2 lg:gap-7 mb-3 lg:mb-5 text-center md:text-left border-b border-slate-50">
+          <div class="flex items-start lg:items-center gap-2 lg:gap-7 mb-3 lg:mb-5 text-center md:text-left border-b border-slate-50">
             <div class="flex flex-col items-center">
               <div class="w-20 h-20 lg:w-28 lg:h-28 bg-emerald-100 text-emerald-600 rounded-xl lg:rounded-3xl flex items-center justify-center font-black text-3xl lg:text-5xl shadow-inner">
                 {{ dataKelas?.kelas }}
               </div>
             </div>
-            <div>
-              <div class="text-sm lg:text-xl text-slate-500 grid grid-cols-[130px,_1fr] md:grid-cols-1 items-center justify-center md:justify-start gap-x-2 gap-y-0 md:gap-y-1">
+            <div class="">
+              <div class="text-left text-sm lg:text-xl text-slate-500 grid grid-cols-1 lg:grid-cols-[130px,_1fr] items-center justify-center md:justify-start gap-x-2 gap-y-1 md:gap-y-2">
                 <span class="bg-slate-100 px-2 py-0.5 rounded text-[10px] lg:text-sm font-bold text-slate-400 uppercase">Mata Pelajaran</span>
                 <span class="text-emerald-600 font-bold flex items-center">
                   <icons icon="line-md:edit-twotone" class="mr-2 text-[20px] cursor-pointer" @click="editMapel = true"/>
@@ -27,16 +27,23 @@
                 <span class="bg-slate-100 px-2 py-0.5 rounded text-[10px] lg:text-sm font-bold text-slate-400 uppercase">Pengajar</span>
                 <span class="text-emerald-600 font-bold flex items-center">
                   <icons icon="line-md:edit-twotone" class="mr-2 text-[20px] cursor-pointer" @click="editGuru = true"/>
-                  <span v-if="editGuru">
-                    <floating-select v-model:value="dataKelas.id_pengganti" placeholder="Pilih Guru Pengganti" 
-                      :filterable="true" :clearable="true" size="large"
-                      @change="editGuru = false"
-                      class="max-w-full"
-                      :options="optionsGuru">
-                    </floating-select>
-                  </span>
-                  <span v-else>{{ dataKelas.id_pengganti > 0 ? runFunction({data:dataKelas.id_pengganti, options: optionsGuru}) : dataKelas?.nama_guru }}</span>
+                  <span>{{ dataKelas?.nama_guru }}</span>
                 </span>
+                <template v-if="editGuru || dataKelas.id_pengganti > 0">
+                  <span class="bg-slate-100 px-2 py-0.5 rounded text-[10px] lg:text-sm font-bold text-slate-400 uppercase">Diganti oleh</span>
+                  <span class="text-emerald-600 font-bold flex items-center">
+                    <icons v-if="!editGuru" icon="line-md:edit-twotone" class="mr-2 text-[20px] cursor-pointer" @click="editGuru = true"/>
+                    <icons v-else icon="mdi:check" class="mr-2 text-[20px] cursor-pointer" @click="editGuru = false"/>
+                    <span v-if="editGuru">
+                      <floating-select v-model:value="dataKelas.id_pengganti" placeholder="Pilih Guru Pengganti" 
+                        :filterable="true" :clearable="true" size="large"
+                        class="max-w-full"
+                        :options="optionsGuru">
+                      </floating-select>
+                    </span>
+                    <span v-else>{{ dataKelas.nama_guru_pengganti ?? runFunction({data:dataKelas.id_pengganti, options: optionsGuru}) }}</span>
+                  </span>
+                </template>
               </div>
             </div>
           </div>
@@ -108,6 +115,34 @@
 
               <el-switch active-value="1" inactive-value="0" v-model="dataKelas.is_perangkat" />
             </div>
+
+            <!-- Keterlambatan -->
+            <div class="flex items-center justify-between"
+              v-if="dataKelas.is_telat == '1'">
+              <div class="flex items-start gap-3 w-full">
+                <div
+                  :class="[
+                    'w-10 h-10 rounded-xl flex items-center justify-center',
+                    dataKelas.is_telat ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'
+                  ]"
+                >
+                  <icons icon="material-symbols:assignment-late" />
+                </div>
+                <div class="w-full">
+                  <div class="text-sm font-bold text-slate-700">Keterlambatan</div>
+                  <div class="text-[11px] text-slate-400">
+                    Anda terlambat selama <b class="italic">{{ Math.floor(dataKelas.waktu_telat / 60) }} menit</b>
+                  </div>
+                  <el-input
+                    v-model="dataKelas.alasan_telat"
+                    type="textarea"
+                    :rows="2"
+                    placeholder="Masukkan alasan keterlambatan Anda"
+                    class="w-full mt-1"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -127,6 +162,8 @@
 </template>
 
 <script>
+import { mapState } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore';
 
 export default {
   name: 'SessionForm',
@@ -146,6 +183,9 @@ export default {
       dataKelas:{
         topik:'',
         is_seragam:'',
+        is_telat:'',
+        waktu_telat:'',
+        alasan_telat:'',
         is_perangkat:'',
         id_mapel:'',
       },
@@ -154,7 +194,9 @@ export default {
     }
   },
   computed:{
-    
+    ...mapState(useAuthStore, {
+      user: 'loggedUser',
+    }),
   },
   watch:{
     idKelas(val){
@@ -175,6 +217,9 @@ export default {
         }
       }).then(res => {
         this.dataKelas = res.data
+        if (this.idGuru != this.dataKelas.id_guru){
+          this.dataKelas.id_pengganti = this.idGuru
+        }
       }).catch(err => {
         console.log(err)
       })
@@ -199,6 +244,7 @@ export default {
         topik: this.dataKelas.topik,
         is_seragam: this.dataKelas.is_seragam,
         is_perangkat: this.dataKelas.is_perangkat,
+        alasan_telat: this.dataKelas.alasan_telat,
       })
       this.$http.post('presensi/mengajar/store', form)
         .then(res => {
@@ -211,6 +257,7 @@ export default {
   },
   created(){
     let id_kelas = this.$route?.query?.id_kelas ?? -1
+    this.idGuru = this.user.id
     this.getInitial()
     if (id_kelas <= 0)
       this.$alert('Anda belum scan QR','Error',{
