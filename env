@@ -20,7 +20,7 @@ CI_ENVIRONMENT = development
 # VITE
 #--------------------------------------------------------------------
 
-VITE_GOOGLE_CLIENT_ID="772505936971-2t8uagmune1okfadm411cdjb0s04k3el.apps.googleusercontent.com"
+VITE_GOOGLE_CLIENT_ID=""
 VITE_MODE = 'development'
 VITE_BASE_URL = '/school/public/'
 # VITE_BASE_URL_PROD = '/school/public/'
@@ -33,14 +33,14 @@ VITE_PREFIX_TABLE = 'sch_'
 # VITE_SCHOOL = 'mihamsa'
 # VITE_PREFIX_TABLE = 'schmi_'
 
-VITE_PUBLIC_VAPID_KEY = "BPr-rw6R1GDz3JqCVU-XAzkJ_az35SRTQTSgelZ-NodnPgnkrDFm87AoQAfG7AEZ1YpPngL_dm3ZEj5xCuND1OU"
-VITE_GOOGLE_MAPS_API_KEY = "AIzaSyCZLWzXQXWTA99t1i3UZd8LoVSPg8vAEVw"
+VITE_PUBLIC_VAPID_KEY = ""
+VITE_GOOGLE_MAPS_API_KEY = ""
 VITE_PORT = 3980
 
 #--------------------------------------------------------------------
 #GEMINI
 #--------------------------------------------------------------------
-GEMINI_API_KEY = "AQ.Ab8RN6LAy4pe33JwxTM3VLg6Up7AiFpu2pbP1qf8C7WyinzB5w"
+GEMINI_API_KEY = ""
 
 
 #--------------------------------------------------------------------
