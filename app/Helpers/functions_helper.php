@@ -1,6 +1,15 @@
 <?php
 use NumberToWords\NumberToWords;
+use ArPHP\I18N\Arabic;
 use CodeIgniter\HTTP\ResponseInterface;
+
+function sumOfArray($array, $attr) {
+    $sum = 0;
+    foreach ($array as $value) {
+        $sum += is_array($value) ? $value[$attr] : $value->$attr;
+    }
+    return $sum;
+}
 
 function array_average($array) {
     $count = count(array_filter($array, fn($n) => $n > 0));
@@ -103,7 +112,7 @@ function getHari($tanggal){
     return $haris[$day];
 }
 
-function nextDateByDay(string $targetDay, string $timezone = 'Asia/Jakarta'): string
+function nextDateByDay(string $targetDay, string $targetTime = '', string $timezone = 'Asia/Jakarta'): string
 {
     $map = [
         'ahad' => 0,
@@ -122,14 +131,17 @@ function nextDateByDay(string $targetDay, string $timezone = 'Asia/Jakarta'): st
     }
 
     $now = new DateTime('now', new DateTimeZone($timezone));
+    $timeNow = $now->format('H:i:s');
     $todayIndex = (int) $now->format('w'); // 0=Ahad
     $targetIndex = $map[$targetDay];
 
     $diff = ($targetIndex - $todayIndex + 7) % 7;
 
-    // kalau hari sama → ambil minggu depan
-    if ($diff === 0) {
-        $diff = 7;
+    // kalau hari sama dan waktu sudah lewat → ambil minggu depan
+    if ($targetTime) {
+        if ($diff === 0 && $timeNow >= $targetTime) {
+            $diff = 7;
+        }
     }
 
     $now->modify("+$diff days");
@@ -203,6 +215,14 @@ if (! function_exists('number_to_words')) {
     }
 }
 
+if (! function_exists('number_to_words_arabic')) {
+    function number_to_words_arabic($number, $feminime = false) {
+        $numberToWords = new Arabic('Numbers');
+        $numberToWords->setNumberFeminine($feminime ? 2 : 1);
+        return ucwords($numberToWords->int2str($number));
+    }
+}
+
 function class_to_arabic($number) {
     $classes = [
         1 => 'الأول',
@@ -249,6 +269,38 @@ if ( ! function_exists('dateIndoArabic')) {
 
 		return $tgl_indo;
 	}
+}
+
+function number_to_roman(int $number): string 
+{
+    // Validate input range (Roman numerals typically range from 1 to 3999)
+    if ($number <= 0 || $number > 3999) {
+        return '';
+    }
+
+    // Map of Roman numerals
+    $map = [
+        'M'  => 1000, 'CM' => 900,  'D'  => 500, 'CD' => 400,
+        'C'  => 100,  'XC' => 90,   'L'  => 50,  'XL' => 40,
+        'X'  => 10,   'IX' => 9,    'V'  => 5,   'IV' => 4,
+        'I'  => 1
+    ];
+
+    $result = '';
+
+    foreach ($map as $roman => $value) {
+        // Determine how many times the current Roman numeral fits into the number
+        $matches = intval($number / $value);
+
+        if ($matches > 0) {
+            // Append the Roman numeral character(s) to the result string
+            $result .= str_repeat($roman, $matches);
+            // Reduce the number by the amount already converted
+            $number = $number % $value;
+        }
+    }
+
+    return $result;
 }
 
 if (!function_exists('zip_and_download')) {

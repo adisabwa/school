@@ -13,6 +13,7 @@
     }
     .el-dialog {
         @apply mb-0 !important;
+        
     }
 }
 

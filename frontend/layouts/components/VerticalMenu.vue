@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <div class="z-[99] h-[40px]">
+    <div class="z-[99] h-[40px] relative">
       <div class="absolute sm:fixed z-[10] top-0 overflow-visible w-full max-w-[100vw] h-[30px]"> 
         <div class="relative overflow-hidden w-full h-[70px]">
           <el-header class="bg-orange-300 h-[40px] w-full relative"></el-header>
@@ -8,9 +8,11 @@
             h-[70px] w-[1400px] absolute z-[51] top-[1px]
             translate-x-[calc(50vw-50%)] sm:-translate-x-[calc(590px)]
             translate-y-[-5px]"
-              :style="`background-image:url('${$baseUrl}assets/images/top.png')`"></div>
+            :style="{ 
+              'background-image': `url('${$topElementBackground}')`, 
+            }"></div>
         </div>
-        <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'" height="80px" 
+        <img id="logo" :src="$logoDefault" height="80px" 
           @click="$router.push({name:defaultRoute})"
           class="pointer animate hover:scale-[0.8]
           absolute z-[53] top-0
@@ -25,7 +27,7 @@
       fixed left-0 top-0
       z-[2] sm:z-[1]
       flex flex-col justify-between
-      bg-teal-700">
+      bg-[var(--color-main-700)]">
       <div class="absolute w-full h-full z-[-1]
         bg-cover opacity-20"
         :style="{
@@ -37,18 +39,23 @@
           <div class="w-full mt-0 z-[1]
             text-white leading-[1.3]">
             Assalamu'alaikum,<br/>
-            <div class="text-xl font-semibold truncate">{{ user.nama }}</div>
+            <div class="text-xl font-semibold leading-none">{{ isEmpty(user.nama) ? 'Tamu' : user.nama }}</div>
             <div class="text-md font-semibold truncate">{{ user.unit_kerja }}</div>
-            <div class="mt-1 text-md leading-[1] cursor-pointer"
-              @click="showRole = true">
-              <span class="el-dropdown-link text-white flex items-end gap-1">
-                {{ ucFirst(role) }}
+            <div class="text-md leading-[1] mt-1">
+              <div v-if="role == ''">
+                <el-button class="bg-white text-[var(--color-main-700)] border-0 h-auto p-[7px] px-3 mt-1"
+                  @click="$router.push({name:'default'})">
+                  <span class="text-[13px] font-bold">MASUK</span>
+                </el-button>
+              </div>
+              <span v-else class="el-dropdown-link text-white flex items-end gap-1"  @click="showRole = true" >
+                {{ getRoleLabel(role) }}
                 <icons icon="fe:arrow-down" class="text-[90%]" />
               </span>
             </div>
             <teleport to="body">
               <el-dialog v-model="showRole"
-                class="[&_*]:font-montserrat text-teal-800 w-[280px]">
+                class="[&_*]:font-montserrat text-[var(--color-main-800)] w-[280px]">
                 <template #header>
                   <div>Masuk Sebagai</div>
                 </template>
@@ -56,11 +63,11 @@
                   v-model="selectedRole">
                   <el-radio-button v-for="rl in roles"
                     :value="rl" class="
-                    border border-solid border-teal-700/[0.5]
-                    text-teal-800 
+                    border border-solid border-[var(--color-main400)]
+                    text-[var(--color-main-800)] 
                     [&_*]:w-full w-full
                     [&_*]:border-0">
-                    {{ ucFirst(rl) }}</el-radio-button>
+                    {{ getRoleLabel(rl) }}</el-radio-button>
                 </el-radio-group>
                 <template #footer>
                   <div class="dialog-footer flex justify-between">
@@ -70,7 +77,7 @@
                         app:$route?.meta?.app ?? 'all',
                         role:selectedRole
                       })"
-                      class="bg-teal-700 border-0">
+                      class="bg-[var(--color-main-700)] border-0">
                       Ubah
                     </el-button>
                   </div>
@@ -79,7 +86,7 @@
             </teleport>
           </div>
         </div>
-        <el-menu :default-active="activeMenu"
+        <el-menu :default-active="activeMenu" unique-opened
           @select="handleSelect"
           class="el-menu-vertical-demo bg-transparent
             border-0
@@ -129,7 +136,7 @@
           text-white bg-transparent pointer text-[13px]
           border border-white border-solid
           transitian-all duration-300 hover:scale-90"
-          @click="$emit('toggle', '0')">
+          @click="$emit('toggle', 'horizontal')">
           <icons icon="tdesign:menu-filled"/>
           <span>Menu Horizontal</span>
         </div>
@@ -138,7 +145,7 @@
     <div class="bg-white rounded-full w-[60px] h-[60px] opacity-50 hover:opacity-80 md:hidden
       fixed z-[99999] bottom-5 right-5 flex items-center justify-center"
       @click="handleSelect">
-      <icons icon="mdi:menu" class="text-4xl m-0 text-emerald-900
+      <icons icon="mdi:menu" class="text-4xl m-0 text-[var(--color-main-900)]
         " />
     </div>
   </div>
@@ -147,9 +154,18 @@
 <script>
 import { mapState, mapActions } from 'pinia';
 import { useAuthStore } from '@/config/stores/authStore'
+import { getRoleLabel } from '@/modules/dashboard/helpers/functionHelper'
 
 export default {
   name: 'vertical-menu',
+  setup(){
+    return {
+      ucFirst,
+      getRoleLabel,
+      isEmpty,
+      toggleClass,
+    }
+  },
   emits:['function'],
   components:{
   },
@@ -189,7 +205,7 @@ export default {
       this.$emit('action', val)
     },
     handleSelect: function(action) {
-      this.toggleClass('#menu-vertical','-translate-x-full sm:translate-x-0');
+      toggleClass('#menu-vertical','-translate-x-full sm:translate-x-0');
     },
   },
   updated: function() {
@@ -209,7 +225,7 @@ export default {
 		@apply 
       transition-all ease-in-out delay-[400] duration-500 hover:delay-0
       [&_*]:delay-[400] [&_*]:hover:delay-0 
-      bg-gradient-to-l from-transparent from-50% to-teal-100 to-50%
+      bg-gradient-to-l from-transparent from-50% to-[var(--color-main-100)] to-50%
       bg-[length:200%_200%] bg-right-bottom 
       leading-[0]
       border-0
@@ -222,43 +238,60 @@ export default {
 		!important;
     li, span, div {
       @apply 
+        transition-all ease-in-out delay-[400] duration-500 hover:delay-0
         text-white
       !important;
     }
     svg {
-      @apply fill-current text-white !important;
+      @apply fill-current text-white
+      transition-all ease-in-out delay-[400] duration-500 hover:delay-0
+      !important;
     }
   }
-  :deep(.el-sub-menu.is-active .el-menu) :not(.is-active) {
-    * {
-      @apply text-teal-50;
-    }
+  :deep(.el-sub-menu.is-active [role="menuitem"]):not(.is-active) {
     @apply
-      bg-teal-700
+      bg-[var(--color-main-700)]
     !important;
+    * {
+      @apply text-[var(--color-main-50)];
+    }
+    > svg {
+      @apply bg-transparent !important;
+    }
+  }
+  :deep(.el-sub-menu.is-active [role="menuitem"]):hover {
+    > svg {
+      @apply text-[var(--color-main-700)] fill-[var(--color-main-700)] !important;
+    }
+  }
+  :deep(.el-sub-menu.is-active [role="menuitem"]).is-active {
+    @apply bg-[var(--color-main-50)] !important;
+    > svg {
+      @apply bg-transparent text-[var(--color-main-700)] fill-[var(--color-main-700)] !important;
+    }
   }
   :deep([role="menuitem"]):hover {
     .el-menu {
-      @apply bg-teal-700 !important;
+      @apply bg-[var(--color-main-700)] !important;
     }
     > li, > span, > div * {
       @apply 
-        text-teal-700
+        text-[var(--color-main-700)]
       !important;
     }
     > svg {
-      @apply fill-teal-700 text-teal-700 !important;
+      @apply fill-[var(--color-main-700)] text-[var(--color-main-700)] !important;
     }
   }
   :deep([role="menuitem"].is-active) {
-    @apply bg-teal-50 !important;
+    @apply bg-[var(--color-main-50)] !important;
     > li, > span, > div * {
       @apply 
-         text-teal-700
+         text-[var(--color-main-700)]
       !important;
     }
     > svg {
-      @apply fill-teal-700 text-teal-700 !important;
+      @apply fill-[var(--color-main-700)] text-[var(--color-main-700)] !important;
     }
   }
 </style>

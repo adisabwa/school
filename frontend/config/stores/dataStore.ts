@@ -3,7 +3,6 @@ import { siteUrl } from "@/config/url"
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ElNotification } from 'element-plus'
 import axios from "axios";
-import jsonToFormData from 'json-form-data'
 
 export const useDataStore = defineStore('data', {
   state: () => ({
@@ -11,11 +10,19 @@ export const useDataStore = defineStore('data', {
     anggotas: [],
     filters:{},
     datas:{},
+    template:'main',
+    layout:'vertical',
   }),
   getters: {
     
   },
   actions: {
+    setTemplate(type) {
+      this.template = type;
+    },
+    setLayout(type) {
+      this.layout = type;
+    },
     async getAllAnggotaInGroup(payload) {
       // console.log(payload);
       return new Promise((resolve, reject) => {
@@ -94,5 +101,11 @@ export const useDataStore = defineStore('data', {
       // console.log(this.filter)
       this.datas[key] = val
     }
+  },
+  persist: {
+    key: 'school_app_data_state',
+    storage: localStorage, // atau sessionStorage
+    sync: true,
+    debug: true,
   },
 })

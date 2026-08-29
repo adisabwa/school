@@ -10,7 +10,7 @@ class DataDaerahModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__daerah';
+        $this->table = PREFIX_TABLE.'_daerah';
     }
 
     public function getOptions($where = [])

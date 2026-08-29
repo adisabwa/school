@@ -18,9 +18,10 @@ class MapelPenjadwalanController extends BaseDataController
     public function index($return = false)
     {
         $data = parent::index(true);
+        // var_dump($data);exit;
         // var_dump($this->model->getLastQuery());
         array_walk($data, function($a){
-            $a->date = nextDateByDay($a->hari);
+            $a->date = nextDateByDay($a->hari, $a->waktu_selesai_akhir);
         });
         $hariIndex = [
             'sabtu'  => 1,
@@ -42,18 +43,21 @@ class MapelPenjadwalanController extends BaseDataController
             'friday'   => 'jumat',
         ];
 
-        $todayName  = $mapHari[strtolower(date('l'))];
+        $date = date('Y-m-d');
+        // $date = '2026-08-25';
+        $todayName  = $mapHari[strtolower(date('l', strtotime($date)))];
         $todayIndex = $hariIndex[$todayName];
         $now = date('H:i');
+        // $now = '2026-08-26';
 
         usort($data, function ($a, $b) use ($hariIndex, $todayIndex, $now) {
 
             $aDay = $hariIndex[$a->hari];
             $bDay = $hariIndex[$b->hari];
 
-            // cek apakah sudah lewat waktu_selesai (HARI INI)
-            $aExpired = ($aDay === $todayIndex && $now > $a->waktu_selesai);
-            $bExpired = ($bDay === $todayIndex && $now > $b->waktu_selesai);
+            // cek apakah sudah lewat waktu_selesai_akhir (HARI INI)
+            $aExpired = ($aDay === $todayIndex && $now > $a->waktu_selesai_akhir);
+            $bExpired = ($bDay === $todayIndex && $now > $b->waktu_selesai_akhir);
 
             /*
             GROUP PRIORITY
@@ -133,7 +137,8 @@ class MapelPenjadwalanController extends BaseDataController
         foreach ($mapelPembagian as $key => $value) {
             $pem_opt["$value->kode_mapel-$value->kelas"] =  $value->id;
         }
-
+        // var_dump($pem_opt);
+        // return;
         $filename = WRITEPATH . 'uploads/' . $file->store();
 
         $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($filename);
@@ -215,7 +220,12 @@ class MapelPenjadwalanController extends BaseDataController
         $ind = -1;
         foreach ($result as $key => $value) {
             $check = $prev['kode'] != $value['kode'];
-            if ($check || (!$check && $prev['hari'] != $value['hari'])){
+
+            // if ($pem_opt[($value['kode']."-".$value['kelas'])] == 20957) 
+            //     var_dump($prev, $value, $pem_opt[($value['kode']."-".$value['kelas'])],
+            //     $check,
+            //     $check || (!$check && $prev['hari'] != $value['hari']));
+            if ($check || (!$check && ($prev['hari'] != $value['hari'] || $prev['kelas'] != $value['kelas']))){
                 $ind++;
                 $merging[$ind] = [
                     'hari'                  => $value['hari'],

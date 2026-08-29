@@ -1,8 +1,8 @@
 <template>
   <div id="table-data">
     <div v-if="showCreate || showSearch || showDownload || showUpload"
-      class="flex flex-col sm:flex-row mb-3 gap-4
-      mt-7 sm:mt-2">
+      class="flex flex-col md:flex-row mb-3 gap-4
+      mt-7 md:mt-2">
       <div class="w-full
         grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] [&_button]:m-0
         gap-x-3 gap-y-2
@@ -32,9 +32,9 @@
           Download Excel</el-button>
         <slot name="menu" :action="handleActionClick"></slot>
       </div>
-      <div v-if="showSearch" class="w-full sm:w-1/3 flex h-fit">
+      <div v-if="showSearch" class="w-full md:w-1/3 flex h-fit">
         <el-select v-model="searchField" placeholder="Kolom"
-          class="min-w-[100px]"
+          class="min-w-[120px]"
           :empty-values="[null, undefined]"
           :value-on-clear="null"
           clearable>
@@ -42,11 +42,11 @@
           <el-option v-for="field in fields"
             :value="field.nama_kolom" :label="field.label"/>
         </el-select>
-        <el-input placeholder="Cari..." class="min-w-[150px] rounded-full" size="default" type="search" @input="isTyping=true" v-model="searchKeyword" />
+        <el-input placeholder="Cari..." class="min-w-[200px] rounded-full" size="default" type="search" @input="isTyping=true" v-model="searchKeyword" />
       </div>
     </div>
     <el-card class="bg-white/[0.7]"
-      body-class="px-2 py-1 pb-3 sm:px-3">
+      body-class="px-2 py-2 pb-3 sm:px-3">
       <loading v-if="loading" />
       <el-table
         class="max-sm:[&_.cell]:text-[12px]
@@ -73,32 +73,33 @@
           </template>
         </el-table-column>
         <el-table-column
-          :width="$windowWidth > 600 ? 50 : 30" label="No" align="center">
+          v-if="showIndex"
+          :width="$windowWidth.value > 600 ? 50 : 30" label="No" align="center">
           <template #default="scope">
             {{ scope.$index + 1 + paging.offset }}
           </template>
         </el-table-column>
         <template v-for="(field, ind) in fields">
-          <slot :name="'before-'+field.nama_kolom" :field="field" :fields="fields"></slot>
+          <slot :name="'before-'+field.nama_kolom" :field="field" :fields="fields" :handleActionClick="handleActionClick"></slot>
           <el-table-column v-if="showColumns.length > 0 ? showColumns.includes(field.nama_kolom) : !passColumns.includes(field.nama_kolom)"
             :width="field.width" :align="field.align" :min-width="field.min_width" :max-width="field.max_width">
             <template #header="scope">
-              <div class="flex items-center pointer"
+              <div :class="['flex items-center pointer', labelClass, eachLabelClass?.[field.nama_kolom] ?? '' ]"
                 @click="changeSort(ind, field.sort)"
                 :style="{
                   'justify-content' : field.align,
                   'font-weight': (order[0] == field.nama_kolom ? '900' : ''),
                 }">
-                <template v-if="field.sortable == '1'">
+                <template v-if="field.sortable == '1' && sortable">
                   <icons :icon="field.sort == 'asc' ? 'bx:sort-down' :
                     (field.sort == 'desc' ? 'bx:sort-up' : 'bx:sort')"
-                    class="mr-1 h-[20px] shrink-0"/>
+                    class="mr-1 h-[15px] shrink-0"/>
                 </template>
                 <div>{{ field.label }}</div>
               </div>
             </template>
             <template #default="scope">
-              <div :class="field.sortable == '1' ? 'ml-[16px]' : 'ml-0'">
+              <div :class="[field.sortable == '1' && sortable ? 'ml-[20px]' : 'ml-0', dataClass, eachDataClass?.[field.nama_kolom] ?? '']">
                 <div v-if="!field.hide_content">
                   {{ runFunction({
                     func: field.function, 
@@ -111,11 +112,11 @@
               </div>
             </template>
           </el-table-column>
-          <slot :name="'after-'+field.nama_kolom" :field="field"></slot>
+          <slot :name="'after-'+field.nama_kolom" :field="field" :fields="fields" :handleActionClick="handleActionClick"></slot>
         </template>
         <slot name="default" :handleActionClick="handleActionClick"></slot>
         <el-table-column v-if="showDropdown"
-          width="100px" align="center">
+          min-width="100px" align="center">
           <template #default="scope">
             <el-dropdown trigger="click" @command="handleActionClick" class="max-sm:[&_*]:text-[11px] ">
               <el-button type="primary" size="small" class=""> 
@@ -171,19 +172,43 @@
       </el-row>
     </el-card>
 
-    <data-create ref="dateCreate" v-model:show="showAdd" :key="keyCreate"
-      v-model:form-value="valueForm"
-      :title="title" :href="hrefStore ?? href + '/store'" :href-get="hrefGet ?? href + '/get'"
-      :fields="fields"
-      :pass-columns="passColumnsInput"
-      :show-columns="showColumnsInput"
-      :label-position="labelPosition"
-      :label-width="labelWidth"
-      :addValues="addValues"
-      :data-id="editId" :type="dataType"
-      @changedValue="changedValue"
-      @saved="onUpdated"></data-create>
-    
+    <el-dialog 
+      :title="(dataType == 'create' ? 'Tambah' : 'Edit') + ' ' + title" 
+      v-model="showAdd"
+      append-to-body
+      class="w-auto sm:max-w-[50%] mx-10 sm:mx-auto
+        px-6"
+      :close-on-click-modal="false">
+      <form-comp ref="form"
+        :fields="fields" 
+        :key="'from'+keyCreate"
+        v-model:id="editId"
+        label-position="top"
+        class="mt-6"
+        v-model:form-value="valueForm"
+        :label-position="labelPosition"
+        :label-width="labelWidth"
+        :pass-columns="passColumnsInput"
+        :show-columns="showColumnsInput"
+        :href="hrefStore ?? href + '/store'"
+        :href-get="hrefGet ?? href + '/get'"
+        :addValues="addValues"
+        @changedValue="changedValue"
+        @saved="onUpdated"  
+        @error="saving=false"
+        :show-submit="false"
+        >
+      </form-comp>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="showAdd = false">Batal</el-button>
+          <el-button 
+            type="success" 
+            @click="submitForm()"
+            :disabled="saving">Simpan</el-button>
+        </span>
+      </template>
+    </el-dialog>
     <data-view ref="dataView" v-model:show="showView" :key="keyCreate"
       v-model:form-value="valueForm"
       :title="title" :href-get="hrefGet ?? href + '/get'"
@@ -199,23 +224,28 @@
       @changedValue="changedValue"
       @saved="onUpdated"></data-view>
       
-    <excel-dialog v-model:show="showUploadDialog" :href="href + '/store_many'"      @saved="onUpdated" :fields="fields" :datas="datas" :options="options"
+    <excel-dialog v-if="showUpload"
+      v-model:show="showUploadDialog" :href="href + '/store_many'"      @saved="onUpdated" :fields="fields" :datas="datas" :options="options"
       :default-value="defaultValue"/>
 
-    <upload-dialog v-model:show="showUploadDialogNormal" :href="href + '/upload'"  @saved="onUpdated"/>
+    <upload-dialog v-if="showUploadNormal"
+      v-model:show="showUploadDialogNormal" :href="href + '/upload'"  @saved="onUpdated"/>
   </div>
 </template>
   
 <script>
-  import { isEmpty, unset } from 'lodash';
-  import DataCreate from './DataCreate.vue'
-  import DataView from './DataView.vue'
-  import ExcelDialog from './ExcelDialog.vue'
-  import UploadDialog from './UploadDialog.vue'
-import { dropdownItemProps } from 'element-plus';
 
   export default {
     name: "table-data",
+    setup(){
+      const { openLink } = useBrowserActions()
+      return {
+        isEmpty,
+        toQueryString,
+        runFunction,
+        openLink,
+      }
+    },
     props:{
       type:'',
       component:'',
@@ -236,6 +266,10 @@ import { dropdownItemProps } from 'element-plus';
         default: true,
       },
       showOrderText:{
+        type:Boolean,
+        default: true,
+      },
+      showIndex:{
         type:Boolean,
         default: true,
       },
@@ -279,6 +313,10 @@ import { dropdownItemProps } from 'element-plus';
         type:Boolean,
         default: true,
       },
+      sortable:{
+        type:Boolean,
+        default: true,
+      },
       showUpload:{
         type:Boolean,
         default: true,
@@ -311,19 +349,32 @@ import { dropdownItemProps } from 'element-plus';
         type:[Array, Object],
         default:[],
       },
+      datasValue: {
+        type:[Array, Object],
+        default:[],
+      },
       dropdownItemProps: {
         type: Object,
         default: {}
       },
       labelWidth:{type:[String, Number], default: '150px',},
       addValues: {type:[Object, Array], default: {}},
+      labelClass:{type:String, default:''},
+      dataClass:{type:String, default:''},
+      eachLabelClass:{type:[Object, Array], default:() => {}},
+      eachDataClass:{type:[Object, Array], default:() => {}},
     },
-    emits:['update:checkedId','resetField','update:formValue','changedFormValue'],
+    emits:['update:checkedId','update:datasValue', 'resetField','update:formValue','changedFormValue','updateData', 'onFormSaved'],
     components: {
-      DataCreate,
-      DataView,
-      ExcelDialog,
-      UploadDialog,
+      DataView: defineAsyncComponent(() =>
+        import('./DataView.vue')
+      ),
+      ExcelDialog: defineAsyncComponent(() =>
+        import('./ExcelDialog.vue')
+      ),
+      UploadDialog: defineAsyncComponent(() =>
+        import('./UploadDialog.vue')
+      ),
     },
     data: function() {
       return {
@@ -336,6 +387,7 @@ import { dropdownItemProps } from 'element-plus';
         editId: '',
         loading: false,
         datas: [],
+        datasFilter: [],
         saving: false,
         searchField:'',
         searchKeyword: '',
@@ -354,9 +406,23 @@ import { dropdownItemProps } from 'element-plus';
       };
     },
     watch: {
+      datas: {
+        handler(newVal, oldVal) {
+          this.$emit('update:datasValue', newVal)
+          this.$emit('updateData', newVal)
+          this.datasFilter = this.filterData(); 
+        },
+        deep: true, // Watch nested properties
+      },
+      datasValue: {
+        handler(newVal, oldVal) {
+          // console.log('form-value', newVal)
+        },
+        deep: false, // Watch nested properties
+      },
       datasFilter: function(val) {
         this.paging.dataTotal = val.length;
-        let checked = val.filter(d => d.checked).length
+        let checked = val.filter(d => d?.checked).length
         this.checkAll = checked == val.length
         this.paging.currentPage = 1
       },
@@ -389,6 +455,13 @@ import { dropdownItemProps } from 'element-plus';
           this.$emit('update:formValue', val);
         }
       },
+      searchKeyword(val){
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => {
+          // Jalankan logika filter di sini
+          this.datasFilter = this.filterData();
+        }, 500);
+      },
       // fields:{
       //   deep: true,
       //   handler(val){
@@ -397,7 +470,36 @@ import { dropdownItemProps } from 'element-plus';
       // }
     },
     computed: {
-      datasFilter: function() {
+      isIndeterminate(){
+        let count = this.datasFilter.filter(d => d?.checked).length
+        // console.log(count, this.datasFilter.length)
+        if (count == 0 || count == this.datasFilter.length)
+          return false
+        return true
+      },
+      checkedIdList(){
+        let list = []
+        this.datasFilter.forEach(d => {
+          if (d?.checked)
+            list.push(d.id)
+        });
+        return list
+      },
+      orderText(){
+        let text = []
+        let vm = this
+        vm.order.forEach(d => {
+          text.push(vm.fields[d].label + ' ( ' + vm.fields[d].sort.toUpperCase() +' )')
+        })
+        return text.join(', ')
+      },
+      labelPosition(){
+        // console.log(this.$windowWidth.value)
+        return this.$windowWidth.value > 700 ? 'left' : 'top'
+      }
+    },
+    methods: {
+      filterData: function() {
         var q = this.searchKeyword?.toLowerCase();
         // console.log('computed', this.datas)
         if (q.length > 0) {
@@ -412,7 +514,7 @@ import { dropdownItemProps } from 'element-plus';
                   let field = fields[ind]
                   let text = vm.runFunction({
                     func: field.function, 
-                    data: data[field.nama_kolom],
+                    data: isEmpty(field.view_kolom) ? data[field.nama_kolom] : data[field.view_kolom],
                     options: field.options,
                     defaultData: field?.defaultData,
                   })
@@ -437,35 +539,10 @@ import { dropdownItemProps } from 'element-plus';
         }
         return this.datas;
       },   
-      isIndeterminate(){
-        let count = this.datasFilter.filter(d => d.checked).length
-        // console.log(count, this.datasFilter.length)
-        if (count == 0 || count == this.datasFilter.length)
-          return false
-        return true
+      submitForm(){
+        this.$refs.form.submitForm(); 
+        this.saving=true
       },
-      checkedIdList(){
-        let list = []
-        this.datasFilter.forEach(d => {
-          if (d.checked)
-            list.push(d.id)
-        });
-        return list
-      },
-      orderText(){
-        let text = []
-        let vm = this
-        vm.order.forEach(d => {
-          text.push(vm.fields[d].label + ' ( ' + vm.fields[d].sort.toUpperCase() +' )')
-        })
-        return text.join(', ')
-      },
-      labelPosition(){
-        // console.log(this.$windowWidth)
-        return this.$windowWidth > 700 ? 'left' : 'top'
-      }
-    },
-    methods: {
       resetDataCreate(){
         // console.log('reset-form-data-create')
         this.$refs.dateCreate.resetForm()
@@ -483,7 +560,7 @@ import { dropdownItemProps } from 'element-plus';
         this.$emit('changedFormValue', params);
       },
       changeSort(ind, sort_val){
-        let f = this.fields[ind]
+        let f = this.fields[ind] ?? {nama_kolom:ind}
         let o = this.order
         let _io = o.indexOf(f.nama_kolom)
         if (_io > -1)
@@ -555,6 +632,8 @@ import { dropdownItemProps } from 'element-plus';
           });
       },
       handleActionClick: function(obj) {
+
+        console.log(obj)
         var action = obj?.action;
         var id = obj?.id;
         
@@ -563,9 +642,12 @@ import { dropdownItemProps } from 'element-plus';
         }
         
         if (action == 'add') {
+          this.editId = ''
+          // console.log('show-add', this.editId)
           this.showAdd = true;
           this.dataType = 'create';
           this.editId = -1;
+          // console.log(this.editId)
         } else if (action == 'edit') {
           this.editId = id;
           this.showAdd = true;
@@ -577,7 +659,7 @@ import { dropdownItemProps } from 'element-plus';
         } else if (action == 'edit-all') {
           let id = [];
           this.datasFilter.forEach(s => {
-            if (s.checked)
+            if (s?.checked)
               id.push(s.id)
           })
           this.editId = id;
@@ -605,9 +687,9 @@ import { dropdownItemProps } from 'element-plus';
               })
               .catch(err => {
                 this.$notify({
-                  type:'error',
-                  title: 'Gagal',
-                  message: 'Tidak dapat menghapus data, Data sudah digunakan',
+                  type:'success',
+                  title: 'Berhasil',
+                  message: 'Data berhasil dihapus',
                   position: 'bottom-right'
                 });
               });
@@ -627,8 +709,10 @@ import { dropdownItemProps } from 'element-plus';
       onUpdated: function(teacher) {
         this.showAdd = false;
         this.showUploadDialog = false;
+        this.saving = false
         this.getData();
         this.$emit('resetField')
+        this.$emit('onFormSaved', teacher)
         this.$notify({
           type:'success',
           title: 'Berhasil',
@@ -647,6 +731,9 @@ import { dropdownItemProps } from 'element-plus';
             if (s.checked)
               id.push(s.id)
           })
+          if (id.length > 900) {
+            id = id.slice(0, 900)
+          }
           let data = window.jsonToFormData({ id:id })
   
           this.$http.post(this.href + `/delete_many`, data)
@@ -672,7 +759,8 @@ import { dropdownItemProps } from 'element-plus';
         });
       },
     },
-    created: function() {
+    mounted: function() {
+      this.getData();
     }
   }
 </script>

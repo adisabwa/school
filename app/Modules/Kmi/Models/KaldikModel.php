@@ -10,7 +10,17 @@ class KaldikModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_aka_kaldik';
+        $this->table = PREFIX_TABLE.'aka_kaldik';
+        $this->relations = [
+          'id_unit' => [
+            'foreign_key' => 'id_unit',
+            'model' => 'DataUnitModel',
+            'type' => 'left',
+            'selects' => [
+                'nama_unit','nama_kepala','nbm_kepala','kepala_signature','nama_kepala_lengkap','nama_kepala_arab',
+              ],
+          ]
+        ];
     }
 
     public function getOptions($where = [])

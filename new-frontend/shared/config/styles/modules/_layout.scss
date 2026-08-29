@@ -1,0 +1,39 @@
+Icon {
+  font-size: 2em;
+  margin-right: 10px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+p {
+  margin: 5px 0px;
+}
+h1, h2, h3, h4 {
+  margin: 10px 0px;
+}
+.overflow-y-auto, .overflow-y-scroll {
+  &::-webkit-scrollbar {
+    width: 4px;
+    background-color:   white;
+  }
+  &::-webkit-scrollbar-thumb {
+    height: 1px;
+    background-color: #c6dbdb;
+    border-radius: 5px;
+  }
+}
+.overflow-x-auto, .overflow-x-scroll {
+  &::-webkit-scrollbar {
+    height: 4px;
+    background-color:   white;
+  }
+  &::-webkit-scrollbar-thumb {
+    width: 100px;
+    background-color: #c6dbdb;
+    border-radius: 5px;
+  }
+}

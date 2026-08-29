@@ -10,7 +10,7 @@ class DataSemesterModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__semester';
+        $this->table = PREFIX_TABLE.'_semester';
     }
 
     public function getOptions($where = [])
@@ -19,10 +19,20 @@ class DataSemesterModel extends BaseModel
         order: 'tahun_ajaran DESC, tanggal_mulai DESC',
         concatFunc : function($d) { return "Semester ".ucfirst($d->semester)." $d->tahun_ajaran"; },
         addOptions : function($option, $data) { 
+          $option->tahun_ajaran = $data->tahun_ajaran;
           $option->tanggal_mulai = $data->tanggal_mulai;
           $option->tanggal_selesai = $data->tanggal_selesai;
           return $option; 
         });
+    }
+
+    public function getOptionsTahunAjaran($where = [])
+    {
+      return $this->getOptionsData(where: $where, 
+        groupBy: ['tahun_ajaran'],  
+        order: 'tahun_ajaran DESC, tanggal_mulai DESC',
+        concatFunc : function($d) { return "Tahun Ajaran $d->tahun_ajaran"; },
+        columnValue: 'tahun_ajaran');
     }
 
     public function getSemesterNow()
@@ -31,7 +41,7 @@ class DataSemesterModel extends BaseModel
       $data = $this->getAll(whereAnd: [
         'tanggal_mulai <= ' => $tanggal,
         'tanggal_selesai >= ' => $tanggal,
-      ]);
+      ], order:'id desc');
       // var_dump($data, $this->getLastQuery());
       return $data[0] ?? [];
     }

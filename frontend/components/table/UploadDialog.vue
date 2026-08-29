@@ -137,7 +137,7 @@ export default {
       this.upload = false;
     },
     submitUpload() {
-      if (this.isEmpty(this.fileList)) {
+      if (isEmpty(this.fileList)) {
         this.$notify({
           type:'error',
           title: 'Gagal',
@@ -160,7 +160,7 @@ export default {
       });
       this.showDialog = false;
       this.dataError = respone.error;
-      if (!this.isEmpty(this.dataError)) {
+      if (!isEmpty(this.dataError)) {
         this.showErrorDialog = true;
       }
       this.$emit('saved', respone.data);
@@ -170,11 +170,14 @@ export default {
       // this.$refs.upload.clearFiles();
       this.saving = false;
       let message = JSON.parse(err.message)
+      // let message = err.message;
+      console.log(message)
       this.$notify({
         type:'error',
         title: 'Gagal',
-        // message: message?.messages?.file,
-        position: 'bottom-right'
+        message: message?.messages.join('<br>'),
+        position: 'bottom-right',
+        dangerouslyUseHTMLString: true,
       });
     },
     downloadTemplate:  function() {

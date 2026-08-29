@@ -1,13 +1,14 @@
 @layer base {
-    .menu-item{
+     .menu-item{
 		@apply 
             flex items-center duration-500
             h-full px-3
-            bg-gradient-to-r from-yellow-50 from-50% to-teal-700 to-50%
+            bg-gradient-to-r from-yellow-50 from-50% to-[var(--color-main-700)] to-50%
             bg-[length:200%_200%] bg-left-bottom 
-            text-[13px] [&_*]:text-teal-700
+            text-[13px]
             hover:bg-right-top
             [&_*]:hover:text-white
+             [&_*]:text-[var(--color-main-700)]
 		!important;
 	}
     .menu-item.reverse{

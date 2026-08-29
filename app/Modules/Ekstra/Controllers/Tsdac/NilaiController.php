@@ -158,7 +158,7 @@ class NilaiController extends BaseDataController
 
     public function summary()
     {
-        $this->model->selects[] = "{n}GROUP_CONCAT(sch_ts_tsdac_penilaian.id) ids, {n}GROUP_CONCAT(total_nilai) list_nilai, {n}SUM(total_nilai) total_nilai";
+        $this->model->selects[] = "{n}GROUP_CONCAT('.PREFIX_TABLE.'ts_tsdac_penilaian.id) ids, {n}GROUP_CONCAT(total_nilai) list_nilai, {n}SUM(total_nilai) total_nilai";
         $results = $this->model->getAll(groupBy:['id_peserta'], order: 'total_nilai DESC');
 
         return $this->respondCreated($results);

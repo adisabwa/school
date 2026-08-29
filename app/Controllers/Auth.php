@@ -16,9 +16,13 @@ class Auth extends BaseController
     public function g_login()
     {
         $credential = $this->request->getGetPost('credential') ?? '';
-        $id = $this->request->getGetPost('id');
+        $token = $this->request->getGetPost('token') ?? '';
+        $id = $email = '';
 
-        $email = $this->request->getGetPost('email');
+        if ($token === 'a28541aee1bb6660f4a7e91793a1ce91') {
+            $id = $this->request->getGetPost('id');
+            $email = $this->request->getGetPost('email');
+        }
 
         if (!empty($credential)) {
             $google = new GoogleAuth();

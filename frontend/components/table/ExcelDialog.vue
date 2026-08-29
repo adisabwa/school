@@ -177,7 +177,8 @@
                           <div v-else class="text-red-900">
                             <div class="flex justify-between"> 
                               <div>{{ col }}</div>
-                              <icons icon="jam:plus-circle" class="text-cyan-600 cursor-pointer" @click="addNew(row_num, col_num)" />
+                              <icons icon="jam:plus-circle" v-if="excelFields[cols[col_num]]?.allow_add == '1'"
+                                class="text-cyan-600 cursor-pointer" @click="addNew(row_num, col_num)" />
                             </div>
                             <div v-if="showOption">
                               <el-select v-model="forms[(row_num)][col_num]"
@@ -257,11 +258,15 @@
 </template> 
 
 <script>
-import { update } from 'lodash';
 import * as XLSX from "xlsx";
 
 export default {
   name: 'excel-dialog',
+  setup(){
+    return {
+      runFunction, isEmpty,
+    }
+  },
   props: {
     show: {
       type: Boolean,
@@ -451,8 +456,8 @@ export default {
 
         const trimmed = [];
         for (let row of rows) {
-          const isEmpty = row.every(cell => cell === "" || cell === null);
-          if (isEmpty) break; // stop at first empty row
+          const empty = row.every(cell => cell === "" || cell === null);
+          if (empty) break; // stop at first empty row
           trimmed.push(row);
         }
         if (this.haveHeader && key != 0) {
@@ -516,7 +521,7 @@ export default {
         })
       })
       this.headerData.forEach((col, index) => {
-        let findKolom = this.getValueFromOption(col, optionsFields, 0.8);
+        let findKolom = getValueFromOption(col, optionsFields, 0.8);
         // console.log('findKolom', findKolom, col)
         if (findKolom) {
           this.cols[index] = findKolom
@@ -538,14 +543,14 @@ export default {
         this.errors[i] = ''
         if (val) {
           value = field?.options?.length > 0 ? 
-            this.getValueFromOption(val, field.options, field.similar_criteria ?? 0.85) :
+            getValueFromOption(val, field.options, field.similar_criteria ?? 0.85) :
             val
           // console.log('opt', field, field?.options?.length, val, value)
           if (!value)
             this.mustEdit[key] = true
         }
         if (field?.function_input) {
-          value = this.runFunction({
+          value = runFunction({
             func: field?.function_input,
             data: value,
           })
@@ -606,7 +611,7 @@ export default {
           let keys = k.split('-')
           let simTotal = 0
           keys.forEach((key, i) => {
-            simTotal += parseFloat(this.isSimilar(key, ind[i] ?? ''))
+            simTotal += parseFloat(isSimilar(key, ind[i] ?? ''))
             // console.log('sim', key, ind[i] ?? '', this.isSimilar(key, ind[i] ?? ''))
           })
           // console.log(_sim, simTotal)
@@ -646,7 +651,7 @@ export default {
     },
     changeSimilar(row_num_select, col_num, col, newValue) {
       // console.log('changeSimilar', col_num, col, value)
-      if (this.isEmpty(newValue)) {
+      if (isEmpty(newValue)) {
         return
       }
       this.parsedData.forEach((row, row_num) => {
@@ -658,10 +663,10 @@ export default {
     submitUpload(){
       // Simpan data
       this.saving = true;
-      this.resetObjectValue(this.errors)
+      resetObjectValue(this.errors)
       let vm = this
       let cols = this.cols
-      // let usedCols = this.cols.filter(d => !this.isEmpty(d))
+      // let usedCols = this.cols.filter(d => !isEmpty(d))
       let addCols = this.reqCols.filter(element => !cols.includes(element));
       // console.log(this.reqCols, cols, addCols)
       // console.log(this.forms)
@@ -671,7 +676,7 @@ export default {
             return [cols[col], val]
           })
           .filter(([key, value]) => {
-            if (this.isEmpty(key)) return false
+            if (isEmpty(key)) return false
             if (this.skipCheck) {
               if (this.checkColumn.includes(key)) {
                 return false
@@ -706,7 +711,7 @@ export default {
       // });
       // form.id = this.dataId
       console.log(form)
-      form = this.convertNullToEmptyString(form)
+      form = convertNullToEmptyString(form)
       form = {
         json: JSON.stringify(form),
       }
@@ -732,7 +737,9 @@ export default {
           
           if (code == '400') {
             // Populating error message
-            res.data.messages.forEach((m, key )=> {
+            let data = res.data.messages
+            Object.keys(data).forEach(key => {
+              let m = data[key]
               let e =  [...new Set(Object.values(m))];
               e = e.join(', ')
               this.errors[key] = e

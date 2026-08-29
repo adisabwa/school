@@ -13,6 +13,12 @@
 <script>
 export default {
   name: 'form-error',
+  setup(){
+    const { openLink, openPost } = useBrowserActions()
+    return {
+      getFileType, openLink, openPost
+    }
+  },
   props: {
     href: {
       type:String,

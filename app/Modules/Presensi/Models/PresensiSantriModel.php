@@ -10,7 +10,7 @@ class PresensiSantriModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_pre_harian';
+        $this->table = PREFIX_TABLE.'pre_harian';
         $this->relations = [
             'id_mengajar_kelas' => [
                 'foreign_key' => 'id_mengajar_kelas',

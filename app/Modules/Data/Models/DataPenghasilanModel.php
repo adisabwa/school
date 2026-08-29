@@ -10,7 +10,7 @@ class DataPenghasilanModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__penghasilan';
+        $this->table = PREFIX_TABLE.'_penghasilan';
     }
 
     public function getOptions($where = [])

@@ -4,7 +4,6 @@
 
 <script>
 import confetti from 'canvas-confetti';
-import { th } from 'element-plus/es/locale/index.mjs';
 export default {
 	name: 'Confetti',
 	data() {

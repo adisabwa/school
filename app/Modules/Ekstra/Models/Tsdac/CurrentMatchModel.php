@@ -10,7 +10,7 @@ class CurrentMatchModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_ts_tsdac_current_match';
+        $this->table = PREFIX_TABLE.'ts_tsdac_current_match';
         $this->relations = [
           'biru' => [
             'foreign_key' => 'biru',

@@ -23,7 +23,7 @@
     color:var(--text-color, #000);
 }
 .vue-scroll-picker-item[aria-selected=true]{
-    @apply text-teal-500;
+    @apply text-[var(--color-main-500)];
   }
   .vue-scroll-picker-item[data-value=""], .vue-scroll-picker-item[aria-disabled=true]{
       color:var(--disabled-text-color, #ccc);

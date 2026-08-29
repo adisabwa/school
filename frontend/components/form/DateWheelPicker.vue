@@ -10,8 +10,9 @@
         {{ prefix }}
       </template>
     </el-input>
-    <teleport to="body">
-      <el-dialog v-model="showModal"
+      <el-dialog v-model="showModal" 
+        append-to-body
+        @closed="$emit('close')"
           :class="['max-w-[80%] p-0 py-4 mt-40 w-fit']"
           header-class="flex items-center"
           body-class="relative px-0 text-[16px] ">
@@ -36,7 +37,6 @@
           </div>
         </div>
       </el-dialog>
-    </teleport>
   </div>
 </template>
 
@@ -47,7 +47,7 @@ import  { VueScrollPicker } from 'vue-scroll-picker'
 export default {
   name: 'DateWheelPicker',
   components: { ScrollPicker:VueScrollPicker },
-  emits:['update:value','change'],
+  emits:['update:value','change','close'],
   props:{
     value:{type:[String, Number], default: () => {
         const today = new Date()
@@ -126,7 +126,7 @@ export default {
   },
   methods: {
     resetData(){
-      [this.year, this.month, this.day] = (this.isEmpty(this.value) ? this.dateNow() : this.value).split('-')
+      [this.year, this.month, this.day] = (isEmpty(this.value) ? dateNow() : this.value).split('-')
       this.emitDate()
     },
     changedValue(val){
@@ -155,8 +155,8 @@ export default {
         return val
     },
     selectOption(val){
-      this.labelModel = this.formatDate(val, this.format)
-      let days = val.split('-')
+      this.labelModel = formatDate(val, this.format)
+      let days = val?.split('-') ?? []
       this.year = days[0] ?? ''
       this.month = days[1] ?? ''
       this.day = days[2] ?? ''
@@ -195,11 +195,11 @@ export default {
 }
 .locked-value {
   @apply absolute z-[20] top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2;
-  @apply text-teal-500;
+  @apply text-[var(--color-main-500)];
   font-size: 20px;
 }
 .vue-scroll-picker-item[aria-selected=true]{
-    @apply text-teal-500;
+    @apply text-[var(--color-main-500)];
   }
   .vue-scroll-picker-item[data-value=""], .vue-scroll-picker-item[aria-disabled=true]{
       color:var(--disabled-text-color, #ccc);

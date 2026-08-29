@@ -30,8 +30,13 @@ class BaseModel extends Model
     {
         parent::__construct();
 
-        helper('auth');
+        helper('auth,security');
         $this->userId = userdata()->id ?? -1; // adjust if using another auth system
+    }
+
+    public function reset()
+    {
+        return new static();
     }
 
     protected function initialize()
@@ -49,14 +54,23 @@ class BaseModel extends Model
         return $this->table_label;
     }
     
-    public function getOptionsData(array $where = [], ?callable $concatFunc = null, ?callable $addOptions = null, string $order = '')
+    public function getOptionsData(array $where = [], ?callable $concatFunc = null, ?callable $addOptions = null, string $order = '', $groupBy = [], $columnValue = 'id')
     {
+      helper('security');
       $options = [];
-      $data = $this->getAll(whereAnd: $where, groupBy: ['id'], order: $order);
-        // var_dump($data);
-      foreach ($data as $key => $d) {
+      if (empty($groupBy)) {
+        $groupBy = ['id'];
+      }
+    //   var_dump($where, $groupBy);
+    //   $this->selects = ['sum({f}.id)'];
+    //   var_dump($this->selects);
+      $result = $this->getAll(whereAnd: $where, groupBy: $groupBy, order: $order);
+        // var_dump($result);
+        // exit;
+      foreach ($result as $key => $d) {
         $option = (object)[
-          'value' => "$d->id",
+          'value' => encrypt_id($d->$columnValue),
+            // 'value' => "$d->id",
           'label' => $concatFunc ? $concatFunc($d) : $d->nama,
         ];
         $option = $addOptions ? $addOptions($option, $d) : $option;
@@ -98,7 +112,7 @@ class BaseModel extends Model
         $new_attr = [];
         foreach ($attr as $key => $value) {
             $old_value = $value;
-            if ($value === NULL || $value === '')
+            if ($value === NULL)
                 continue;
 
             $value = $is_key ? $key : $value;
@@ -107,16 +121,21 @@ class BaseModel extends Model
                     $value = $key;
 
                 $no_line = strpos($value, '{n}');
+                $pos2 = strpos($value, '{f}.');
                 $pos = strpos($value, '{f}');
+                // var_dump('pos', $value, $no_line, $pos2, $pos);
                 if ($no_line !== false) {
                     $new = str_replace('{n}','', $value);
-                } else if ($pos !== false) {
+                } else if ($pos2 !== false) {
                     $new = str_replace('{f}',$table, $value);
+                } else if ($pos !== false) {
+                    $new = str_replace('{f}',"$table.", $value);
                 } else {
                     $new = "$table.$value";
                 }
-                if ($is_key)
-                    $new_attr[$new] = $old_value;
+                // var_dump($value, $new);
+                if ($is_key && $old_value !== '')
+                    $new_attr[$new] = $old_value === NULL ? NULL : $old_value;
                 else
                     $new_attr[] = $new;
             } else {
@@ -133,31 +152,46 @@ class BaseModel extends Model
         array $whereIn = [], 
         array $orWhereIn = [], 
         array $groupBy = [], 
+        array $havingAnd = [], 
         string $order = '', 
         int $limit = 0, 
         int $offset = 0,  
         $relations = NULL,
+        $pass_key = [],
         bool $return_data = FALSE)
     {
 
         // var_dump($whereAnd, $whereOr);
-        $whereAnd = empty($whereAnd) ? '1=1' : $this->addTableBefore($this->table, $whereAnd, TRUE);
-        $whereOr = empty($whereOr) ? '1=1' : $this->addTableBefore($this->table, $whereOr, TRUE);
-
         // var_dump('Where', $this->table, $whereAnd, $whereOr);
         
-        // var_dump($this->whereAnd);
+        // var_dump($whereAnd);echo "<br/>";
         $data = $this->db->table($this->table)
                     ->select("{$this->table}.*")
                     ->select($this->addTableBefore($this->table, $this->selects))
-                    ->orderBy($order)
-                    ->where($whereAnd)
-                    ->groupStart()
-                        ->orWhere($whereOr)
-                    ->groupEnd()
-                    ->groupBy($groupBy);
+                    ->orderBy($order);
+        
+        if (!empty($whereAnd)) {
+            $whereAnd = $this->addTableBefore($this->table, $whereAnd, TRUE);
+            // var_dump($whereAnd);
+            foreach($whereAnd as $field => $_wa) {
+                is_numeric($field) ? $data->where($_wa) : $data->where($field, $_wa);
+            }
+        }
 
-        $this->applyJoin($data, $relations);
+        if (!empty($whereOr)) {
+            $data->groupStart();
+            $whereOr = $this->addTableBefore($this->table, $whereOr, TRUE);
+            foreach($whereOr as $field => $_wo) {
+                is_numeric($field) ? $data->orWhere($_wo) : $data->orWhere($field, $_wo);
+            }
+            $data->groupEnd();
+        }
+        
+        $data->groupBy($groupBy)
+             ->having($havingAnd);
+        // var_dump($groupBy);
+        // var_dump('pass_key', $pass_key);
+        $this->applyJoin($data, $relations, $pass_key);
         
         foreach ($whereIn as $key => $value) {
             $data->whereIn("$this->table.$key", $value);
@@ -177,9 +211,14 @@ class BaseModel extends Model
         return $data->get()->getResult();
     }
 
-    public function getDataWhere(array $whereAnd = [], array $whereOr = [], array $whereIn = [], array $orWhereIn = [], string $order = '', int $limit = 0, int $offset = 0)
+    public function getDataWhere(
+        array $whereAnd = [], array $whereOr = [], array $whereIn = [], array $orWhereIn = [], 
+        array $havingAnd = [], 
+        string $order = '', int $limit = 0, int $offset = 0)
     {
-        $data = $this->getAll(whereAnd: $whereAnd, whereOr: $whereOr, whereIn: $whereIn, orWhereIn: $orWhereIn, order: $order, limit: $limit, offset: $offset);
+        $data = $this->getAll(whereAnd: $whereAnd, whereOr: $whereOr, whereIn: $whereIn, orWhereIn: $orWhereIn, 
+            havingAnd: $havingAnd,
+            order: $order, limit: $limit, offset: $offset);
 
         // var_dump($whereAnd, $data);
         if ($data) {
@@ -192,7 +231,7 @@ class BaseModel extends Model
     public function getData($id)
     {
         // var_dump($id);
-        $data = $this->getAll(whereAnd: ['id' => $id]);
+        $data = $this->getAll(whereAnd: ['{f}id' => $id]);
         
         if ($data) {
             return $data[0];
@@ -201,7 +240,7 @@ class BaseModel extends Model
         }
     }
 
-    public function applyJoin(object $builder, $relations = NULL)
+    public function applyJoin(object $builder, $relations = NULL, $pass_key = [])
     {
         $currTable = $this->table;
         // var_dump($this->relations);
@@ -211,14 +250,20 @@ class BaseModel extends Model
         } else {
             $relations = array_merge($relations, $this->relations);
         }
-        // var_dump($relations);
+        // var_dump($relations);exit;
+        // if (count($pass_key) > 0) {
+        //     // var_dump('pass_key', $pass_key);
+        //     var_dump($relations);exit;
+        // }
         foreach ($relations as $key => $rel) {
             if ($rel) {
+                if (in_array($key, $pass_key)) continue;
                 // var_dump($relation, $rel);
                 $model = false;
                 $table = $rel['table'] ?? '';
                 $model = $rel['model'] ?? NULL;
                 $alias = $rel['alias'] ?? NULL;
+                $condition = [];
 
                 if ($model) {
                     $model = model($rel['model']);
@@ -227,10 +272,11 @@ class BaseModel extends Model
                     // $condition = [
                     //     "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
                     // ];
-                    // if ($rel['condition'] ?? false)
-                    //     $condition = $this->addTableBefore($table_alias, $rel['condition']);
+                    // if ($rel['on_condition'] ?? false)
+                    //     $condition = $this->addTableBefore($table_alias, $rel['on_condition']);
                     
                     if ($rel['order'] ?? false) {
+                        $j_order = [];
                         if (!is_array($rel['order'])) {
                             $j_order = explode(',', $rel['order']);
                         }
@@ -239,24 +285,49 @@ class BaseModel extends Model
                         // $builder->orderBy($j_order);
                     }
                     
-                    $query = $model->getAll(whereAnd:($rel['condition'] ?? []), return_data: TRUE, order: ($j_order ?? ''), groupBy: ($rel['group_by'] ?? []));
-                    // var_dump($query);
-                    $builder->select($this->addTableBefore($table_alias, $rel['selects']));
-                    $condition = [
-                        "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
-                    ];
-                    if ($rel['condition'] ?? false)
-                        $condition = array_merge($condition,
-                        $this->addTableBefore($table_alias, $rel['condition'])
+                    // if ($rel['pass_key'] ?? false) {
+                    //     var_dump('join', $pass_key, $rel['pass_key'], $rel['local_key'], in_array($rel['local_key'], $pass_key));
+                    //     echo "<br/>";
+                    //     // exit;
+                    // }
+                    if ($rel['inner_selects'] ?? false) {
+                        $model->selects = array_merge($model->selects, $rel['inner_selects']);
+                    }
+                    $query = $model->getAll(
+                        whereAnd:($rel['condition'] ?? []), 
+                        return_data: TRUE, 
+                        order: ($j_order ?? ''), 
+                        pass_key: $rel['pass_key'] ?? [],
+                        groupBy: ($rel['group_by'] ?? [])
                     );
-                    // var_dump($condition);
+                    // var_dump($rel['on_condition'] ?? [], $query);
+                    // if ($rel['pass_key'] ?? false) {
+                    //     var_dump('query', $pass_key, $rel['pass_key'], $rel['local_key'], in_array($rel['local_key'], $pass_key));
+                    //     var_dump($query);
+                    //     echo "<br/>";
+                    //     exit;
+                    // }
+                    if (!empty($rel['selects']))
+                        $builder->select($this->addTableBefore($table_alias, $rel['selects']));
+
+                    if ($rel['foreign_key'] ?? false) {
+                        $condition = [
+                            "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
+                        ];
+                    }
+                    if ($rel['on_condition'] ?? false)
+                        $condition = array_merge($condition,
+                        $this->addTableBefore($table_alias, $rel['on_condition'])
+                    );
+                    // var_dump($condition, implode(" AND ", $condition));
                     $builder->join("($query) $table_alias", 
                         implode(" AND ", $condition),
                         $rel['type'] ?? 'inner'
                     );
                 } else {
                     $table_alias = $alias ?? $table;
-                    $builder->select($this->addTableBefore($table_alias, $rel['selects']));
+                    if (!empty($rel['selects']))
+                        $builder->select($this->addTableBefore($table_alias, $rel['selects']));
                     // var_dump($this->addTableBefore($table_alias, $rel['selects']));
                     // echo "<br/>";
                     if ($rel['foreign_key'] ?? false)
@@ -264,14 +335,13 @@ class BaseModel extends Model
                             "$currTable.".$rel['foreign_key']."=".$table_alias.".".($rel['local_key'] ?? 'id')
                         ];
                         
-                    if ($rel['condition'] ?? false)
+                    if ($rel['on_condition'] ?? false)
                         $condition = array_merge($condition,
-                        $this->addTableBefore($table_alias, $rel['condition'])
+                        $this->addTableBefore($table_alias, $rel['on_condition'])
                     );
-
                     $text_table = $alias ? "$table $alias" : $table;
                     // var_dump($condition, $text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
-                    // var_dump($condition, implode(" AND ", $condition), $rel['condition'] ?? '',$text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
+                    // var_dump($condition, implode(" AND ", $condition), $rel['on_condition'] ?? '',$text_table, is_array($condition), $rel['type'] ?? 'inner');echo "<br/>";
                     $builder->join($text_table, implode(" AND ", $condition), $rel['type'] ?? 'inner');
                     if ($rel['order'] ?? false) {
                         if (!is_array($rel['order'])) {

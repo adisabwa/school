@@ -10,7 +10,7 @@ class BukuModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_lib_buku';
+        $this->table = PREFIX_TABLE.'lib_buku';
     }
 
     public function getOptions($where = [])

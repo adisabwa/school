@@ -30,4 +30,24 @@ class SantriController extends BaseDataController
     {
         return $this->respondCreated($this->model->getKelas());
     }
+
+    public function options_kelas()
+    {
+        $tahun_ajaran = $this->request->getGet('tahun_ajaran');
+        $this->model->selects = ['group_concat({f}id) id_santris'];
+        $data = $this->model->getDataWhere(whereAnd: [
+            '{n}tahun_ajaran' => $tahun_ajaran,
+        ], order: 'kelas ASC');
+        // var_dump($this->model->getLastQuery());
+        $this->model = $this->model->reset();
+
+        $ids = empty($data->id_santris) ? ['1=1'] : ["{f}.id NOT IN ($data->id_santris)" => NULL];
+        $whereAnd = array_merge($ids, [
+            'status' => '0',
+            'nama !=' => '',
+        ]);
+        // var_dump($whereAnd);
+        $this->model->selects = [];
+        return $this->respondCreated($this->model->getOptions(where: $whereAnd));
+    }
 }

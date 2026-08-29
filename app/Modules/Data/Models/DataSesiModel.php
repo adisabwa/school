@@ -10,7 +10,7 @@ class DataSesiModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__sesi';
+        $this->table = PREFIX_TABLE.'_sesi';
     }
 
     public function getOptions($where = [])

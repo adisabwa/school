@@ -10,11 +10,11 @@ class MapelRecordPembelajaranModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_aka_record_pembelajaran';
+        $this->table = PREFIX_TABLE.'aka_record_pembelajaran';
         $this->relations = [
             'id_semester' => [
                 'foreign_key' => 'id_semester',
-                'table' => 'sch__semester',
+                'table' => PREFIX_TABLE.'_semester',
                 'selects' => [
                     'semester',
                     "tahun_ajaran",
@@ -23,7 +23,7 @@ class MapelRecordPembelajaranModel extends BaseModel
             ],
             'id_guru' => [
                 'foreign_key' => 'id_guru',
-                'table' => 'sch__guru',
+                'table' => PREFIX_TABLE.'_guru',
                 'selects' => [
                     "nama nama_guru",
                     "TRIM(REPLACE(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,'')),'-',''))  nama_guru_lengkap",
@@ -31,28 +31,28 @@ class MapelRecordPembelajaranModel extends BaseModel
             ],
             'id_kelas' => [
                 'foreign_key' => 'id_kelas',
-                'table' => 'sch__kelas',
+                'table' => PREFIX_TABLE.'_kelas',
                 'selects' => [
                     'kelas',
                 ]
             ],
             'id_mapel' => [
                 'foreign_key' => 'id_mapel',
-                'table' => 'sch_aka_mapel',
+                'table' => PREFIX_TABLE.'aka_mapel',
                 'selects' => [
                     'nama_mapel',
                 ]
             ],
             'id_sesi' => [
                 'foreign_key' => 'id_sesi',
-                'table' => 'sch__sesi',
+                'table' => PREFIX_TABLE.'_sesi',
                 'selects' => [
                     'sesi','waktu_mulai','waktu_selesai',
                 ]
             ],
             'id_pengganti' => [
                 'foreign_key' => 'id_pengganti',
-                'table' => 'sch__guru',
+                'table' => PREFIX_TABLE.'_guru',
                 'alias' => 'gu1',
                 'type' => 'left',
                 'selects' => [
@@ -62,7 +62,7 @@ class MapelRecordPembelajaranModel extends BaseModel
             ],
             'created_by' => [
                 'foreign_key' => 'created_by',
-                'table' => 'sch__guru',
+                'table' => PREFIX_TABLE.'_guru',
                 'alias' => 'gu2',
                 'type' => 'left',
                 'selects' => [

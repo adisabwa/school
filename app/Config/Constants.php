@@ -99,7 +99,6 @@ define('EVENT_PRIORITY_HIGH', 10);
 define('AUTH_SESS_NAME', 'logged_in');
 define('AUTH_VISIT_SESS_NAME', 'visited_url');
 define('AUTH_BASE_ACCOUNT', 'base_account');
-
 define('BASE_ACCESS', serialize([
     [
         'app' => 'nilai',
@@ -135,158 +134,158 @@ define('RAPOR_SMK_MAPEL_KET', serialize( [
         '4' => [
             'umum' => [
                 '72' => [
-                    'label' => 'Pendidikan Agama Isalam dan Budi Pekerti',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Memahami ayat Al Qur’an, Hadits tentang berpikir kritis, cabang iman dan menghindari penyakit sosial serta baik dalam hal memahami pelaksanaan khutbah, tablig dan dakwah, memahami peran tokoh ulama yang mendunia.',
+                    'label' => 'Pendidikan Agama Islam dan Budi Pekerti',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal memahami ayat Al-Qur’an, hadits tentang berpikir kritis, cabang iman, dan menghindari penyakit sosial, serta baik dalam hal memahami pelaksanaan khutbah, tabligh, dan dakwah, serta memahami peran tokoh ulama yang mendunia.',
                 ],
                 '59' => [
                     'label' => 'Pendidikan Pancasila',
-                    'kompetensi' => 'Perlu penguatan dalam hal Menganalisis kedudukan Pancasila dalam Ideologi Terbuka di Era globalisasi sesuai yang di atur dalam UUD RI 1945.',
+                    'kompetensi' => 'Perlu penguatan dalam hal menganalisis kedudukan Pancasila sebagai ideologi terbuka di era globalisasi sesuai yang diatur dalam UUD RI 1945.',
                 ],
                 '15' => [
                     'label' => 'Bahasa Indonesia',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis Teks Berita Berdasarkan Strukturnya.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis teks berita berdasarkan strukturnya.',
                 ],
                 '50' => [
                     'label' => 'Pendidikan Jasmani, Olahraga, dan Kesehatan',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar serta baik dalam hal Menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar, serta baik dalam hal menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
                 ],
                 '46' => [
                     'label' => 'Sejarah',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia serta baik dalam hal Menganalisis pergerakan kebangsaan Indonesia. ',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia, serta baik dalam hal menganalisis pergerakan kebangsaan Indonesia.',
                 ],
                 '27' => [
                     'label' => 'Bahasa Jawa',
-                    'kompetensi' => 'Mencapai Kompetensi dengan sangat baik dalam hal Peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, Peserta didik mampu menulis sastra berupa teks cerkak dan pariwara berbagai tujuan secara tritis dan kreatif.',
+                    'kompetensi' => 'Mencapai kompetensi dengan sangat baik dalam hal peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, peserta didik mampu menulis sastra berupa teks cerkak dan pariwara untuk berbagai tujuan secara kritis dan kreatif.',
                 ],
                 '48' => [
                     'label' => 'Kemuhammadiyahan',
-                    'kompetensi' => 'Menunjukkan penugasan yang sangat baik dalam hal Memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal Memahami AD / ART, struktur organisasi dan permusyawaratan dalam organisasi Muhammadiyah.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang sangat baik dalam hal memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal memahami AD/ART, struktur organisasi, dan permusyawaratan dalam organisasi Muhammadiyah.',
                 ],
                 '53' => [
                     'label' => 'Matematika (Umum)',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks Perlu penguatan dalam hal Menentukan Komposisi Fungsi dan Fungsi Invers.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks. Perlu penguatan dalam hal menentukan komposisi fungsi dan fungsi invers.',
                 ],
                 '16' => [
                     'label' => 'Bahasa Inggris',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal  Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif Perlu penguatan dalam hal Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif. Perlu penguatan dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
                 ],
             ],
             'kejuruan' => [
                 '19' => [
                     'label' => 'Kreativitas, Inovasi dan Kewirausahaan',
-                    'kompetensi' => 'Perlu penguatan dalam hal Membuat desain/rancangan produk layanan dan perlu penguatan dalam Menyusun proses kerja pembuatan prototipe.',
+                    'kompetensi' => 'Perlu penguatan dalam hal membuat desain/rancangan produk layanan dan perlu penguatan dalam menyusun proses kerja pembuatan prototipe.',
                 ],
                 '20' => [
                     'label' => 'Desain Komunikasi Visual',
-                    'kompetensi' => "Menunjukkan penugasan yang baik dalam menerapkan dan mengelola proses produksi desaindimulai dari pra produksi, produksi dan pasca produksi sesuai dengan konsentrasi keahlian dalam lingkup Desain Komunikasi Visual. Melakukan pembiasaan sesauai dengan tim maupun pihak terkait. Proses produksi desain disesuaikan dengan sub konsentrasi keahlian (permintaan) dalam lingkup Desain Komunikasi Visual, peserta didik mampu dalam merancang visual secara sistematis mulai dari pemahaman terhadap permasalahan, diskusi pencarian ide (brainstorring). pengembangan alternatif, hinga menjadi karya akhir. Proses tersebut dapat menggunakan metode design thinking maupun metode lainnya. Peserta didik mampu melakukan pembiasaan sesuai POS, mampu berkolaborasi dan komunikasi dengan tim maupun pihak terkait. Karya desain yang dihasilkan disesuaikan dengan sub konsentrasi keahlian (peminatan) dalam lingkup Desain Komunikasi Visual Print Design, Videografi, Fotografo, Typeface Design, Story Boarding, Ilustrasi, Sequential Art, Motion Graphic, Web dan App Design, UI-UX Design, Concept Art, Motion Graphic Design, Environmental Graphic Design, dan lainnya yang terkait."
+                    'kompetensi' => "Menunjukkan penguasaan yang baik dalam menerapkan dan mengelola proses produksi desain dimulai dari praproduksi, produksi, dan pascaproduksi sesuai dengan konsentrasi keahlian dalam lingkup Desain Komunikasi Visual. Melakukan pembiasaan sesuai dengan tim maupun pihak terkait. Proses produksi desain disesuaikan dengan sub-konsentrasi keahlian (permintaan) dalam lingkup Desain Komunikasi Visual. Peserta didik mampu dalam merancang visual secara sistematis mulai dari pemahaman terhadap permasalahan, diskusi pencarian ide (brainstorming), pengembangan alternatif, hingga menjadi karya akhir. Proses tersebut dapat menggunakan metode design thinking maupun metode lainnya. Peserta didik mampu melakukan pembiasaan sesuai POS, mampu berkolaborasi dan berkomunikasi dengan tim maupun pihak terkait. Karya desain yang dihasilkan disesuaikan dengan sub-konsentrasi keahlian (peminatan) dalam lingkup Desain Komunikasi Visual: Print Design, Videografi, Fotografi, Typeface Design, Story Boarding, Ilustrasi, Sequential Art, Motion Graphic, Web dan App Design, UI-UX Design, Concept Art, Motion Graphic Design, Environmental Graphic Design, dan lainnya yang terkait."
                 ],
             ],
         ],
         '5' => [
             'umum' => [
                 '71' => [
-                    'label' => 'Pendidikan Agama Isalam dan Budi Pekerti',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Memahami ayat Al Qur’an, Hadits tentang berpikir kritis, cabang iman dan menghindari penyakit sosial serta baik dalam hal memahami pelaksanaan khutbah, tablig dan dakwah, memahami peran tokoh ulama yang mendunia.',
+                    'label' => 'Pendidikan Agama Islam dan Budi Pekerti',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal memahami ayat Al-Qur’an, hadits tentang berpikir kritis, cabang iman, dan menghindari penyakit sosial, serta baik dalam hal memahami pelaksanaan khutbah, tabligh, dan dakwah, serta memahami peran tokoh ulama yang mendunia.',
                 ],
                 '59' => [
                     'label' => 'Pendidikan Pancasila',
-                    'kompetensi' => 'Perlu penguatan dalam hal Menganalisis kedudukan Pancasila dalam Ideologi Terbuka di Era globalisasi sesuai yang di atur dalam UUD RI 1945.',
+                    'kompetensi' => 'Perlu penguatan dalam hal menganalisis kedudukan Pancasila sebagai ideologi terbuka di era globalisasi sesuai yang diatur dalam UUD RI 1945.',
                 ],
                 '15' => [
                     'label' => 'Bahasa Indonesia',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis Teks Berita Berdasarkan Strukturnya.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis teks berita berdasarkan strukturnya.',
                 ],
                 '50' => [
                     'label' => 'Pendidikan Jasmani, Olahraga, dan Kesehatan',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar serta baik dalam hal Menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar, serta baik dalam hal menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
                 ],
                 '68' => [
                     'label' => 'Sejarah',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia serta baik dalam hal Menganalisis pergerakan kebangsaan Indonesia. ',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia, serta baik dalam hal menganalisis pergerakan kebangsaan Indonesia.',
                 ],
                 '27' => [
                     'label' => 'Bahasa Jawa',
-                    'kompetensi' => 'Mencapai Kompetensi dengan sangat baik dalam hal Peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, Peserta didik mampu menulis sastra berupa teks cerkak dan pariwara berbagai tujuan secara tritis dan kreatif.',
+                    'kompetensi' => 'Mencapai kompetensi dengan sangat baik dalam hal peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, peserta didik mampu menulis sastra berupa teks cerkak dan pariwara untuk berbagai tujuan secara kritis dan kreatif.',
                 ],
                 '48' => [
                     'label' => 'Kemuhammadiyahan',
-                    'kompetensi' => 'Menunjukkan penugasan yang sangat baik dalam hal Memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal Memahami AD / ART, struktur organisasi dan permusyawaratan dalam organisasi Muhammadiyah.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang sangat baik dalam hal memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal memahami AD/ART, struktur organisasi, dan permusyawaratan dalam organisasi Muhammadiyah.',
                 ],
                 '53' => [
                     'label' => 'Matematika (Umum)',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks Perlu penguatan dalam hal Menentukan Komposisi Fungsi dan Fungsi Invers.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks. Perlu penguatan dalam hal menentukan komposisi fungsi dan fungsi invers.',
                 ],
                 '16' => [
                     'label' => 'Bahasa Inggris',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal  Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif Perlu penguatan dalam hal Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif. Perlu penguatan dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
                 ],
             ],
             'kejuruan' => [
                 '23' => [
                     'label' => 'Kreativitas, Inovasi dan Kewirausahaan',
-                    'kompetensi' => 'Perlu penguatan dalam hal Membuat desain/rancangan produk layanan dan perlu penguatan dalam Menyusun proses kerja pembuatan prototipe.',
+                    'kompetensi' => 'Perlu penguatan dalam hal membuat desain/rancangan produk layanan dan perlu penguatan dalam menyusun proses kerja pembuatan prototipe.',
                 ],
                 '26' => [
                     'label' => 'Desain Komunikasi Visual',
-                    'kompetensi' => "Menunjukkan penugasan yang baik dalam menerapkan dan mengelola proses produksi desaindimulai dari pra produksi, produksi dan pasca produksi sesuai dengan konsentrasi keahlian dalam lingkup Desain Komunikasi Visual. Melakukan pembiasaan sesauai dengan tim maupun pihak terkait. Proses produksi desain disesuaikan dengan sub konsentrasi keahlian (permintaan) dalam lingkup Desain Komunikasi Visual, peserta didik mampu dalam merancang visual secara sistematis mulai dari pemahaman terhadap permasalahan, diskusi pencarian ide (brainstorring). pengembangan alternatif, hinga menjadi karya akhir. Proses tersebut dapat menggunakan metode design thinking maupun metode lainnya. Peserta didik mampu melakukan pembiasaan sesuai POS, mampu berkolaborasi dan komunikasi dengan tim maupun pihak terkait. Karya desain yang dihasilkan disesuaikan dengan sub konsentrasi keahlian (peminatan) dalam lingkup Desain Komunikasi Visual Print Design, Videografi, Fotografo, Typeface Design, Story Boarding, Ilustrasi, Sequential Art, Motion Graphic, Web dan App Design, UI-UX Design, Concept Art, Motion Graphic Design, Environmental Graphic Design, dan lainnya yang terkait."
+                    'kompetensi' => "Menunjukkan penguasaan yang baik dalam menerapkan dan mengelola proses produksi desain dimulai dari praproduksi, produksi, dan pascaproduksi sesuai dengan konsentrasi keahlian dalam lingkup Desain Komunikasi Visual. Melakukan pembiasaan sesuai dengan tim maupun pihak terkait. Proses produksi desain disesuaikan dengan sub-konsentrasi keahlian (permintaan) dalam lingkup Desain Komunikasi Visual. Peserta didik mampu dalam merancang visual secara sistematis mulai dari pemahaman terhadap permasalahan, diskusi pencarian ide (brainstorming), pengembangan alternatif, hingga menjadi karya akhir. Proses tersebut dapat menggunakan metode design thinking maupun metode lainnya. Peserta didik mampu melakukan pembiasaan sesuai POS, mampu berkolaborasi dan berkomunikasi dengan tim maupun pihak terkait. Karya desain yang dihasilkan disesuaikan dengan sub-konsentrasi keahlian (peminatan) dalam lingkup Desain Komunikasi Visual: Print Design, Videografi, Fotografi, Typeface Design, Story Boarding, Ilustrasi, Sequential Art, Motion Graphic, Web dan App Design, UI-UX Design, Concept Art, Motion Graphic Design, Environmental Graphic Design, dan lainnya yang terkait."
                 ],
                 '25' => [
                     'label' => 'Mapel Animasi',
-                    'kompetensi' => "Menunjukkan penugasan yang baik dalam peserta didik mampu menjelaskan tentang proses produksi dan teknologi yang diaplikasikan dalam ndustri animasi secara tekun dan teliti, memahami perangkat kerja, pemakaian aplikasi atau tools untuk dioperasikan dalam ekosistem industri animasi (perangkat kerja produksi animasi), memahami sikap kerja dalam melakukan komunikasi dan kerja sama tim, produksi animasi yang meliputi istilah teknis atau bahasa, unit kerja, proses (pipeline), workflow pekerjaan, fungsi kerja (job desk) serta SOP pada produksi animasi.",
+                    'kompetensi' => "Menunjukkan penguasaan yang baik dalam hal peserta didik mampu menjelaskan tentang proses produksi dan teknologi yang diaplikasikan dalam industri animasi secara tekun dan teliti, memahami perangkat kerja, pemakaian aplikasi atau tools untuk dioperasikan dalam ekosistem industri animasi (perangkat kerja produksi animasi), memahami sikap kerja dalam melakukan komunikasi dan kerja sama tim, produksi animasi yang meliputi istilah teknis atau bahasa, unit kerja, proses (pipeline), alur kerja (workflow) pekerjaan, fungsi kerja (job desk), serta SOP pada produksi animasi.",
                 ],
             ],
         ],
         '6' => [
             'umum' => [
                 '71' => [
-                    'label' => 'Pendidikan Agama Isalam dan Budi Pekerti',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Memahami ayat Al Qur’an, Hadits tentang berpikir kritis, cabang iman dan menghindari penyakit sosial serta baik dalam hal memahami pelaksanaan khutbah, tablig dan dakwah, memahami peran tokoh ulama yang mendunia.',
+                    'label' => 'Pendidikan Agama Islam dan Budi Pekerti',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal memahami ayat Al-Qur’an, hadits tentang berpikir kritis, cabang iman, dan menghindari penyakit sosial, serta baik dalam hal memahami pelaksanaan khutbah, tabligh, dan dakwah, serta memahami peran tokoh ulama yang mendunia.',
                 ],
                 '59' => [
                     'label' => 'Pendidikan Pancasila',
-                    'kompetensi' => 'Perlu penguatan dalam hal Menganalisis kedudukan Pancasila dalam Ideologi Terbuka di Era globalisasi sesuai yang di atur dalam UUD RI 1945.',
+                    'kompetensi' => 'Perlu penguatan dalam hal menganalisis kedudukan Pancasila sebagai ideologi terbuka di era globalisasi sesuai yang diatur dalam UUD RI 1945.',
                 ],
                 '15' => [
                     'label' => 'Bahasa Indonesia',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis Teks Berita Berdasarkan Strukturnya.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis teks berita berdasarkan strukturnya.',
                 ],
                 '78' => [
                     'label' => 'Pendidikan Jasmani, Olahraga, dan Kesehatan',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar serta baik dalam hal Menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar, serta baik dalam hal menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
                 ],
                 '68' => [
                     'label' => 'Sejarah',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia serta baik dalam hal Menganalisis pergerakan kebangsaan Indonesia. ',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia, serta baik dalam hal menganalisis pergerakan kebangsaan Indonesia.',
                 ],
                 '27' => [
                     'label' => 'Bahasa Jawa',
-                    'kompetensi' => 'Mencapai Kompetensi dengan sangat baik dalam hal Peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, Peserta didik mampu menulis sastra berupa teks cerkak dan pariwara berbagai tujuan secara tritis dan kreatif.',
+                    'kompetensi' => 'Mencapai kompetensi dengan sangat baik dalam hal peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, peserta didik mampu menulis sastra berupa teks cerkak dan pariwara untuk berbagai tujuan secara kritis dan kreatif.',
                 ],
                 '48' => [
                     'label' => 'Kemuhammadiyahan',
-                    'kompetensi' => 'Menunjukkan penugasan yang sangat baik dalam hal Memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal Memahami AD / ART, struktur organisasi dan permusyawaratan dalam organisasi Muhammadiyah.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang sangat baik dalam hal memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal memahami AD/ART, struktur organisasi, dan permusyawaratan dalam organisasi Muhammadiyah.',
                 ],
                 '53' => [
                     'label' => 'Matematika (Umum)',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks Perlu penguatan dalam hal Menentukan Komposisi Fungsi dan Fungsi Invers.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks. Perlu penguatan dalam hal menentukan komposisi fungsi dan fungsi invers.',
                 ],
                 '16' => [
                     'label' => 'Bahasa Inggris',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal  Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif Perlu penguatan dalam hal Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif. Perlu penguatan dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
                 ],
             ],
             'kejuruan' => [
                 '23' => [
                     'label' => 'Kreativitas, Inovasi dan Kewirausahaan',
-                    'kompetensi' => 'Perlu penguatan dalam hal Membuat desain/rancangan produk layanan dan perlu penguatan dalam Menyusun proses kerja pembuatan prototipe.',
+                    'kompetensi' => 'Perlu penguatan dalam hal membuat desain/rancangan produk layanan dan perlu penguatan dalam menyusun proses kerja pembuatan prototipe.',
                 ],
                 '26' => [
                     'label' => 'Desain Komunikasi Visual',
-                    'kompetensi' => "Menunjukkan penugasan yang baik dalam menerapkan dan mengelola proses produksi desaindimulai dari pra produksi, produksi dan pasca produksi sesuai dengan konsentrasi keahlian dalam lingkup Desain Komunikasi Visual. Melakukan pembiasaan sesauai dengan tim maupun pihak terkait. Proses produksi desain disesuaikan dengan sub konsentrasi keahlian (permintaan) dalam lingkup Desain Komunikasi Visual, peserta didik mampu dalam merancang visual secara sistematis mulai dari pemahaman terhadap permasalahan, diskusi pencarian ide (brainstorring). pengembangan alternatif, hinga menjadi karya akhir. Proses tersebut dapat menggunakan metode design thinking maupun metode lainnya. Peserta didik mampu melakukan pembiasaan sesuai POS, mampu berkolaborasi dan komunikasi dengan tim maupun pihak terkait. Karya desain yang dihasilkan disesuaikan dengan sub konsentrasi keahlian (peminatan) dalam lingkup Desain Komunikasi Visual Print Design, Videografi, Fotografo, Typeface Design, Story Boarding, Ilustrasi, Sequential Art, Motion Graphic, Web dan App Design, UI-UX Design, Concept Art, Motion Graphic Design, Environmental Graphic Design, dan lainnya yang terkait."
+                    'kompetensi' => "Menunjukkan penguasaan yang baik dalam menerapkan dan mengelola proses produksi desain dimulai dari praproduksi, produksi, dan pascaproduksi sesuai dengan konsentrasi keahlian dalam lingkup Desain Komunikasi Visual. Melakukan pembiasaan sesuai dengan tim maupun pihak terkait. Proses produksi desain disesuaikan dengan sub-konsentrasi keahlian (permintaan) dalam lingkup Desain Komunikasi Visual. Peserta didik mampu dalam merancang visual secara sistematis mulai dari pemahaman terhadap permasalahan, diskusi pencarian ide (brainstorming), pengembangan alternatif, hingga menjadi karya akhir. Proses tersebut dapat menggunakan metode design thinking maupun metode lainnya. Peserta didik mampu melakukan pembiasaan sesuai POS, mampu berkolaborasi dan berkomunikasi dengan tim maupun pihak terkait. Karya desain yang dihasilkan disesuaikan dengan sub-konsentrasi keahlian (peminatan) dalam lingkup Desain Komunikasi Visual: Print Design, Videografi, Fotografi, Typeface Design, Story Boarding, Ilustrasi, Sequential Art, Motion Graphic, Web dan App Design, UI-UX Design, Concept Art, Motion Graphic Design, Environmental Graphic Design, dan lainnya yang terkait."
                 ],
                 '25' => [
                     'label' => 'Mapel Animasi',
-                    'kompetensi' => "Menunjukkan penugasan yang baik dalam peserta didik mampu menjelaskan tentang proses produksi dan teknologi yang diaplikasikan dalam ndustri animasi secara tekun dan teliti, memahami perangkat kerja, pemakaian aplikasi atau tools untuk dioperasikan dalam ekosistem industri animasi (perangkat kerja produksi animasi), memahami sikap kerja dalam melakukan komunikasi dan kerja sama tim, produksi animasi yang meliputi istilah teknis atau bahasa, unit kerja, proses (pipeline), workflow pekerjaan, fungsi kerja (job desk) serta SOP pada produksi animasi.",
+                    'kompetensi' => "Menunjukkan penguasaan yang baik dalam hal peserta didik mampu menjelaskan tentang proses produksi dan teknologi yang diaplikasikan dalam industri animasi secara tekun dan teliti, memahami perangkat kerja, pemakaian aplikasi atau tools untuk dioperasikan dalam ekosistem industri animasi (perangkat kerja produksi animasi), memahami sikap kerja dalam melakukan komunikasi dan kerja sama tim, produksi animasi yang meliputi istilah teknis atau bahasa, unit kerja, proses (pipeline), alur kerja (workflow) pekerjaan, fungsi kerja (job desk), serta SOP pada produksi animasi.",
                 ],
             ],
         ],
@@ -295,160 +294,161 @@ define('RAPOR_SMK_MAPEL_KET', serialize( [
         '4' => [
             'umum' => [
                 '72' => [
-                    'label' => 'Pendidikan Agama Isalam dan Budi Pekerti',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Memahami ayat Al Qur’an, Hadits tentang berpikir kritis, cabang iman dan menghindari penyakit sosial serta baik dalam hal memahami pelaksanaan khutbah, tablig dan dakwah, memahami peran tokoh ulama yang mendunia.',
+                    'label' => 'Pendidikan Agama Islam dan Budi Pekerti',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal memahami ayat Al-Qur’an, hadits tentang berpikir kritis, cabang iman, dan menghindari penyakit sosial, serta baik dalam hal memahami pelaksanaan khutbah, tabligh, dan dakwah, serta memahami peran tokoh ulama yang mendunia.',
                 ],
                 '59' => [
                     'label' => 'Pendidikan Pancasila',
-                    'kompetensi' => 'Perlu penguatan dalam hal Menganalisis kedudukan Pancasila dalam Ideologi Terbuka di Era globalisasi sesuai yang di atur dalam UUD RI 1945.',
+                    'kompetensi' => 'Perlu penguatan dalam hal menganalisis kedudukan Pancasila sebagai ideologi terbuka di era globalisasi sesuai yang diatur dalam UUD RI 1945.',
                 ],
                 '15' => [
                     'label' => 'Bahasa Indonesia',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis Teks Berita Berdasarkan Strukturnya.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis teks berita berdasarkan strukturnya.',
                 ],
                 '50' => [
                     'label' => 'Pendidikan Jasmani, Olahraga, dan Kesehatan',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar serta baik dalam hal Menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar, serta baik dalam hal menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
                 ],
                 '46' => [
                     'label' => 'Sejarah',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia serta baik dalam hal Menganalisis pergerakan kebangsaan Indonesia. ',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia, serta baik dalam hal menganalisis pergerakan kebangsaan Indonesia.',
                 ],
                 '27' => [
                     'label' => 'Bahasa Jawa',
-                    'kompetensi' => 'Mencapai Kompetensi dengan sangat baik dalam hal Peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, Peserta didik mampu menulis sastra berupa teks cerkak dan pariwara berbagai tujuan secara tritis dan kreatif.',
+                    'kompetensi' => 'Mencapai kompetensi dengan sangat baik dalam hal peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, peserta didik mampu menulis sastra berupa teks cerkak dan pariwara untuk berbagai tujuan secara kritis dan kreatif.',
                 ],
                 '48' => [
                     'label' => 'Kemuhammadiyahan',
-                    'kompetensi' => 'Menunjukkan penugasan yang sangat baik dalam hal Memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal Memahami AD / ART, struktur organisasi dan permusyawaratan dalam organisasi Muhammadiyah.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang sangat baik dalam hal memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal memahami AD/ART, struktur organisasi, dan permusyawaratan dalam organisasi Muhammadiyah.',
                 ],
                 '53' => [
                     'label' => 'Matematika (Umum)',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks Perlu penguatan dalam hal Menentukan Komposisi Fungsi dan Fungsi Invers.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks. Perlu penguatan dalam hal menentukan komposisi fungsi dan fungsi invers.',
                 ],
                 '16' => [
                     'label' => 'Bahasa Inggris',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal  Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif Perlu penguatan dalam hal Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif. Perlu penguatan dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
                 ],
             ],
             'kejuruan' => [
                 '30' => [
                     'label' => 'Kreativitas, Inovasi dan Kewirausahaan',
-                    'kompetensi' => 'Perlu penguatan dalam hal Membuat desain/rancangan produk layanan dan perlu penguatan dalam Menyusun proses kerja pembuatan prototipe.',
+                    'kompetensi' => 'Perlu penguatan dalam hal membuat desain/rancangan produk layanan dan perlu penguatan dalam menyusun proses kerja pembuatan prototipe.',
                 ],
                 '32' => [
                     'label' => 'Kefarmasian Klinis dan Komunitas',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal memahami dan menerapkan administrasi farmasi serta perbekalan obat dan alat kesehatan, serta sangat baik dalam hal memahami tanaman obat tradisional, mampu membuat sediaan jamu dan jamu kekinian secara sederhana.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal memahami dan menerapkan administrasi farmasi serta perbekalan obat dan alat kesehatan, serta sangat baik dalam hal memahami tanaman obat tradisional, mampu membuat sediaan jamu dan jamu kekinian secara sederhana.',
                 ],
             ],
         ],
         '5' => [
             'umum' => [
                 '71' => [
-                    'label' => 'Pendidikan Agama Isalam dan Budi Pekerti',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Memahami ayat Al Qur’an, Hadits tentang berpikir kritis, cabang iman dan menghindari penyakit sosial serta baik dalam hal memahami pelaksanaan khutbah, tablig dan dakwah, memahami peran tokoh ulama yang mendunia.',
+                    'label' => 'Pendidikan Agama Islam dan Budi Pekerti',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal memahami ayat Al-Qur’an, hadits tentang berpikir kritis, cabang iman, dan menghindari penyakit sosial, serta baik dalam hal memahami pelaksanaan khutbah, tabligh, dan dakwah, serta memahami peran tokoh ulama yang mendunia.',
                 ],
                 '59' => [
                     'label' => 'Pendidikan Pancasila',
-                    'kompetensi' => 'Perlu penguatan dalam hal Menganalisis kedudukan Pancasila dalam Ideologi Terbuka di Era globalisasi sesuai yang di atur dalam UUD RI 1945.',
+                    'kompetensi' => 'Perlu penguatan dalam hal menganalisis kedudukan Pancasila sebagai ideologi terbuka di era globalisasi sesuai yang diatur dalam UUD RI 1945.',
                 ],
                 '15' => [
                     'label' => 'Bahasa Indonesia',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis Teks Berita Berdasarkan Strukturnya.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis teks berita berdasarkan strukturnya.',
                 ],
                 '50' => [
                     'label' => 'Pendidikan Jasmani, Olahraga, dan Kesehatan',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar serta baik dalam hal Menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar, serta baik dalam hal menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
                 ],
                 '68' => [
                     'label' => 'Sejarah',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia serta baik dalam hal Menganalisis pergerakan kebangsaan Indonesia. ',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia, serta baik dalam hal menganalisis pergerakan kebangsaan Indonesia.',
                 ],
                 '27' => [
                     'label' => 'Bahasa Jawa',
-                    'kompetensi' => 'Mencapai Kompetensi dengan sangat baik dalam hal Peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, Peserta didik mampu menulis sastra berupa teks cerkak dan pariwara berbagai tujuan secara tritis dan kreatif.',
+                    'kompetensi' => 'Mencapai kompetensi dengan sangat baik dalam hal peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, peserta didik mampu menulis sastra berupa teks cerkak dan pariwara untuk berbagai tujuan secara kritis dan kreatif.',
                 ],
                 '48' => [
                     'label' => 'Kemuhammadiyahan',
-                    'kompetensi' => 'Menunjukkan penugasan yang sangat baik dalam hal Memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal Memahami AD / ART, struktur organisasi dan permusyawaratan dalam organisasi Muhammadiyah.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang sangat baik dalam hal memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal memahami AD/ART, struktur organisasi, dan permusyawaratan dalam organisasi Muhammadiyah.',
                 ],
                 '53' => [
                     'label' => 'Matematika (Umum)',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks Perlu penguatan dalam hal Menentukan Komposisi Fungsi dan Fungsi Invers.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks. Perlu penguatan dalam hal menentukan komposisi fungsi dan fungsi invers.',
                 ],
                 '16' => [
                     'label' => 'Bahasa Inggris',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal  Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif Perlu penguatan dalam hal Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif. Perlu penguatan dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
                 ],
             ],
             'kejuruan' => [
                 '34' => [
                     'label' => 'Kreativitas, Inovasi dan Kewirausahaan',
-                    'kompetensi' => 'Perlu penguatan dalam hal Membuat desain/rancangan produk layanan dan perlu penguatan dalam Menyusun proses kerja pembuatan prototipe.',
+                    'kompetensi' => 'Perlu penguatan dalam hal membuat desain/rancangan produk layanan dan perlu penguatan dalam menyusun proses kerja pembuatan prototipe.',
                 ],
                 '35' => [
                     'label' => 'Kefarmasian Klinis dan Komunitas',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal memahami dan menerapkan administrasi farmasi serta perbekalan obat dan alat kesehatan, serta sangat baik dalam hal memahami tanaman obat tradisional, mampu membuat sediaan jamu dan jamu kekinian secara sederhana.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal memahami dan menerapkan administrasi farmasi serta perbekalan obat dan alat kesehatan, serta sangat baik dalam hal memahami tanaman obat tradisional, mampu membuat sediaan jamu dan jamu kekinian secara sederhana.',
                 ],
                 '37' => [
                     'label' => 'Farmasi Industri',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal menerapkan formulasi dasar sediaan cair. Perlu penguatan dalam hal menerapkan prosedur operasional (personalia, bangunan, peralatan, produksi)',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menerapkan formulasi dasar sediaan cair. Perlu penguatan dalam hal menerapkan prosedur operasional (personalia, bangunan, peralatan, produksi).',
                 ],
             ],
         ],
         '6' => [
             'umum' => [
                 '71' => [
-                    'label' => 'Pendidikan Agama Isalam dan Budi Pekerti',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Memahami ayat Al Qur’an, Hadits tentang berpikir kritis, cabang iman dan menghindari penyakit sosial serta baik dalam hal memahami pelaksanaan khutbah, tablig dan dakwah, memahami peran tokoh ulama yang mendunia.',
+                    'label' => 'Pendidikan Agama Islam dan Budi Pekerti',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal memahami ayat Al-Qur’an, hadits tentang berpikir kritis, cabang iman, dan menghindari penyakit sosial, serta baik dalam hal memahami pelaksanaan khutbah, tabligh, dan dakwah, serta memahami peran tokoh ulama yang mendunia.',
                 ],
                 '59' => [
                     'label' => 'Pendidikan Pancasila',
-                    'kompetensi' => 'Perlu penguatan dalam hal Menganalisis kedudukan Pancasila dalam Ideologi Terbuka di Era globalisasi sesuai yang di atur dalam UUD RI 1945.',
+                    'kompetensi' => 'Perlu penguatan dalam hal menganalisis kedudukan Pancasila sebagai ideologi terbuka di era globalisasi sesuai yang diatur dalam UUD RI 1945.',
                 ],
                 '15' => [
                     'label' => 'Bahasa Indonesia',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis Teks Berita Berdasarkan Strukturnya.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis teks berita berdasarkan strukturnya.',
                 ],
                 '58' => [
                     'label' => 'Pendidikan Jasmani, Olahraga, dan Kesehatan',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar serta baik dalam hal Menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis strategi permainan dalam situasi menyerang dan bertahan pada bola besar, serta baik dalam hal menganalisis strategi permainan inovasi pada bola besar (sepak bola).',
                 ],
                 '68' => [
                     'label' => 'Sejarah',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia serta baik dalam hal Menganalisis pergerakan kebangsaan Indonesia. ',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menganalisis kebijakan kolonialisme dan perlawanan bangsa Indonesia, serta baik dalam hal menganalisis pergerakan kebangsaan Indonesia.',
                 ],
                 '27' => [
                     'label' => 'Bahasa Jawa',
-                    'kompetensi' => 'Mencapai Kompetensi dengan sangat baik dalam hal Peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, Peserta didik mampu menulis sastra berupa teks cerkak dan pariwara berbagai tujuan secara tritis dan kreatif.',
+                    'kompetensi' => 'Mencapai kompetensi dengan sangat baik dalam hal peserta didik mampu menulis gagasan dan pikiran dalam bentuk sastra tembang macapat, peserta didik mampu menulis sastra berupa teks cerkak dan pariwara untuk berbagai tujuan secara kritis dan kreatif.',
                 ],
                 '48' => [
                     'label' => 'Kemuhammadiyahan',
-                    'kompetensi' => 'Menunjukkan penugasan yang sangat baik dalam hal Memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal Memahami AD / ART, struktur organisasi dan permusyawaratan dalam organisasi Muhammadiyah.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang sangat baik dalam hal memahami jalur kaderisasi Muhammadiyah, serta sangat baik dalam hal memahami AD/ART, struktur organisasi, dan permusyawaratan dalam organisasi Muhammadiyah.',
                 ],
                 '53' => [
                     'label' => 'Matematika (Umum)',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal Menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks Perlu penguatan dalam hal Menentukan Komposisi Fungsi dan Fungsi Invers.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menyatakan data dalam bentuk matriks dan melakukan operasi aljabar pada matriks. Perlu penguatan dalam hal menentukan komposisi fungsi dan fungsi invers.',
                 ],
                 '16' => [
                     'label' => 'Bahasa Inggris',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal  Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif Perlu penguatan dalam hal Mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks naratif. Perlu penguatan dalam hal mengidentifikasi fungsi sosial, struktur teks, dan unsur kebahasaan teks deskriptif (Things).',
                 ],
             ],
             'kejuruan' => [
                 '34' => [
                     'label' => 'Kreativitas, Inovasi dan Kewirausahaan',
-                    'kompetensi' => 'Perlu penguatan dalam hal Membuat desain/rancangan produk layanan dan perlu penguatan dalam Menyusun proses kerja pembuatan prototipe.',
+                    'kompetensi' => 'Perlu penguatan dalam hal membuat desain/rancangan produk layanan dan perlu penguatan dalam menyusun proses kerja pembuatan prototipe.',
                 ],
                 '35' => [
                     'label' => 'Kefarmasian Klinis dan Komunitas',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal memahami dan menerapkan administrasi farmasi serta perbekalan obat dan alat kesehatan, serta sangat baik dalam hal memahami tanaman obat tradisional, mampu membuat sediaan jamu dan jamu kekinian secara sederhana.',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal memahami dan menerapkan administrasi farmasi serta perbekalan obat dan alat kesehatan, serta sangat baik dalam hal memahami tanaman obat tradisional, mampu membuat sediaan jamu dan jamu kekinian secara sederhana.',
                 ],
                 '37' => [
                     'label' => 'Farmasi Industri',
-                    'kompetensi' => 'Menunjukkan penugasan yang baik dalam hal menerapkan formulasi dasar sediaan cair. Perlu penguatan dalam hal menerapkan prosedur operasional (personalia, bangunan, peralatan, produksi)',
+                    'kompetensi' => 'Menunjukkan penguasaan yang baik dalam hal menerapkan formulasi dasar sediaan cair. Perlu penguatan dalam hal menerapkan prosedur operasional (personalia, bangunan, peralatan, produksi).',
                 ],
             ],
         ],
     ],
 ]));
+

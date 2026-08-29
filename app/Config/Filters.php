@@ -23,6 +23,7 @@ class Filters extends BaseConfig
         'secureheaders'     => SecureHeaders::class,
         'api-auth'          => \App\Filters\AuthFilter::class,
         'api-validation'    => \App\Filters\ValidationFilter::class,
+        'id-encryption'     => \App\Filters\IdEncryptionFilter::class,
     ];
 
     /**
@@ -33,11 +34,13 @@ class Filters extends BaseConfig
         'before' => [
             // 'csrf',
             'invalidchars',
+            'id-encryption',
         ],
         'after' => [
             'toolbar',
             'honeypot',
             'secureheaders',
+            'id-encryption',
         ],
     ];
 

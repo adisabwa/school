@@ -24,52 +24,89 @@ class PresensiMengajarController extends BaseDataController
     public function index($return = FALSE)
     {
         // $tanggal = date('Y-m-d');
-        $sesi = $this->sesiModel->getSesiNow();
-        $sesi = $this->sesiModel->find(1);
-        if (!$sesi) exit('Bukan sesi mengajar');
-        $id_sesi = $sesi->id;
-        $id_semester = $this->semesterModel->getSemesterNow()->id;
-        $tanggal = date('Y-m-d');
-        $time = date('H:i:s');
-        $time = '08:00:00';
-        $diff = strtotime($time) - strtotime($sesi->waktu_mulai);
-        // telat 20 menit
-        $is_telat = $diff > (20 * 60) ? '1' : '0';
-        // var_dump($time, $diff);
+        $id_sesi = $this->request->getGetPost('id_sesi');
+        $tanggal = $this->request->getGetPost('tanggal') ?? date('Y-m-d');
+        // $id_sesi = 1;
 
+        if ($id_sesi) {
+            $sesi = $this->sesiModel->getDataWhere(whereAnd:[
+                'sesi' => $id_sesi
+            ]);
+        } else {
+            $sesi = $this->sesiModel->getSesiNow();
+        }
+        // var_dump($id_sesi, $sesi);
+        if (!$sesi || !is_numeric($sesi->sesi))
+            return $this->failServerError('Sekarang bukan sesi mengajar');
+        
+        $id_sesi = $sesi->id;
+        $no_sesi = $sesi->sesi;
+        $id_semester = $this->semesterModel->getSemesterNow()->id;
+
+        // $tanggal = '2026-08-24';
         $hari = getHari($tanggal);
         $id_kelas = $this->request->getGetPost('id_kelas');
 
+        $time = date('H:i:s');
+
+        $pembagianMapel = $this->jadwalModel->getDataWhere(whereAnd: [
+            '{n}id_semester'   => $id_semester,
+            '{n}hari'   => $hari,
+            '{n}id_kelas'   => $id_kelas,
+        ], havingAnd:[
+            'sesi_awal <=' => $no_sesi,
+            'sesi_akhir >=' => $no_sesi,
+        ]);
+        // $time = '11:00:00';
+        // var_dump($time, $pembagianMapel->waktu_mulai);
+        $diff = strtotime($time) - strtotime($pembagianMapel->waktu_mulai);
+        // telat 10 menit
+        $is_telat = $diff > (10 * 60) ? '1' : '0';
+        // var_dump($time, $diff);
+
+
         $data = $this->model->getDataWhere(whereAnd:[
             'id_semester'   => $id_semester,
-            'id_sesi'   => $id_sesi,
             'tanggal'   => $tanggal,
             'id_kelas'   => $id_kelas,
+        ], havingAnd:[
+            'sesi_awal <=' => $no_sesi,
+            'sesi_akhir >=' => $no_sesi,
         ]);
-        
+        // var_dump($data);
+        // var_dump($this->model->getLastQuery());
+        // return $this->respondCreated($data);
         if (empty($data)) {
-        
-            $pembagianMapel = $this->jadwalModel->getDataWhere(whereAnd: [
-                '{n}id_semester'   => $id_semester,
-                '{n}id_sesi'   => $id_sesi,
-                '{n}hari'   => $hari,
-                '{n}id_kelas'   => $id_kelas,
-            ]);
-
-            $this->model->insert([
+            // var_dump($this->jadwalModel->getLastQuery());
+            // return $this->respondCreated($pembagianMapel);
+            // var_dump($hari, $id_semester, $id_kelas, $no_sesi, $pembagianMapel);
+            $user = userData();
+            $data = [
                 'id_semester'   => $id_semester,
-                'id_sesi'   => $id_sesi,
+                'id_sesi'   => $pembagianMapel->id_sesi,
                 'tanggal'   => $tanggal,
                 'id_kelas'   => $id_kelas,
                 'is_telat'   => $is_telat,
                 'waktu_telat'   => $diff - 600, // toleransi 10 menit
                 'id_guru'   => $pembagianMapel->id_guru,
+                'kelas'   => $pembagianMapel->kelas,
+                'nama_guru_lengkap'   => $pembagianMapel->nama_guru_lengkap,
                 'id_mapel'  => $pembagianMapel->id_mapel,
                 'jam'  => $pembagianMapel->jam,
-                'kehadiran' => 'hadir',
-            ]);
+                'sesi_awal'  => $pembagianMapel->sesi_awal,
+                'sesi_akhir'  => $pembagianMapel->sesi_akhir,
+                'waktu_mulai' => $pembagianMapel->waktu_mulai,
+                'waktu_selesai' => $pembagianMapel->waktu_selesai_akhir,
+            ];
+            if ($user->id == $pembagianMapel->id_guru) {
+                $data['kehadiran'] = 'hadir';
+            } else {
+                $data['kehadiran'] = 'tidak hadir';
+                $data['id_pengganti'] = $user->id;
+            }
+            // $this->model->insert($data);
 
-            return $this->index();
+            // return $this->index();
         }
 
         return $this->respondCreated($data);
@@ -80,17 +117,60 @@ class PresensiMengajarController extends BaseDataController
         return parent::index(FALSE);
     }
 
+    public function getAllGroupingGuru()
+    {
+        
+        $where = $this->request->getGetPost('where') ?? ['1=2'];
+        $order = $this->request->getGetPost('order') ?? [];
+        $order = implode(',', $order);
+        
+        $this->model->selects = [
+            "{n}SUM(jam) total_jam_guru",
+            "{n}SUM(IF(kehadiran='hadir',jam,0)) total_hadir_guru",
+            "{n}SUM(IF(kehadiran='tidak hadir',jam,0)) total_alfa_guru",
+            "{n}SUM(IF(kehadiran='sakit',jam,0)) total_sakit_guru",
+            "{n}SUM(IF(kehadiran='pribadi',jam,0)) total_pribadi_guru",
+            "{n}SUM(IF(kehadiran='dinas',jam,0)) total_dinas_guru",
+            "{n}SUM(IF(kehadiran='persyarikatan',jam,0)) total_persyarikatan_guru",
+            "{n}COUNT(IF(is_telat='1',1,NULL)) total_telat_guru",
+            "{n}COUNT(IF(tugas='1',1,NULL)) total_tugas_guru",
+            "{n}SUM(waktu_telat) total_waktu_telat_guru",
+            "GROUP_CONCAT({f}.id) ids",
+        ];
+        $data = $this->model->getAll(whereAnd: $where, groupBy: ['id_guru'], order: $order);
+
+        return $this->respondCreated(array_values($data));
+    }
+
     public function getAllGrouping()
     {
         $datas = parent::index(TRUE);
+        $role = $this->request->getGetPost('role');
+        switch ($role) {
+            case 'guru':
+                $funcInd = function($val){
+                    return $val->id_mapel;
+                };
+                break;
+            
+            default:
+                $funcInd = function($val){
+                    return $val->id_kelas;
+                };
+                break;
+        }
         $result = [];
+
         foreach ($datas as $key => $value) {
-            $ind = $value->id_mapel.'_'.$value->id_kelas;
+            $ind = $funcInd($value);
             if (!isset($result[$ind])) {
                 $result[$ind] = clone $value;
                 $result[$ind]->ids = [$value->id];
+                $result[$ind]->id_mapels = [$value->id_mapel];
             } else {
                 $result[$ind]->ids[] = $value->id;
+                if (!in_array($value->id_mapel, $result[$ind]->id_mapels))
+                    $result[$ind]->id_mapels[] = $value->id_mapel;
                 $result[$ind]->total_hadir += $value->total_hadir;
                 $result[$ind]->total_izin += $value->total_izin;
                 $result[$ind]->total_alfa += $value->total_alfa;

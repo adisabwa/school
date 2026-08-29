@@ -10,7 +10,7 @@ class DataKamarModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__kamar';
+        $this->table = PREFIX_TABLE.'_kamar';
         $this->relations = [
           'id_wali_kamar' => [
             'foreign_key' => 'id_wali_kamar',

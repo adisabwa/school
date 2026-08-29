@@ -10,7 +10,7 @@ class PeminjamanModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_lib_peminjaman';
+        $this->table = PREFIX_TABLE.'lib_peminjaman';
     }
 
     public function getOptions($where = [])

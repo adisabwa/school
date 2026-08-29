@@ -11,7 +11,7 @@ class MapelPembagianController extends BaseDataController
     public function __construct()
     {
         parent::__construct();
-        
+        // exit;
         $this->model = model('MapelPembagianModel');
     }
 
@@ -68,9 +68,10 @@ class MapelPembagianController extends BaseDataController
             $start++;
             $kelas = $sheet->getCell($start."7")->getValue();
         }
-
+        // var_dump($classes);
         $lastRow = $sheet->getHighestRow();
         $schedules = [];
+        $dataRow = [];
         $prev_guru = '';
         $prev_kode = '';
         for ($start_row=8; $start_row < $lastRow; $start_row++) { 
@@ -105,8 +106,18 @@ class MapelPembagianController extends BaseDataController
             foreach($cols as $col){
                 $jam = $sheet->getCell("$col$start_row")->getValue();
                 if (empty($jam)) continue;
+                // if ($classes[$col] != 32) continue;
                 $schedules[] = [...$sch,
                     ...[
+                        'id_kelas' => $classes[$col],
+                        'jam'      => $jam,
+                    ]
+                ];
+                $dataRow[] = [...$sch,
+                    ...[
+                        'nama_mapel' => $mapel,
+                        'nama_guru' => $guru,
+                        'kelas' => $col,
                         'id_kelas' => $classes[$col],
                         'jam'      => $jam,
                     ]
@@ -119,15 +130,24 @@ class MapelPembagianController extends BaseDataController
         $result = [];
         $error = [];
         foreach ($schedules as $key => $value) {
-            $save = $this->model->insert($value);
-            if (!$save)
-                $error[] = [$value, $this->model->error()];
+            if (!$value['id_guru'])
+                $error[] = "Guru tidak ditemukan: ".$dataRow[$key]['nama_guru'];
+            else if (!$value["id_mapel"])
+                $error[] = "Mapel tidak ditemukan: ".$dataRow[$key]['nama_mapel'];
+            else if (!$value["id_kelas"])
+                $error[] = "Kelas tidak ditemukan: ".$dataRow[$key]['kelas'];
+            else {
+                $save = $this->model->insert($value);
+                if (!$save)
+                    $error[] = $this->model->error();
+            }
         }
         // var_dump($schedules);
+        // var_dump($error);exit;
         // var_dump(count($schedules), $error);
-        if ($this->model->transStatus() === false) {
+        if ($this->model->transStatus() === false || !empty($error)) {
             $this->model->transRollback();
-            return $this->failServerError();
+            return $this->fail($error, 400);
         } else {
             $this->model->transCommit();
             return $this->respondCreated($schedules);

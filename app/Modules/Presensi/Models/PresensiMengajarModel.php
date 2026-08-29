@@ -10,14 +10,14 @@ class PresensiMengajarModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_pre_mengajar_kelas';
+        $this->table = PREFIX_TABLE.'pre_mengajar_kelas';
         $this->relations = [
-            'sch_pre_harian' => [
+            PREFIX_TABLE.'pre_harian' => [
                 'table' => "(SELECT id_mengajar_kelas, COUNT(IF(kehadiran='hadir',1,NULL)) hadir,
                     COUNT(IF(kehadiran='izin',1,NULL)) izin,
                     COUNT(IF(kehadiran='alfa',1,NULL)) alfa,
                     COUNT(IF(kehadiran='sakit',1,NULL)) sakit
-                FROM sch_pre_harian GROUP BY id_mengajar_kelas)",
+                FROM ".PREFIX_TABLE."pre_harian GROUP BY id_mengajar_kelas)",
                 'selects' => [
                     'hadir','izin','alfa','sakit',
                     '({f}.hadir * jam) as total_hadir',
@@ -32,7 +32,7 @@ class PresensiMengajarModel extends BaseModel
             ],
             'id_semester' => [
                 'foreign_key' => 'id_semester',
-                'table' => 'sch__semester',
+                'table' => PREFIX_TABLE.'_semester',
                 'selects' => [
                     'semester',
                     "tahun_ajaran",
@@ -41,7 +41,7 @@ class PresensiMengajarModel extends BaseModel
             ],
             'id_guru' => [
                 'foreign_key' => 'id_guru',
-                'table' => 'sch__guru',
+                'table' => PREFIX_TABLE.'_guru',
                 'selects' => [
                     "nama nama_guru",
                     "TRIM(REPLACE(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,'')),'-',''))  nama_guru_lengkap",
@@ -49,28 +49,40 @@ class PresensiMengajarModel extends BaseModel
             ],
             'id_kelas' => [
                 'foreign_key' => 'id_kelas',
-                'table' => 'sch__kelas',
+                'table' => PREFIX_TABLE.'_kelas',
                 'selects' => [
                     'kelas',
                 ]
             ],
             'id_mapel' => [
                 'foreign_key' => 'id_mapel',
-                'table' => 'sch_aka_mapel',
+                'table' => PREFIX_TABLE.'aka_mapel',
                 'selects' => [
                     'nama_mapel',
                 ]
             ],
             'id_sesi' => [
                 'foreign_key' => 'id_sesi',
-                'table' => 'sch__sesi',
+                'table' => PREFIX_TABLE.'_sesi',
+                'type' => 'left',
                 'selects' => [
-                    'sesi','waktu_mulai','waktu_selesai',
+                    'sesi sesi_awal','sesi','waktu_mulai','waktu_selesai',
+                ]
+            ],
+            'sesi_akhir' => [
+                'table' => PREFIX_TABLE.'_sesi',
+                'type' => 'left',
+                'alias' => 'sesi_akhir',
+                'on_condition' => [
+                    '{n}sesi_akhir.sesi=('.PREFIX_TABLE.'_sesi.sesi + '.PREFIX_TABLE.'pre_mengajar_kelas.jam - 1)'
+                ],
+                'selects' => [
+                    'id id_sesi_akhir','sesi sesi_akhir','waktu_mulai waktu_mulai_akhir','waktu_selesai waktu_selesai_akhir',
                 ]
             ],
             'id_pengganti' => [
                 'foreign_key' => 'id_pengganti',
-                'table' => 'sch__guru',
+                'table' => PREFIX_TABLE.'_guru',
                 'alias' => 'gu1',
                 'type' => 'left',
                 'selects' => [
@@ -80,7 +92,7 @@ class PresensiMengajarModel extends BaseModel
             ],
             'created_by' => [
                 'foreign_key' => 'created_by',
-                'table' => 'sch__guru',
+                'table' => PREFIX_TABLE.'_guru',
                 'alias' => 'gu2',
                 'type' => 'left',
                 'selects' => [

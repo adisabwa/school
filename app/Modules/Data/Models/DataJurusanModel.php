@@ -10,7 +10,7 @@ class DataJurusanModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__jurusan';
+        $this->table = PREFIX_TABLE.'_jurusan';
     }
 
     public function getOptions($where = [])

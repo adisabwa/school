@@ -26,15 +26,19 @@ class BaseDataController extends BaseController
         $in = $this->request->getGetPost('in') ?? [];
         $or = $this->request->getGetPost('or') ?? [];
         $inOr = $this->request->getGetPost('in_or') ?? [];
+        $having = $this->request->getGetPost('having') ?? [];
         $order = $this->request->getGetPost('order') ?? [];
+        $grouping = $this->request->getGetPost('grouping') ?? [];
         $limit = $this->request->getGetPost('limit') ?? 0;
         $offset = $this->request->getGetPost('offset') ?? 0;
         $condition = $this->request->getGetPost('condition') ?? [];
 
         $order = implode(",", $order);
 
-        // var_dump($condition);
+        // var_dump($this->request->getGetPost());
         $data = $this->model->addConditions($condition)->getAll(whereAnd: $where, whereOr: $or, whereIn: $in, orWhereIn: $inOr, 
+            havingAnd: $having,
+            groupBy: $grouping,
             order: $order, limit: $limit, offset: $offset);
         // var_dump($this->model->getLastQuery());
         foreach ($data as $key => $d) {
@@ -47,9 +51,11 @@ class BaseDataController extends BaseController
 
     public function get()
     {
-        $id = $this->request->getGet('id');
+        $id = $this->request->getGetPost('id');
         if (empty($id)) $id = -1;
+        
         // var_dump($id, method_exists($this->model, 'getData'));
+        // return $this->respondCreated(json_decode($this->model->find($id)->rpp));
         return $this->respondCreated(method_exists($this->model, 'getData') ? $this->model->getData($id) : $this->model->find($id));
     }
 
@@ -90,30 +96,37 @@ class BaseDataController extends BaseController
 
         $this->model->transBegin();
         // var_dump($data);
+        // var_dump($posted_data['id'], empty($posted_data['id']) || $posted_data['id'] < 0);
         if (!empty($data)) {
-            if ($posted_data['id'] > 0) {
-                $save = $this->model->update($posted_data['id'], $data);
-            } else {
+            if (empty($posted_data['id']) || $posted_data['id'] < 0) {
                 $save = $this->model->insert($data, TRUE);
+                // var_dump($this->model->insertID());
                 $posted_data['id'] = $this->model->insertID();
+            } else {
+                $save = $this->model->update($posted_data['id'], $data);
             }
         }
-        // // var_dump($posted_data);
+        // var_dump($child_key);
         // var_dump( $posted_data, $this->model->error());
+        // return $this->failServerError();
         // Append ID to data
+        // var_dump($child_table);
         foreach ($child_table as $table => $values) {
             $fk = $child_key[$table];
             $id = $posted_data['id'];
-            $model = $this->fieldsLibrary->getModelFromTable($table);
+            // var_dump($fk, $id, $table);
+            $model = $this->fieldsLibrary->createModelFromTable($table);
+            // var_dump($model);
             if ($model) {
                 $model->where([$fk => $posted_data['id']])->delete();
                 array_walk($values, function(&$value) use ($fk, $id) {
                     $value[$fk] = $id;
                 });
                 $model->insertBatch($values);
-            //     var_dump( $model->error());
+                var_dump( $model->error());
             }
         }
+        // return $this->failServerError();
 
         $newRequest = $this->request->setGlobal('post', $posted_data);
 
@@ -134,7 +147,8 @@ class BaseDataController extends BaseController
         // var_dump($posted);
         // return $this->failServerError();
         $this->model->transBegin();
-
+        // $ids = [];
+        $new_posted = [];
         foreach ($posted as $key => $posted_data) {
             $data = $posted_data;
             unset($data['id']);
@@ -167,16 +181,17 @@ class BaseDataController extends BaseController
                 //     var_dump( $model->error());
                 }
             }
-
-            $newRequest = $this->request->setGlobal('post', $posted_data);
+            $new_posted[$key] = $posted_data;
         }
+
+        $newRequest = $this->request->setGlobal('post', $new_posted);
 
         if ($this->model->transStatus() === false) {
             $this->model->transRollback();
             return $this->failServerError();
         } else {
             $this->model->transCommit();
-            return $this->respondCreated($posted);
+            return $this->respondCreated($new_posted);
         }
     }
 
@@ -376,6 +391,7 @@ class BaseDataController extends BaseController
         $grouping = $this->fieldsLibrary->groupingData($fields);
         $show_group = count($grouping) > 1;
         $key = 0;
+        // var_dump($grouping);exit;   
         foreach ($grouping as $group) {
             if ($show_group) {
                 $last_key = $key + count($group->children) - 1;
@@ -385,6 +401,7 @@ class BaseDataController extends BaseController
             }
             foreach ($group->children as $field) {
                 $activeWorksheet->setCellValue("{$kolomRange[$key]}".($show_group ? $row + 1 : $row), $field->label);
+                // var_dump($kolomRange[$key], $field->label);
                 $key++;
             }
         }
@@ -395,7 +412,7 @@ class BaseDataController extends BaseController
             $activeWorksheet->setCellValue("A$row", $ind + 1);
             $key = 0;
             foreach ($grouping as $group) {
-                foreach ($group->children as $key => $field) {
+                foreach ($group->children as $ind => $field) {
                     $col = $field->view_kolom;
                     if (empty($col))
                         $col = $field->nama_kolom;

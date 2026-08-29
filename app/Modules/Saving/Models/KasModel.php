@@ -10,7 +10,7 @@ class KasModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_sav_kas';
+        $this->table = PREFIX_TABLE.'sav_kas';
     }
 
     public function getOptions($where = [])

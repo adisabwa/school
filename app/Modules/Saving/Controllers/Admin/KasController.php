@@ -6,7 +6,6 @@ use App\Controllers\BaseDataController;
 
 class KasController extends BaseDataController
 {
-
     public function __construct()
     {
         parent::__construct();

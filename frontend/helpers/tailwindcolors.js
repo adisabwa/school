@@ -1,5 +1,5 @@
 // tailwindcolors.js
-export default {
+export const colors = {
   // slate
   'slate-50': '#f8fafc', 'slate-100': '#f1f5f9', 'slate-200': '#e2e8f0',
   'slate-300': '#cbd5e1', 'slate-400': '#94a3b8', 'slate-500': '#64748b',
@@ -132,3 +132,7 @@ export default {
   'rose-600': '#e11d48', 'rose-700': '#be123c', 'rose-800': '#9f1239',
   'rose-900': '#881337', 'rose-950': '#4c0519',
 };
+
+export const getColor = (code) => {
+  return colors[code]
+}

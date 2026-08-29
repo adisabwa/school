@@ -1,6 +1,6 @@
 <template>
 	<el-container id="menu-hidden" class="animate fixed top-0 z-50 w-full">
-    <div class="absolute h-[30px] w-full bg-yellow-50 left-0 z-[100]  [&_*]:text-teal-700" >
+    <div class="absolute h-[30px] w-full bg-yellow-50 left-0 z-[100]  [&_*]:text-[var(--color-main-700)]" >
       <div class="px-2 sm:px-6 h-full flex justify-between items-start">
         <div class="h-full w-auto">
           <div class="animate pointer menu-item reverse "

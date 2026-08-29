@@ -4,164 +4,167 @@ import { resolve } from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import { VitePWA } from 'vite-plugin-pwa';
-// import ViteWorkboxPlugin from 'vite-plugin-workbox';
-// import strip from '@rollup/plugin-strip'
-// import cleanup from 'rollup-plugin-cleanup'
+import { VitePWA } from 'vite-plugin-pwa'
+import path from 'path'
+import { pathToFileURL } from 'url'
 
-// https://vitejs.dev/config/
-export default ({ command, mode }) => {
+// https://vitejs.dev
+export default async ({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  // console.log(env)
+  const school = env.VITE_SCHOOL
+
+  // 2. Resolve the absolute path to your file
+  const absolutePath = path.resolve(process.cwd(), `frontend/config/schools/${school}.js`)
+
+  // 3. Import dynamically using a safe file URL conversion
+  const { baseUrlProd, appName, appNameShort } = await import(pathToFileURL(absolutePath).href)
+  console.log('School Base URL:', baseUrlProd)
 
   const folder = 'assets/vue'
   const outDir = `./public/${folder}/`
 
   const baseUrl = mode == 'production' 
-                    ? env.VITE_BASE_URL_PROD
+                    ? baseUrlProd
                     : env.VITE_BASE_URL
 
   const base = mode === 'production' 
                 ? `${baseUrl}${folder}/`
-                : './'
+                : `http://127.0.0.1:${env.VITE_PORT}`
 
-  // console.log(resolve(__dirname, outDir))
-  console.log(baseUrl, __dirname, base)
+  console.log('Final Base Path:', base)
 
-  return defineConfig({
+  return {
+    base: base,
     optimizeDeps: {
       include: [
         'vue',
         'vue-router',
         '@iconify/vue',
-      ]
+        '@vueup/vue-quill', 'quill'
+      ],
+      esbuildOptions: {
+        target: 'es2022',
+        supported: { 
+          'top-level-await': true 
+        }
+      }
     },
     plugins: [
-      vue(),// ...
+      vue(),
+      splitVendorChunkPlugin(), // Ditambahkan karena di-import di atas
       AutoImport({
         resolvers: [ElementPlusResolver()],
         imports: [
           'vue',
           'vue-router',
-          'pinia',              // auto-import Pinia APIs like `defineStore`, `useStore`
+          'pinia',
         ],
-        dirs: ['frontend/config/store'],  // auto-import your stores from this folder
+        dirs: [
+          resolve(__dirname,'frontend/helpers/**'),
+          resolve(__dirname,'frontend/composables/**'),
+          resolve(__dirname,'frontend/config/stores/**'),
+        ],
+        dts: './auto-imports.d.ts',
       }),
       Components({
         resolvers: [ElementPlusResolver()],
       }),
-      splitVendorChunkPlugin(),
       VitePWA({
-        // Enable manifest generation
-        includeAssets: ['index.html', 'index.php','favicon.svg', 'robots.txt'],
+        // Diubah menjadi relative ke outDir agar VitePWA tidak kebingungan memetakan foldernya
+        manifestFilename: 'manifest.webmanifest', 
+        srcDir: '.',           
+        filename: 'my-sw.js',     
+        strategies: 'injectManifest',
+        includeAssets: ['favicon.svg', 'robots.txt'],
         registerType: 'autoUpdate',
         devOptions: {
-          enabled: true
+          enabled: true,
+          type: 'module', 
         },
+        useCredentials: true,
+        build: true,
         manifest: {
-          "name": "Sistem Informasi Darul Arqom Patean",
-          "short_name": "SIM-PPMDA",
-          "start_url": baseUrl + "index.php",
-          "scope": baseUrl,
-          "display": "standalone",
-          "background_color": "#ffffff",
-          "theme_color": "#11716d",
-          "icons": [
+          name: appName,
+          short_name: appNameShort,
+          start_url: baseUrl + "index.php",
+          scope: baseUrl,
+          display: "standalone",
+          background_color: "#ffffff",
+          theme_color: "#11716d",
+          icons: [
             {
-              "src": baseUrl + "/assets/images/icons/android-chrome-192x192.png",
-              "sizes": "192x192",
-              "type": "image/png"
+              src: baseUrl + "assets/images/icons/android-chrome-192x192.png",
+              sizes: "192x192",
+              type: "image/png"
             },
             {
-              "src": baseUrl + "/assets/images/icons/android-chrome-512x512.png",
-              "sizes": "512x512",
-              "type": "image/png"
+              src: baseUrl + "assets/images/icons/android-chrome-512x512.png",
+              sizes: "512x512",
+              type: "image/png"
             },
           ],
         },
-        workbox: {
-          // This configuration will inject Workbox into the generated service worker
-          clientsClaim: true,
-          navigateFallback: baseUrl + "index.php",
-          skipWaiting: true,
-          // swDest: 'public/sw.js',                   // Your custom SW template
-          globPatterns: ['**/*.{js,css,html,png,svg,webmanifest}'],
-          globIgnores: ['sw.js', 'workbox-*.js'],  // Precache from Vite output only
+        injectManifest: {
+          swSrc: resolve(__dirname, 'public/sw.js'),
+          swDest: resolve(__dirname, 'public/sw.js'),
+          injectionPoint: 'self.__WB_MANIFEST',
+          globIgnores: ['sw.js', 'workbox-*.js', '**/manifest.webmanifest'],
           globDirectory: "public/assets/vue",
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/api\.example\.com\//, // Cache API calls
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'api-cache',
-                expiration: {
-                  maxEntries: 10, // Limit the cache to 10 entries
-                },
-              },
-            },
-            {
-              urlPattern: /\.(?:png|jpg|jpeg|svg)$/, // Cache images
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'image-cache',
-                expiration: {
-                  maxEntries: 20,
-                },
-              },
-            },
+          globPatterns: [
+            '**/*.{js,css,html,png,svg}'
           ],
+          modifyURLPrefix: {
+            '': baseUrl + 'assets/vue/' ,
+          },
+          dontCacheBustURLsMatching: /manifest\.webmanifest$/,
+          rollupOptions: {
+            output: {
+              format: 'es', 
+              inlineDynamicImports: true,
+            },
+          },
         },
       }),
-   
     ],
     resolve: {
       alias: {
-        '@': resolve(__dirname, './frontend')
+        '@': resolve(__dirname, './frontend'),
+        '@modules': resolve(__dirname, './frontend/modules'),
+        '@rapor': resolve(__dirname, './frontend/modules/rapor'),
       }
     },
-    base: base,
+    esbuild: {
+      supported: {
+        'top-level-await': true 
+      }
+    },
     server: {
-      host:'127.0.0.1',
-      // required to load scripts from custom host
+      host: '127.0.0.1',
       cors: true,
-  
-      // we need a strict port to match on PHP side
-      // change freely, but update on PHP to match the same port
       strictPort: true,
       port: env.VITE_PORT,
-      origin: "http://127.0.0.1:" + env.VITE_PORT,
+      origin: `http://127.0.0.1:${env.VITE_PORT}`,
+      headers: {
+        'Service-Worker-Allowed': '/' 
+      },
+      hmr: {
+        host: '127.0.0.1',
+      },
     },
     build: {
-      // output dir for production build
       outDir: resolve(__dirname, outDir),
-      assetsDir:'files',
+      assetsDir: 'files',
       emptyOutDir: true,
       copyPublicDir: false,
       cssCodeSplit: true,
-      // emit manifest so PHP can find the hashed files
       manifest: true,
-  
-      // esbuild target
-      target: 'es2020',
-      
-      // our entry
+      target: 'es2022',
       rollupOptions: {
         input: {
           main: resolve(__dirname, './frontend/main.js'),
         },
-        plugins: [
-          // remove console.*, assets.* (default)
-          // strip({
-          //   include: ['**/*.js', '**/*.vue'],
-          //   sourceMap: false
-          // }),
-          // cleanup({
-          //   comments: 'none',
-          //   sourcemap: false,
-          //   extensions: ['js', 'vue']
-          // })
-        ]
-      }
-    }
-  })
-}
+        plugins: []
+      } // <--- FIX: Menutup properti rollupOptions dengan benar
+    } // <--- FIX: Menutup properti build dengan benar
+  } // <--- FIX: Menutup return object dengan benar
+} // <--- FIX: Menutup fungsi export default async dengan benar

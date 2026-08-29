@@ -5,12 +5,13 @@
       <template  v-for="(field, ind) in fields">
         <el-form-item :class="[`mb-0 px-4 [&_*]:items-center [&_*]:m-0
           pointer hover:bg-gray-200
-          border-0 border-b border-solid border-gray-300`,
+          border-0 border-b border-solid border-gray-300 last:border-b-0`,
           ind == fields.length - 1 ? 'border-b-0' : '',
-          labelPosition == 'left' ? 'flex items-center [&_*]:leading-[1.5] py-2 ' : 'flex flex-col [&_*]:leading-[1.7] py-[8px]']"
+          labelPosition == 'left' ? 'flex items-center [&_*]:leading-[1.5] py-2 ' : 'flex flex-col [&_*]:leading-[1.7] py-[8px]',
+          formItemClass]"
           v-if="(field.hidden != '1' && field.hidden !== true) && (showColumns.length > 0 ? showColumns.includes(field.nama_kolom) : !passColumns.includes(field.nama_kolom))">
           <template #label>
-            <div class="font-semibold my-2"> {{ field.label }} </div>
+            <div :class="['font-semibold my-2', labelClass]"> {{ field.label }} </div>
           </template>
           <div class="flex">
             <span v-if="labelPosition == 'left'"> &nbsp; &nbsp; :  &nbsp; &nbsp; </span>
@@ -50,6 +51,11 @@ import { cloneDeep } from 'lodash';
 
 export default {
   name: 'loading',
+  setup(){
+    return {
+      isEmpty, runFunction,
+    }
+  },
   props: {
     params: {
       type:[Array, Object],
@@ -111,6 +117,14 @@ export default {
       type:[Array, Object],
       default:[],
     },
+    labelClass:{
+      type:String,
+      default:'',
+    },
+    formItemClass:{
+      type:String,
+      default:'',
+    },
   },
   emits:['update:empty','update:id','update:loading','update:formValue'],
   data: function() {
@@ -164,6 +178,7 @@ export default {
           }
         })
         .catch(err => {
+          console.log(err)
           this.getLoading(from, false)
           var res = err.response;
           var code = res.status;
@@ -181,7 +196,7 @@ export default {
         this.$emit('update:loading', val);
     },
     emptyData(){
-      this.resetObjectValue(this.form)
+      resetObjectValue(this.form)
       this.$emit('update:empty',true)
       this.$emit('update:id',-1)
     },

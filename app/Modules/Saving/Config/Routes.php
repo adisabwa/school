@@ -23,8 +23,8 @@ $routes->group('saving/admin', [
 ], static function ($routes) {    
     $routes->add('/', [SavingAdmin::class,'index']);
     $routes->add('get', [SavingAdmin::class, 'get']);
-    $routes->add('store', [SavingAdmin::class, 'store'], [ 'filter' => 'api-validation:sch_sav_tabungan']);
-    $routes->add('store_many', [SavingAdmin::class, 'store_many'], [ 'filter' => 'api-validation:sch_sav_tabungan,true']);
+    $routes->add('store', [SavingAdmin::class, 'store'], [ 'filter' => 'api-validation:'.PREFIX_TABLE.'sav_tabungan']);
+    $routes->add('store_many', [SavingAdmin::class, 'store_many'], [ 'filter' => 'api-validation:'.PREFIX_TABLE.'sav_tabungan',true]);
     $routes->add('template', [SavingAdmin::class, 'template']);
     $routes->add('upload', [SavingAdmin::class, 'upload']);
     $routes->add('dashboard', [SavingAdmin::class, 'dashboard']);
@@ -41,9 +41,9 @@ $routes->group('saving/admin', [
 
     //------------------------------------ Data Kas --------------//
     $routes->group('kas', static function ($routes) {
-        $routes->add('/', [KasAdmin::class,'get']);
+        $routes->add('/', [KasAdmin::class,'index']);
         $routes->add('get', [KasAdmin::class,'get']);
-        $routes->add('store', [KasAdmin::class,'store'],[ 'filter' => 'api-validation:sch_sav_kas']);
+        $routes->add('store', [KasAdmin::class,'store'],[ 'filter' => 'api-validation:'.PREFIX_TABLE.'sav_kas']);
     });
 });
 

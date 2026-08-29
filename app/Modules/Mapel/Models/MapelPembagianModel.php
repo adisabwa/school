@@ -11,44 +11,57 @@ class MapelPembagianModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_aka_pembagian_mapel';
+        $this->table = PREFIX_TABLE.'aka_pembagian_mapel';
         $this->relations = [
             'id_semester' => [
                 'foreign_key' => 'id_semester',
-                'table' => 'sch__semester',
+                'table' => PREFIX_TABLE.'_semester',
+                'alias' => 'sem',
                 'selects' => [
                     'semester',
                     "tahun_ajaran",
+                    "minggu",
                     "CONCAT('Semester ', {f}.semester, ' ',{f}.tahun_ajaran) semester_keterangan",
                 ]
             ],
             'id_guru' => [
                 'foreign_key' => 'id_guru',
-                'table' => 'sch__guru',
+                'table' => PREFIX_TABLE.'_guru',
                 'selects' => [
                     "nama nama_guru",
                     "TRIM(REPLACE(CONCAT(COALESCE({f}.prefix,''),{f}.nama,COALESCE({f}.suffix,'')),'-',''))  nama_guru_lengkap",
                     "nama_arab nama_guru_arab",
+                    'no_hp no_hp_guru',
+                    'nbm nbm_guru',
                 ]
             ],
-            'id_kelas' => [
+            'id_kelas_ajar' => [
                 'foreign_key' => 'id_kelas',
-                'model' => 'DataKelasModel',
+                'local_key' => 'id_kelas',
+                'model' => 'DataKelasAjarModel',
+                'alias' => 'kelas_ajar',
                 'selects' => [
                     'kelas',
                     'tingkat',
                     'nama_walas',
+                    'nama_unit',
                     'nama_walas_lengkap',
                     'nama_walas_arab',
+                    'nama_kepala','nama_kepala_lengkap','nama_kepala_arab','kepala_signature','nbm_kepala',
+                    'tahun_ajaran tahun_ajaran_kelas'
+                ],
+                'on_condition' => [
+                    "tahun_ajaran=sem.tahun_ajaran"
                 ]
             ],
             'id_mapel' => [
                 'foreign_key' => 'id_mapel',
-                'table' => 'sch_aka_mapel',
+                'table' => PREFIX_TABLE.'aka_mapel',
                 'selects' => [
                     'nama_mapel',
                     'nama_mapel_arab',
                     'is_kejuruan',
+                    'is_praktik',
                 ]
             ]
         ];
@@ -60,12 +73,12 @@ class MapelPembagianModel extends BaseModel
       $options = [];
       $data = $this->db->table($this->table." pm")
                     ->select("k.*, g.*, m.*, s.*, pm.*")
-                    ->join("sch__guru g","g.id=pm.id_guru")
-                    ->join("sch_aka_mapel m","m.id=pm.id_mapel")
-                    ->join("sch__kelas k","k.id=pm.id_kelas")
-                    ->join("sch__semester s","s.id=pm.id_semester")
+                    ->join(PREFIX_TABLE."_guru g","g.id=pm.id_guru")
+                    ->join(PREFIX_TABLE."aka_mapel m","m.id=pm.id_mapel")
+                    ->join(PREFIX_TABLE."_kelas k","k.id=pm.id_kelas")
+                    ->join(PREFIX_TABLE."_semester s","s.id=pm.id_semester")
                     ->where($where)
-                    ->orderBy('m.nama_mapel')
+                    ->orderBy('s.id desc, k.id, m.nama_mapel')
                     ->get()
                     ->getResult();
                     
@@ -75,21 +88,31 @@ class MapelPembagianModel extends BaseModel
                 'label' => "$d->nama_mapel ( $d->nama )",
                 'pembagian_mapel' => $d,
             ];
-            if (empty($options[$d->id_semester])) {
-                $options[$d->id_semester] = (object) [
-                    'value' => $d->id_semester,
+            if (empty($options["$d->id_semester"])) {
+                $options["$d->id_semester"] = (object) [
+                    'value' => "$d->id_semester",
                     'label' => "Semester ".ucfirst($d->semester)." $d->tahun_ajaran",
                     'options' => []
                 ];
             } 
-            if (empty($options[$d->id_semester]->options[$d->id_kelas])) {
-                $options[$d->id_semester]->options[$d->id_kelas] = (object) [
+            if (empty($options["$d->id_semester"]->options[$d->id_kelas])) {
+                $options["$d->id_semester"]->options[$d->id_kelas] = (object) [
                     'value' => $d->id_kelas,
                     'label' => $d->kelas,
+                    'tingkat' => $d->tingkat,
+                    'id_jurusan' => $d->id_jurusan,
                     'options' => []
                 ];
             } 
-            $options[$d->id_semester]->options[$d->id_kelas]->options[] = $option;
+            $options["$d->id_semester"]->options[$d->id_kelas]->options[] = $option;
+      }
+
+      $options = array_values($options);
+      foreach ($options as $key => $option) {
+          $options[$key]->options = array_values($option->options);
+          foreach ($options[$key]->options as $k => $o) {
+              $options[$key]->options[$k]->options = array_values($o->options);
+          }
       }
       return $options;
     }
@@ -100,12 +123,12 @@ class MapelPembagianModel extends BaseModel
         $options = [];
         $data = $this->db->table($this->table." pm")
                     ->select("k.*, g.*, m.*, s.*, pm.*")
-                    ->join("sch__guru g","g.id=pm.id_guru")
-                    ->join("sch_aka_mapel m","m.id=pm.id_mapel")
-                    ->join("sch__kelas k","k.id=pm.id_kelas")
-                    ->join("sch__semester s","s.id=pm.id_semester")
+                    ->join(PREFIX_TABLE."_guru g","g.id=pm.id_guru")
+                    ->join(PREFIX_TABLE."aka_mapel m","m.id=pm.id_mapel")
+                    ->join(PREFIX_TABLE."_kelas k","k.id=pm.id_kelas")
+                    ->join(PREFIX_TABLE."_semester s","s.id=pm.id_semester")
                     ->where($where)
-                    ->orderBy('m.nama_mapel')
+                    ->orderBy('s.id desc, m.nama_mapel')
                     ->get()
                     ->getResult();
         

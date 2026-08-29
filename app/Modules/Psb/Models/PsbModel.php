@@ -9,12 +9,12 @@ class PsbModel extends BaseModel
     public function __construct()
     {
         parent::__construct();
-        $this->table = 'sch_psb';
+        $this->table = PREFIX_TABLE.'psb';
         $this->table_label = 'SANTRI BARU';
         $this->relations = [
             'ayah_penghasilan' => [
                 'foreign_key' => 'ayah_penghasilan',
-                'table' => 'sch__penghasilan',
+                'table' => PREFIX_TABLE.'_penghasilan',
                 'alias' => 'pel1',
                 'type' => 'left',
                 'selects' => [
@@ -25,7 +25,7 @@ class PsbModel extends BaseModel
             ],
             'ibu_penghasilan' => [
                 'foreign_key' => 'ibu_penghasilan',
-                'table' => 'sch__penghasilan',
+                'table' => PREFIX_TABLE.'_penghasilan',
                 'alias' => 'pel2',
                 'type' => 'left',
                 'selects' => [
@@ -36,7 +36,7 @@ class PsbModel extends BaseModel
             ],
             'wali_penghasilan' => [
                 'foreign_key' => 'wali_penghasilan',
-                'table' => 'sch__penghasilan',
+                'table' => PREFIX_TABLE.'_penghasilan',
                 'alias' => 'pel3',
                 'type' => 'left',
                 'selects' => [
@@ -50,7 +50,7 @@ class PsbModel extends BaseModel
 
     public function getSummary()
     {
-        return $this->db->table('sch_psb')
+        return $this->db->table(PREFIX_TABLE.'psb')
                         ->select("status, count(id) jumlah")
                         ->groupBy('status')
                         ->get()

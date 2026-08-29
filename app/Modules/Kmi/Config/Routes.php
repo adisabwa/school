@@ -1,9 +1,14 @@
 <?php
 
+use Modules\Kmi\Controllers\KaldikController;
 use Modules\Kmi\Controllers\Admin\KaldikController as Kaldik;
 
+helper('route');
 //----------------------------------Section KMI-------------------------------------
 
+$routes->group('kmi/kaldik', static function ($routes) {    
+    addDefaultRoutes($routes, KaldikController::class, PREFIX_TABLE.'aka_kaldik');
+});
 
 //------------------------------------- Kaldik -----------------------------------------------
 $routes->group('kmi/admin/kaldik', [
@@ -11,7 +16,7 @@ $routes->group('kmi/admin/kaldik', [
 ], static function ($routes) {    
     $routes->add('/', [Kaldik::class,'index']);
     $routes->add('get', [Kaldik::class, 'get']);
-    $routes->add('store', [Kaldik::class, 'store'], [ 'filter' => 'api-validation:dakmi_kaldik' ]);
+    $routes->add('store', [Kaldik::class, 'store'], [ 'filter' => 'api-validation:'.PREFIX_TABLE.'aka_kaldik' ]);
     $routes->add('template', [Kaldik::class, 'template']);
     $routes->add('upload', [Kaldik::class, 'upload']);
     $routes->add('dashboard', [Kaldik::class, 'dashboard']);

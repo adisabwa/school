@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Data\Models;
+namespace App\Models;
 
 use App\Models\BaseModel;
 
@@ -10,7 +10,7 @@ class PenggunaAksesModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__pengguna_akses';
+        $this->table = PREFIX_TABLE.'_pengguna_akses';
     }
 
     public function getOptions($where = [])

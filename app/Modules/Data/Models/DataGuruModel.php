@@ -10,7 +10,7 @@ class DataGuruModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__guru';
+        $this->table = PREFIX_TABLE.'_guru';
     }
 
     public function getOptions($where = [])

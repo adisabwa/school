@@ -15,22 +15,22 @@
           }"
           :active-menu="activeMenu" :menus="menus" @action="handleActionClick" @toggle="toggleMenu"/>
       </transition>
-      <el-button v-if="$route.name != 'default' "
-        class="fixed z-[200] top-6 left-4
+      <!-- <el-button v-if="$route.name != 'default' "
+        class="fixed z-[200] top-12 left-3
         rounded-full
         w-[40px] h-[40px] p-3
         sm:hidden flex justify-center items-center
         opacity-[0.7]
         bg-yellow-50/[0.7]"  
         @click="$router.back()">
-        <icons icon="mdi:arrow-left" class="m-0 text-2xl text-teal-700 font-bold"/>
-      </el-button>
+        <icons icon="mdi:arrow-left" class="m-0 text-2xl text-[var(--color-main-700)] font-bold"/>
+      </el-button> -->
       <!-- <el-button class="fixed z-[200] bottom-7 right-7 rounded-full
         w-[70px] h-[70px] p-3
         sm:hidden flex justify-center items-center
         bg-yellow-50/[0.7]"  
         @click="toggleClass('#menu-vertical','-translate-x-full')">
-        <icons icon="mdi:menu" class="m-0 text-4xl text-teal-700"/>
+        <icons icon="mdi:menu" class="m-0 text-4xl text-[var(--color-main-700)]"/>
       </el-button> -->
     </div>
     <el-container>
@@ -45,7 +45,7 @@
           bg-cover bg-no-repeat bg-left-center bg-fixed" 
           :style="`background-image:url('${$baseUrl}assets/images/back-sketch.png')`">
         </div>
-        <div :class="`${isVertical == '1' ? 'sm:w-[calc(100%_-_var(--width-menu,0))] sm:translate-x-[--width-menu]' : 'w-full' } animate h-full flex-1 bg-transparent z-[0]`">
+        <div :class="`${layout == 'horizontal' ? 'w-full' : 'sm:w-[calc(100%_-_var(--width-menu,0))] sm:translate-x-[--width-menu]'} animate h-full flex-1 bg-transparent z-[0]`">
           <router-view v-slot="{ Component , route}"  :key="routerViewKey">
             <transition name="slide-in" mode="out-in"
               enter-active-class="transition-all ease-in-out duration-500"
@@ -75,14 +75,29 @@
   </div>
 </template>
 
+
 <script>
 import { mapState } from 'pinia';
 import VerticalMenu from './components/VerticalMenu.vue';
 import HorizontalMenu from './components/HorizontalMenu.vue';
 import { useAuthStore } from '@/config/stores/authStore'
+import { useDataStore } from '@/config/stores/dataStore';
+import MobileMenu from './components/MobileMenu.vue';
 
 export default {
   name: 'default-layout',
+  // 1. Definisikan setup untuk memanggil Composable
+  setup() {
+    const { useLocalStorage, saveToStorage } = useStorage();
+
+    // Membuat state reaktif yang terhubung ke localStorage
+    const menu = useLocalStorage('menu', 'admin');
+
+    return {
+      menu, // Sekarang bisa diakses via this.menu
+      saveToStorage  // Sekarang bisa diakses via this.saveToStorage
+    };
+  },
   data: function() {
     return {
       activeMenu: '',
@@ -91,12 +106,12 @@ export default {
       scrollPosition:0,
       menus:[],
       routerViewKey: 0,
-      isVertical:'1',
     };
   },
   components: {
     VerticalMenu,
     HorizontalMenu,
+    MobileMenu,
   },
   computed: {
     ...mapState(useAuthStore, {
@@ -105,36 +120,42 @@ export default {
       app:'app',
       pageTitle: 'pageTitle',
       pageSubTitle: 'pageSubTitle',
+      route: 'route',
+    }),
+    ...mapState(useDataStore, {
+      layout: 'layout',
+      template: 'template'
     }),
     MenuComponent(){
-      return this.isVertical == '1' || this.$windowWidth <= 600 ? VerticalMenu : HorizontalMenu
+      // console.log('layput', this.layout)
+      return this.$windowWidth.value <= 650 ? MobileMenu : (this.layout == 'horizontal' ? HorizontalMenu : VerticalMenu)
     },
   },
   watch: {
-    $route(to, from){
+    route(to, from){
       this.setActiveMenu()
     },
     role(newRole, oldRole) {
       this.routerViewKey++ // Trigger re-render
     },
     app(val){
+      console.log('app changed', app)
       this.getMenus(val)
     }
   },
   methods: {
     setActiveMenu: function() {
       let vm = this
-      let index = ''
-      console.log(index, this.menus)
+      let index = false
       this.menus.forEach(m => {
         if (m.type == 'submenu') {
           m?.children?.forEach(c => {
             if (!index)
-              index = vm.checkIndex(vm.$route, c)
+              index = vm.checkIndex(vm.route, c)
           })
         } else {
           if (!index)
-            index = vm.checkIndex(vm.$route, m)
+            index = vm.checkIndex(vm.route, m)
         }
       })
       // console.log(index)
@@ -144,26 +165,30 @@ export default {
       
     },
     async getMenus(app = 'admin'){
-      this.resetStorage('menu')
-      this.saveToStorage('menu',app)
+      this.menu = ''
+      this.menu = app
+      let vm = this
+      let hideMenus = this.$hideMenus[app] ?? []
       console.log(app);
-      // let index = vm.coalesce([vm.$route.meta.app, 'default'])
-      await import(`@/helpers/menus/${app}.js`)
+      // let index = vm.coalesce([vm.route.meta.app, 'default'])
+      await import(`@/modules/${app}/helpers/menus.js`)
         .then(res => {
-          // console.log(res.default)
-          this.menus = res.default
+          console.log(res.default)
+          this.menus = res.default.filter(m => !hideMenus.includes(m.route ?? m.index))
           this.setActiveMenu()
         })
         .catch( (err) => {
-          console.log(err)
+          // console.log(err)
           this.menus = []
         })
     },
     checkIndex(route, menu){
       // console.log(route, menu)
-      if (route.name == menu.route) {
+      let name = menu.route ?? menu.index
+      // console.log(route, name)
+      if (route.name == name) {
         // console.log(route.params, menu.params)
-        if (this.isEmpty(menu.params))
+        if (isEmpty(menu.params))
           return menu.index
         else {
           if (JSON.stringify(route.params) == JSON.stringify(menu.params) )
@@ -175,16 +200,17 @@ export default {
     handleActionClick(obj){
       let action = obj.action
       if (action == 'edit')
-        this.$router.push({name:'account'})
+        this.router.push({name:'account'})
       else if (action == 'logout')
         this.doLogout()
     },
     doLogout: function() {
       useAuthStore().logout()
         .then(res => {
-          this.$router.replace({ name: 'default' });
+          this.$router.replace({name:'default'})
         })
         .catch(err => {
+          // console.log(err)
           this.$notify({
             type:'error',
             title: 'Gagal',
@@ -194,25 +220,24 @@ export default {
         });
     },
     toggleMenu(to){
-      this.resetStorage('vertical-menu')
-      this.saveToStorage('vertical-menu',to);
-      this.isVertical = to
-      // useDataStore().filters.isVertical = to
+      // console.log(to)
+      useDataStore().setLayout(to)
+      // useDataStore().filters.layout = to
     }
   },
   created: async function() {
     // this.resetStorage('menu')
     this.getMenus(useAuthStore().getApp())
     this.scrollPosition = window.scrollY;
-    this.isVertical = this.getDataFormStorage('vertical-menu') ?? '1';
   },
   mounted(){
-   
+    // useAuthStore().getApp()
   },
   beforeRouteLeave(to, from){
   }
 }
 </script>
+
 
 <style lang="scss">
   .el-sub-menu__title {

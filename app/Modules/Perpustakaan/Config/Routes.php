@@ -13,12 +13,12 @@ $routes->group('perpustakaan', [
     $routes->group('admin', static function ($routes) {
         //-------------------------------------Data Buku -----------------------------------------------
         $routes->group('buku', static function ($routes) {
-            addDefaultRoutes($routes, BukuController::class, 'sch_lib_buku');
+            addDefaultRoutes($routes, BukuController::class, PREFIX_TABLE.'lib_buku');
         });
         
         //-------------------------------------Data Peminjaman -----------------------------------------------
         $routes->group('peminjaman', static function ($routes) {
-            addDefaultRoutes($routes, PeminjamanController::class, 'sch_lib_peminjaman');
+            addDefaultRoutes($routes, PeminjamanController::class, PREFIX_TABLE.'lib_peminjaman');
         });
     });
 });

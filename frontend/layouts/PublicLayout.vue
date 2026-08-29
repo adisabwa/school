@@ -18,12 +18,37 @@
           left-1/2 [--toTransX:-50%] [--transX:-50%]
           
           animate in md:[--transY:-75px] [--transY:-40px]"
-          :style="`background-image:url('${$baseUrl}assets/images/top.png')`"></div>
-        <img id="logo" :src="$baseUrl + 'assets/images/logo-color.png'"
+            :style="{ 
+              'background-image': `url('${$topElementBackground}')`, 
+            }"></div>
+        <!-- <img id="logo" :src="$baseUrl + 'assets/images/logo-color.png'"
           class="add-play animate zoom
             absolute top-0 md:top-[10px]  left-1/2 -translate-x-1/2 z-10
-            md:h-[160px] h-[130px]"/>
-        <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'"
+            md:h-[160px] h-[130px]"/> -->
+        <div class="bg-[var(--color-main-700)]
+            add-play animate zoom
+            absolute top-0 md:top-[10px]  left-1/2 -translate-x-1/2 z-10
+            md:h-[165px] h-[135px] md:w-[189px] w-[149px] rounded-b-[40px]">
+        </div> 
+        <div class="bg-gradient-to-b from-[#fffcec] to-yellow-100
+            add-play animate zoom
+            absolute top-0 md:top-[10px]  left-1/2 -translate-x-1/2 z-10
+            md:h-[150px] h-[120px] md:w-[190px] w-[150px] rounded-b-[40px]
+            [clip-path:polygon(0%_0%,_100%_0%,_100%_20%,_97%_100%,_3%_100%,_0%_20%)]
+            flex items-center justify-center flex-col gap-1
+            text-[var(--color-main-800)]">
+            <img id="logo" :src="$logoDefault"
+              class="md:h-[100px] h-[80px]"/>
+            <div>
+              <div class="text-center leading-[1] scale-x-[0.8] font-montserrat font-bold uppercase tracking-tighter text-[18px]">
+                {{ $schoolLogoTitle }}
+              </div>
+              <div class="text-center leading-[1] font-montserrat text-[12px] m-1">
+                {{ $schoolLogoSubTitle }}
+              </div>
+            </div>
+        </div> 
+        <img id="logo" :src="$logoDefault"
           class="remove-play animate zoom play
             absolute top-[10px] left-1/2 -translate-x-1/2 z-10
             md:h-[100px] h-[80px]"/>
@@ -79,7 +104,7 @@ export default {
   data: function() {
     return {
       activeMenu: '',
-      bigs:['default','psb-start','login','account','unauthorized', this.defaultRoute],
+      bigs:['default','psb-start','login','account','unauthorized'],
     };
   },
   watch: {
@@ -98,11 +123,11 @@ export default {
       console.log(To, From)
       if (To == From) return ''
       else if (To) {
-        this.addClass('.add-play','play');
-        this.removeClass('.remove-play','play');
+        addClass('.add-play','play');
+        removeClass('.remove-play','play');
       } else if (From) {
-        this.removeClass('.add-play','play');
-        this.addClass('.remove-play','play');
+        removeClass('.add-play','play');
+        addClass('.remove-play','play');
       } 
     },
   },

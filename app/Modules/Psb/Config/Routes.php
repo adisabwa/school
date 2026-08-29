@@ -11,8 +11,8 @@ $routes->group('psb', static function ($routes) {
     $routes->add('get', [Psb::class,'get']);
     $routes->add('get_where', [Psb::class,'get_where']);
     $routes->add('search', [Psb::class,'search']);
-    $routes->add('store', [Psb::class,'store']);
-    // $routes->add('store', [Psb::class,'store'],[ 'filter' => 'api-validation:sch_psb']);
+    // $routes->add('store', [Psb::class,'store']);
+    $routes->add('store', [Psb::class,'store'],[ 'filter' => 'api-validation:'.PREFIX_TABLE.'psb']);
     $routes->add('template', [Psb::class,'template']);
     $routes->add('upload', [Psb::class,'upload']);
     $routes->add('preparation', [Psb::class,'preparation']);

@@ -10,7 +10,7 @@ class PesertaModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_ts_tsdac_peserta';
+        $this->table = PREFIX_TABLE.'ts_tsdac_peserta';
     }
 
     public function getOptions($where = [])

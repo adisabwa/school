@@ -65,8 +65,21 @@ class RekapitulasiController extends BaseController
             } while ($tmp_start <= $end);
         }
 
-        $data = $this->model->getCount($start, $end);
-        $saldo = $this->model->getSaldo($start);
+        $this->model->selects = ['SUM({f}.nominal) jumlah'];
+        $data = $this->model->getAll(whereAnd: [
+            'tanggal >=' => $start,
+            'tanggal <=' => $end,
+        ],groupBy:['id_santri','jenis','tanggal'],
+        order:'tingkat, kelas, nama_santri, nama_kas',
+        );
+        
+
+        $this->model->selects = ['SUM({f}.nominal) jumlah'];
+        $saldo = $this->model->getAll(whereAnd: [
+            'tanggal <' => $end,
+        ],groupBy:['id_santri','jenis'],
+        order:'tingkat, kelas, nama_santri, nama_kas');
+        
         $result = [];
         foreach ($saldo as $key => $d) {
             $ind = $group ? $d->kelas ?? 'Kas' : $d->id_santri;

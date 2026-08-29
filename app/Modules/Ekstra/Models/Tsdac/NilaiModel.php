@@ -10,7 +10,7 @@ class NilaiModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_ts_tsdac_penilaian';
+        $this->table = PREFIX_TABLE.'ts_tsdac_penilaian';
         $this->relations = [
           'id_peserta' => [
             'foreign_key' => 'id_peserta',

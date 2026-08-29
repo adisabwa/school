@@ -11,6 +11,7 @@ body {
 .pointer {
   cursor: pointer;
 }
+
 .text-danger {
   color: v.$colorDanger !important;
 }
@@ -59,4 +60,30 @@ img, svg, video, canvas, audio, iframe, embed, object {
 }
 a {
   text-decoration: none;
+}
+
+.main-template-emerald {
+  --color-main-900: theme('colors.emerald.900');
+  --color-main-800: theme('colors.emerald.800');
+  --color-main-700: theme('colors.emerald.700');
+  --color-main-600: theme('colors.emerald.600');
+  --color-main-500: theme('colors.emerald.500');
+  --color-main-400: theme('colors.emerald.400');
+  --color-main-300: theme('colors.emerald.300');
+  --color-main-200: theme('colors.emerald.200');
+  --color-main-100: theme('colors.emerald.100');
+  --color-main-50: theme('colors.emerald.50');
+}
+
+.main-template-sky {
+  --color-main-900: theme('colors.sky.900');
+  --color-main-800: theme('colors.sky.800');
+  --color-main-700: theme('colors.sky.700');
+  --color-main-600: theme('colors.sky.600');
+  --color-main-500: theme('colors.sky.500');
+  --color-main-400: theme('colors.sky.400');
+  --color-main-300: theme('colors.sky.300');
+  --color-main-200: theme('colors.sky.200');
+  --color-main-100: theme('colors.sky.100');
+  --color-main-50: theme('colors.sky.50');
 }

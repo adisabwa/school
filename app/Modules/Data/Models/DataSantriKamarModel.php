@@ -10,14 +10,14 @@ class DataSantriKamarModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__santri_kamar';
+        $this->table = PREFIX_TABLE.'_santri_kamar';
         $this->relations = [
           'id_kamar' => [
             'foreign_key' => 'id_kamar',
             'model' => 'DataKamarModel',
             'type' => 'left',
             'selects' => ['rayon','rayon_arab','nomor','nama_wamar','nama_wamar_lengkap', 'wamar_signature','nama_wamar_arab',
-            "{n}CONCAT(rayon,' - ',nomor) kamar" ],
+            "CONCAT({f}rayon,' - ',{f}nomor) kamar" ],
           ],
           'id_santri' => [
             'foreign_key' => 'id_santri',

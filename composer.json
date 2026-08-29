@@ -5,6 +5,10 @@
         "phpmailer/phpmailer": "*",
         "dompdf/dompdf": "*",
         "kwn/number-to-words": "*",
-        "phpoffice/phpword": "*"
+        "phpoffice/phpword": "*",
+        "minishlink/web-push": "*",
+        "masterminds/html5": "*",
+        "khaled.alshamaa/ar-php": "^7.0",
+        "guzzlehttp/guzzle": "^7.10"
     }
 }

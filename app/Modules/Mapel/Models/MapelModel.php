@@ -10,7 +10,7 @@ class MapelModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch_aka_mapel';
+        $this->table = PREFIX_TABLE.'aka_mapel';
     }
 
     public function getOptions($where = [])

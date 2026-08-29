@@ -7,6 +7,7 @@ use Modules\Data\Controllers\UnitController;
 use Modules\Data\Controllers\JurusanController;
 use Modules\Data\Controllers\GuruController;
 use Modules\Data\Controllers\KelasController;
+use Modules\Data\Controllers\KelasAjarController;
 use Modules\Data\Controllers\KamarController;
 use Modules\Data\Controllers\SemesterController;
 use Modules\Data\Controllers\SesiController;
@@ -16,16 +17,7 @@ use Modules\Data\Controllers\SesiController;
 helper('route');
 //----------------------------------Data Guru-------------------------------------
 $routes->group('data/guru', static function ($routes) {
-    $routes->add('/', [GuruController::class, 'index']);
-    $routes->add('get', [GuruController::class, 'get']);
-    $routes->add('store', [GuruController::class, 'store'], [ 'filter' => 'api-validation:sch__guru']);
-    $routes->add('store_many', [GuruController::class, 'store_many'], [ 'filter' => 'api-validation:sch__guru,true']);
-    $routes->add('delete/(:any)', [GuruController::class, 'delete/$1']);
-    $routes->add('delete_many', [GuruController::class, 'delete_many']);
-    $routes->add('template', [GuruController::class, 'template']);
-    $routes->add('upload', [GuruController::class, 'upload']);
-    $routes->add('options', [GuruController::class, 'options']);
-    $routes->add('search', [GuruController::class, 'search']);
+    addDefaultRoutes($routes, GuruController::class, PREFIX_TABLE.'_guru');
 });
 
 $routes->group('data', [
@@ -33,42 +25,27 @@ $routes->group('data', [
 ], static function ($routes) {
 //----------------------------------Data Penghaslian-------------------------------------
     $routes->group('penghasilan', static function ($routes) {
-        $routes->add('/', [PenghasilanController::class, 'index']);
-        $routes->add('get', [PenghasilanController::class, 'get']);
-        $routes->add('store', [PenghasilanController::class, 'store'], [ 'filter' => 'api-validation:sch__penghasilan']);
-        $routes->add('store_many', [PenghasilanController::class, 'store_many'], [ 'filter' => 'api-validation:sch__penghasilan,true']);
-        $routes->add('delete/(:any)', [PenghasilanController::class, 'delete/$1']);
-        $routes->add('delete_many', [PenghasilanController::class, 'delete_many']);
-        $routes->add('options', [PenghasilanController::class, 'options']);
+        addDefaultRoutes($routes, PenghasilanController::class, PREFIX_TABLE.'_penghasilan');
     });
 
     
     //----------------------------------Data Unit-------------------------------------
     $routes->group('unit', static function ($routes) {
-        $routes->add('/', [UnitController::class, 'index']);
-        $routes->add('get', [UnitController::class, 'get']);
-        $routes->add('store', [UnitController::class, 'store'], [ 'filter' => 'api-validation:sch__unit']);
-        $routes->add('delete/(:any)', [UnitController::class, 'delete/$1']);
-        $routes->add('delete_many', [UnitController::class, 'delete_many']);
-        $routes->add('options', [UnitController::class, 'options']);
+        addDefaultRoutes($routes, UnitController::class, PREFIX_TABLE.'_unit');
     });
 
     
     //----------------------------------Data Sesi-------------------------------------
     $routes->group('sesi', static function ($routes) {
-        $routes->add('/', [SesiController::class, 'index']);
-        $routes->add('get', [SesiController::class, 'get']);
-        $routes->add('store', [SesiController::class, 'store'], [ 'filter' => 'api-validation:sch__sesi']);
-        $routes->add('delete/(:any)', [SesiController::class, 'delete/$1']);
-        $routes->add('delete_many', [SesiController::class, 'delete_many']);
-        $routes->add('options', [SesiController::class, 'options']);
+        addDefaultRoutes($routes, SesiController::class, PREFIX_TABLE.'_sesi');
+        $routes->add('sesi_now', [SesiController::class, 'sesi_now']);
     });
     
     //----------------------------------Data Jurusan-------------------------------------
     $routes->group('jurusan', static function ($routes) {
         $routes->add('/', [JurusanController::class, 'index']);
         $routes->add('get', [JurusanController::class, 'get']);
-        $routes->add('store', [JurusanController::class, 'store'], [ 'filter' => 'api-validation:sch__jurusan']);
+        $routes->add('store', [JurusanController::class, 'store'], [ 'filter' => 'api-validation:'.PREFIX_TABLE.'_jurusan']);
         $routes->add('delete/(:any)', [JurusanController::class, 'delete/$1']);
         $routes->add('delete_many', [JurusanController::class, 'delete_many']);
         $routes->add('template', [JurusanController::class, 'template']);
@@ -79,73 +56,65 @@ $routes->group('data', [
     
     //----------------------------------Data Semester-------------------------------------
     $routes->group('semester', static function ($routes) {
-        $routes->add('/', [SemesterController::class, 'index']);
-        $routes->add('get', [SemesterController::class, 'get']);
-        $routes->add('store', [SemesterController::class, 'store'], [ 'filter' => 'api-validation:sch__semester']);
-        $routes->add('delete/(:any)', [SemesterController::class, 'delete/$1']);
-        $routes->add('delete_many', [SemesterController::class, 'delete_many']);
-        $routes->add('options', [SemesterController::class, 'options']);
+        addDefaultRoutes($routes, Modules\Data\Controllers\SemesterController::class, PREFIX_TABLE.'_semester');
         $routes->add('semester_now', [SemesterController::class, 'semester_now']);
+        $routes->add('options_tahun_ajaran', [SemesterController::class, 'options_tahun_ajaran']);
     });
 
     //----------------------------------Data Kamar-------------------------------------
     $routes->group('kamar', static function ($routes) {
-        $routes->add('/', [KamarController::class, 'index']);
-        $routes->add('get', [KamarController::class, 'get']);
-        $routes->add('store', [KamarController::class, 'store'], [ 'filter' => 'api-validation:sch__kamar']);
-        $routes->add('store_many', [KamarController::class, 'store_many'], [ 'filter' => 'api-validation:sch__kamar,true']);
-        $routes->add('delete/(:any)', [KamarController::class, 'delete/$1']);
-        $routes->add('delete_many', [KamarController::class, 'delete_many']);
-        $routes->add('template', [KamarController::class, 'template']);
-        $routes->add('upload', [KamarController::class, 'upload']);
-        $routes->add('options', [KamarController::class, 'options']);
-        $routes->add('search', [KamarController::class, 'search']);
+        addDefaultRoutes($routes, KamarController::class, PREFIX_TABLE.'_kamar');
     });
 
     
     //----------------------------------Data Kelas-------------------------------------
     $routes->group('kelas', static function ($routes) {
-        $routes->add('/', [KelasController::class, 'index']);
-        $routes->add('get', [KelasController::class, 'get']);
-        $routes->add('store', [KelasController::class, 'store'], [ 'filter' => 'api-validation:sch__kelas']);
-        $routes->add('store_many', [KelasController::class, 'store_many'], [ 'filter' => 'api-validation:sch__kelas,true']);
-        $routes->add('delete/(:any)', [KelasController::class, 'delete/$1']);
-        $routes->add('delete_many', [KelasController::class, 'delete_many']);
-        $routes->add('template', [KelasController::class, 'template']);
-        $routes->add('upload', [KelasController::class, 'upload']);
-        $routes->add('options', [KelasController::class, 'options']);
-        $routes->add('search', [KelasController::class, 'search']);
+        addDefaultRoutes($routes, KelasController::class, PREFIX_TABLE.'_kelas');
+    });
+
+    //----------------------------------Data Kelas Per Tahun -------------------------------------
+    $routes->group('kelas-ajar', static function ($routes) {
+        addDefaultRoutes($routes, KelasAjarController::class, PREFIX_TABLE.'_kelas_ajar');
     });
 
     //----------------------------------Data Santri-------------------------------------
     $routes->group('santri', static function ($routes) {
-        $routes->add('/', [SantriController::class, 'index']);
-        $routes->add('get', [SantriController::class, 'get']);
-        $routes->add('store', [SantriController::class, 'store'], [ 'filter' => 'api-validation:sch__santri']);
-        $routes->add('store_many', [SantriController::class, 'store_many'], [ 'filter' => 'api-validation:sch__santri,true']);
-        $routes->add('delete/(:any)', [SantriController::class, 'delete/$1']);
-        $routes->add('delete_many', [SantriController::class, 'delete_many']);
-        $routes->add('template', [SantriController::class, 'template']);
-        $routes->add('upload', [SantriController::class, 'upload']);
-        $routes->add('options', [SantriController::class, 'options']);
-        $routes->add('search', [SantriController::class, 'search']);
+        addDefaultRoutes($routes, Modules\Data\Controllers\SantriController::class, PREFIX_TABLE.'_santri');
+        $routes->add('options_kelas', [SantriController::class, 'options_kelas']);
     });
     
     //----------------------------------Data Santri Kamar -------------------------------------
     $routes->group('santri-kamar', static function ($routes) {
-        addDefaultRoutes($routes, Modules\Data\Controllers\SantriKamarController::class, 'sch__santri_kamar');
+        addDefaultRoutes($routes, Modules\Data\Controllers\SantriKamarController::class, PREFIX_TABLE.'_santri_kamar');
+    });
+    
+    //----------------------------------Data Santri Kelas -------------------------------------
+    $routes->group('santri-kelas', static function ($routes) {
+        addDefaultRoutes($routes, Modules\Data\Controllers\SantriKelasController::class, PREFIX_TABLE.'_santri_kelas');
+        $routes->add('total-santri', [Modules\Data\Controllers\SantriKelasController::class, 'getTotalSantri']);
     });
 
     //----------------------------------Data Daerah -------------------------------------
     $routes->group('daerah', static function ($routes) {
-        addDefaultRoutes($routes, Modules\Data\Controllers\DaerahController::class, 'sch__daerah');
+        addDefaultRoutes($routes, Modules\Data\Controllers\DaerahController::class, PREFIX_TABLE.'_daerah');
     });
+
+    //----------------------------------Data Jabatan -------------------------------------
+    $routes->group('jabatan', static function ($routes) {
+        addDefaultRoutes($routes, Modules\Data\Controllers\JabatanController::class, PREFIX_TABLE.'_jabatan');
+    });
+
+    //----------------------------------Data Jabatan Guru -------------------------------------
+    $routes->group('jabatan-guru', static function ($routes) {
+        addDefaultRoutes($routes, Modules\Data\Controllers\JabatanGuruController::class, PREFIX_TABLE.'_jabatan_guru');
+    });
+
 
     //----------------------------------Data Pengguna-------------------------------------
     $routes->group('pengguna', static function ($routes) {
         $routes->add('/', [PenggunaController::class, 'index']);
         $routes->add('get', [PenggunaController::class, 'get']);
-        $routes->add('store', [PenggunaController::class, 'store'], [ 'filter' => 'api-validation:sch__guru']);
+        $routes->add('store', [PenggunaController::class, 'store'], [ 'filter' => 'api-validation:'.PREFIX_TABLE.'_guru']);
         $routes->add('delete/(:any)', [PenggunaController::class, 'delete/$1']);
         $routes->add('delete_many', [PenggunaController::class, 'delete_many']);
         $routes->add('template', [PenggunaController::class, 'template']);
