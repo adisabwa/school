@@ -289,7 +289,7 @@ import { mapState } from 'pinia';
       },
       allowEdit(){
         let access = (this.role == 'guru' || this.PembagianMapel.allow_access == '1')
-        access = true
+        // access = true
         // console.log(access)
         let data = {
           nilai_harian: access && this.PembagianMapel['lock_nilai_harian'] == '0',
