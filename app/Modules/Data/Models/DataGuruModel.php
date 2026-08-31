@@ -10,11 +10,11 @@ class DataGuruModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__guru';
+        $this->table = PREFIX_TABLE.'_guru';
     }
 
     public function getOptions($where = [])
     {
-      return $this->getOptionsData($where, function($d) { return "$d->prefix $d->nama $d->suffix"; });
+      return $this->getOptionsData($where, function($d) { return trim(str_replace("-","","$d->prefix $d->nama $d->suffix")); });
     }
 }

@@ -1,0 +1,268 @@
+
+import moment from 'moment/src/moment';
+import id from 'moment/src/locale/id';
+
+moment.updateLocale('id', id);
+moment.updateLocale('id', {
+  weekdays : 'Ahad_Senin_Selasa_Rabu_Kamis_Jumat_Sabtu'.split('_'),
+  weekdaysShort : 'Ahad_Sen_Sel_Rab_Kam_Jum_Sab'.split('_'),
+  weekdaysMin : 'Ah_Sn_Sl_Rb_Km_Jm_Sb'.split('_')
+});
+
+let listFunction = {
+  
+    getTime(time, passZero = false){
+      if (typeof time != 'number') return false
+      let second = time % 60
+      time = parseInt(time / 60)
+      let minute = time % 60
+      time = parseInt(time / 60)
+      let hour = time % 24
+      time = parseInt(time / 24)
+      let day = time % 24
+      time = parseInt(time / 30)
+      let month = time % 30
+      let res = {}
+      let els = {
+        month:month,
+        day:day,
+        hour:hour,
+        minute:minute,
+        second:second,
+      }
+      let write = false
+        Object.keys(els).forEach(key => {
+          let el = els[key]
+          if (el > 0) {
+            write = true
+          }
+          if (!passZero || write)
+            res[key] = {
+              value: el < 10 ? '0' + el : el.toString(),
+              label: key,
+            }
+        })
+        // console.log(res)
+      return res
+    },
+    dateNow() {
+      return moment().format('yyyy-MM-DD');
+    },
+    timeNow() {
+      return moment().format('HH:mm');
+    },
+    dateData(string) {
+      const formats = [
+        'YYYY-MM-DD',
+        'DD-MM-YYYY',
+        'DD/MM/YYYY',
+        'MM/DD/YYYY',
+        'DD MMMM YYYY',
+        'dddd, DD MMMM YYYY',
+        'MMMM DD, YYYY',
+        'YYYY/MM/DD',
+        'DD.MM.YYYY'
+      ]
+    
+      const date = moment(string, formats, true)
+      // console.log(date)
+      if (date.isValid()) {
+        return date.format('YYYY-MM-DD')
+      } else {
+        return 'Invalid date'
+      }    
+    },
+    formatDate(date, format = 'YYYY-MM-DD'){
+      return moment(date).format(format);
+    },
+    dayIndo(date) {
+      return moment(date).format('dddd');
+    },
+    dateIndo(date) {
+      return moment(date).format('DD MMMM yyyy');
+    },
+    dateIndoRange(date1, date2) {
+      let tanggal1 = this.dateIndo(date1);
+      let tanggal2 = this.dateIndo(date2);
+      if (!tanggal1 || !tanggal2) return '';
+      
+      // Menghapus spasi berlebih di awal/akhir
+      const t1 = tanggal1.trim();
+      const t2 = tanggal2.trim();
+
+      if (t1 === t2) {
+        return t1;
+      }
+
+      // Memecah string menjadi array [tgl, bulan, tahun]
+      const days = t1.split(' ');
+      const days2 = t2.split(' ');
+
+      // Logika perbandingan (Asumsi format: "d MMMM Y")
+      // index 0: tanggal, 1: bulan, 2: tahun
+      
+      if (days[2] === days2[2]) { // Tahun sama
+        let text = days[2];
+        
+        if (days[1] === days2[1]) { // Bulan sama
+          // Hasil: "1 - 5 Januari 2024"
+          return `${days[0]} - ${days2[0]} ${days[1]} ${text}`;
+        } else {
+          // Hasil: "30 Januari - 2 Februari 2024"
+          return `${days[0]} ${days[1]} - ${days2[0]} ${days2[1]} ${text}`;
+        }
+      } else {
+        // Tahun berbeda, tulis lengkap
+        // Hasil: "30 Desember 2023 - 2 Januari 2024"
+        return `${t1} - ${t2}`;
+      }
+    },
+    dateDayIndoSeparate(date) {
+      let data = moment(date).format('dddd DD MMM MM MMMM yyyy HH:mm');
+      let keys = ['long-day','day','short-month','month','long-month','year','time'];
+      data = data.split(' ');
+      let result = {};
+      for (var i = 0; i < data.length; i++) {
+        data[i] = data[i].trim()
+        result[keys[i]] = data[i];
+      }
+      return result
+    },
+    dateMonthIndo(date) {
+      return moment(date).format('DD MMMM');
+    },
+    dateDayIndo(date) {
+      return moment(date).format('dddd, DD MMMM YYYY');
+    },
+    dateShortIndo(date) {
+      return moment(date).format('DD/MM/YY');
+    },
+    dateTimeIndo(datetime) {
+      return moment(datetime).format('dddd, DD MMMM YYYY HH:mm');
+    },
+    timeIndo(datetime, retry = true) {
+      // console.log(datetime)
+      let time = moment(datetime).format('HH:mm');
+      if (time == 'Invalid date' && retry)
+        time = this.timeIndo(this.dateNow() + ' ' + datetime, false)
+      return time
+    },
+    monthOnly(date) {
+      return moment(date).format('MMMM');
+    },
+    monthIndo(date) {
+      return moment(date).format('MMMM YYYY');
+    },
+    addDay(date, sum, unit = 'days'){
+      return moment(date).add(sum, unit).format('yyyy-MM-DD');
+    },
+    getStartAndEndOfMonth(date){
+      // console.log(this.addDay(moment(date).format('yyyy-MM-01'), +1, 'months'))
+      return {
+        startOfMonth:moment(date).format('yyyy-MM-01'),
+        endOfMonth:this.addDay(this.addDay(moment(date).format('yyyy-MM-01'), +1, 'months'), -1),
+      }
+    },
+    getStartAndEndOfWeek(date = new Date()) {
+      const d = new Date(date)
+      const day = d.getDay() // 0=Min,1=Sen,2=Sel,3=Rab,4=Kam,5=Jum,6=Sab
+
+      // Sabtu = 6 → jadikan start
+      const diffToSaturday = day < 6 ? day : 0
+      // console.log(day, diffToSaturday)
+      const startOfWeek = new Date(d)
+      startOfWeek.setDate(d.getDate() - diffToSaturday)
+      startOfWeek.setHours(0, 0, 0, 0)
+
+      const endOfWeek = new Date(startOfWeek)
+      endOfWeek.setDate(startOfWeek.getDate() + 6)
+      endOfWeek.setHours(23, 59, 59, 999)
+
+      // console.log(date, startOfWeek, endOfWeek  )
+      return { 
+        startOfWeek:startOfWeek.toISOString().slice(0, 10), 
+        endOfWeek: endOfWeek.toISOString().slice(0, 10),
+      }
+    },
+    getDateRanges(start, end) {
+      const dateArray = [];
+      let current = new Date(start);
+      const stop = new Date(end);
+      let showDate = '';
+
+      while (current <= stop) {
+        showDate = new Date(current)
+        showDate = showDate.toISOString().slice(0, 10)
+        dateArray.push(showDate); // Push copy dari date
+        current.setDate(current.getDate() + 1);
+      }
+
+      return dateArray;
+    },
+    getWeeklyRanges(lastDateStr, numberOfWeeks) {
+      const result = [];
+      const lastDate = new Date(lastDateStr);
+  
+      for (let i = 0; i < numberOfWeeks; i++) {
+          // Clone the date to avoid modifying lastDate
+          const endOfWeek = new Date(lastDate);
+          endOfWeek.setDate(lastDate.getDate() - (7 * i));
+  
+          const startOfWeek = new Date(endOfWeek);
+          startOfWeek.setDate(endOfWeek.getDate() - 6);
+  
+          result.push({
+              start: startOfWeek.toISOString().slice(0, 10),
+              end: endOfWeek.toISOString().slice(0, 10)
+          });
+      }
+  
+      return result;
+    },
+    getMonthlyRanges(lastDateStr, numberOfMonths) {
+      const result = [];
+      let current = new Date(lastDateStr);
+  
+      // Normalize to first of the month
+      current.setDate(1);
+  
+      for (let i = 0; i < numberOfMonths; i++) {
+          const startOfMonth = new Date(current);
+          
+          // Get last day of current month
+          const endOfMonth = new Date(current.getFullYear(), current.getMonth() + 1, 0);
+  
+          result.push({
+              start: startOfMonth.toISOString().slice(0, 10),
+              end: endOfMonth.toISOString().slice(0, 10)
+          });
+  
+          // Move to first day of next month
+          current.setMonth(current.getMonth() - 1);
+      }
+  
+      return result;
+    },
+    setLastDateOfMonth(val) {
+      if (this.isEmpty(val))
+        return ''
+      const date = new Date(val)
+      const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+      const yyyy = lastDay.getFullYear()
+      const mm = String(lastDay.getMonth() + 1).padStart(2, '0')
+      const dd = String(lastDay.getDate()).padStart(2, '0')
+      return `${yyyy}-${mm}-${dd}`
+    },
+  }
+  
+  export { listFunction };
+  
+  export default {
+    install: (app) => {
+      let keys = Object.keys(listFunction)
+      for (var i = 0; i < keys.length; i++) {
+        let ind = keys[i]
+        app.config.globalProperties[ind] = listFunction[ind]
+      }
+    }
+  }

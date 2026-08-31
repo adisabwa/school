@@ -1,5 +1,5 @@
   import Axios from 'axios';
-  import router from "@/config/routes/router";
+  import router from "@/config/router";
   import { siteUrl } from './url';
 
   const API = Axios.create({

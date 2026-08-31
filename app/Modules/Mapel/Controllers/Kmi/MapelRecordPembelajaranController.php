@@ -32,7 +32,7 @@ class MapelRecordPembelajaranController extends BaseDataController
         $tanggal = '2025-08-28';
         // var_dump($semester_now, $check_sesi);
 
-        $hari = get_hari($tanggal);
+        $hari = getHari($tanggal);
         $check_record = $this->model->getAll(whereAnd: [
             'id_sesi' => $id_sesi,
             'tanggal' => $tanggal,
@@ -66,7 +66,7 @@ class MapelRecordPembelajaranController extends BaseDataController
         // var_dump($sesi, $sesi_before);
         $check_before = $this->model->addRelations([
             'id_sesi' => [
-                'condition' => [
+                'on_condition' => [
                     "sesi='$sesi_before'",
                 ],
             ],
@@ -158,13 +158,13 @@ class MapelRecordPembelajaranController extends BaseDataController
 
         return $this->model->addRelations([
             'id_kelas' => [
-                'condition' => [
+                'on_condition' => [
                     "komplek='$komplek'",
                 ],
                 'order' => 'kelas asc',
             ],
             'id_sesi' => [
-                'condition' => [],
+                'on_condition' => [],
             ],
         ])->getAll(whereAnd: [
             'tanggal' => $tanggal,

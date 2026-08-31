@@ -9,11 +9,14 @@ module.exports = {
   content: [
     './public/index.php',
     './index.html',
-    './frontend/**/*.{vue,js,ts,jsx,tsx}'
+    './frontend/**/*.{vue,js,ts,jsx,tsx}',
+    './new-frontend/**/*.{vue,js,ts,jsx,tsx}',
   ],
   safelist: [
     { pattern: /grid-cols-\d+/ },
     { pattern: /col-span-\d+/ },
+    // Properti CSS yang diperbolehkan: bg, text, border
+    { pattern: /(bg|text|border)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|100|200|300|400|500|600|700|800|900|950)/, }
   ],
   important: true,
   theme: {

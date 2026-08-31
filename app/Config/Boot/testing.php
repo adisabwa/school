@@ -30,3 +30,4 @@ defined('SHOW_DEBUG_BACKTRACE') || define('SHOW_DEBUG_BACKTRACE', true);
  | release of the framework.
  */
 defined('CI_DEBUG') || define('CI_DEBUG', true);
+define('PREFIX_TABLE', $_ENV['VITE_PREFIX_TABLE'] ?? 'sch_');

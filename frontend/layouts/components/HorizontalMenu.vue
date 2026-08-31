@@ -2,7 +2,7 @@
   <div class="">
     <div class="z-[99] h-[40px]">
       <div class="absolute sm:fixed z-[10] top-0 overflow-visible w-full max-w-[100vw] h-[30px]"> 
-        <div class="relative bg-teal-700">
+        <div class="relative bg-[var(--color-main-700)]">
           <div class="absolute w-[100px] h-[100vw] z-[0] -rotate-90
             translate-y-[50px]
             top-0 left-0 origin-top-left
@@ -13,7 +13,7 @@
           <el-header class=" h-[40px] w-full relative
             flex justify-end 
             shadow-md">
-            <el-menu :default-active="activeMenu"
+            <el-menu :default-active="activeMenu" unique-opened
               @select="handleSelect"
               ellipsis
               mode="horizontal"
@@ -52,11 +52,14 @@
               </template>
             </el-menu>
             <div class="menu-item-custom title p-2">
+              <NotificationList />
+            </div>
+            <div class="menu-item-custom title p-2">
               <el-popover placement="bottom-end" :visible="showAccount"
                 :show-arrow="false"
-                popper-class="text-white w-[250px] h-fit rounded-lg overflow-hidden bg-teal-700">
+                popper-class="text-white w-[250px] h-fit rounded-lg overflow-hidden bg-[var(--color-main-700)]">
                 <template #reference>
-                  <icons id="icon-account" icon="mdi:user-circle" class="mr-0 text-2xl text-teal-700 cursor-pointer"
+                  <icons id="icon-account" icon="mdi:user-circle" class="mr-0 text-2xl text-[var(--color-main-700)] cursor-pointer"
                     @click="showAccount = true"/>
                 </template>
                 <div class="absolute w-full h-full z-[0] top-0 left-0
@@ -83,12 +86,12 @@
                   <div class="w-full px-0 mt-0 z-[1]
                      leading-[1.3]">
                     Assalamu'alaikum,<br/>
-                    <div class="text-xl font-semibold truncate">{{ user.nama }}</div>
+                    <div class="text-xl font-semibold truncate leading-none">{{ user.nama }}</div>
                     <div class="text-md font-semibold truncate">{{ user.unit_kerja }}</div>
                     <div class="mt-1 mb-2 text-md leading-[1] cursor-pointer">
-                        {{ ucFirst(role) }}
+                        {{ getRoleLabel(role) }}
                     </div>
-                    <div class="border border-solid border-teal-700/[0.2]
+                    <div class="border border-solid border-[var(--color-main-300)]
                       mt-1">
                       <div class="py-1 flex items-center justify-center
                           cursor-pointer
@@ -98,7 +101,7 @@
                         <span>Masuk Sebagai</span>
                       </div>
                     </div>
-                    <div class="border border-solid border-teal-700/[0.2]
+                    <div class="border border-solid border-[var(--color-main-300)]
                       mt-1">
                       <div  @click="$emit('function', 'doLogout')"
                         class="py-1 flex items-center justify-center
@@ -110,29 +113,29 @@
                     </div>
                     <teleport to="body">
                       <el-dialog v-model="showRole"
-                        class="[&_*]:font-montserrat text-teal-800 w-[280px]">
+                        class="[&_*]:font-montserrat text-[var(--color-main-800)] w-[280px]">
                         <template #header>
                           <div>Masuk Sebagai</div>
                         </template>
                         <el-radio-group class="flex flex-col gap-2"
                           v-model="selectedRole">
-                          <el-radio-button v-for="rl in [...user.akses.all, ...(user.akses[$route?.meta?.app] ?? [])]"
-                            :value="rl.role" class="
-                            border border-solid border-teal-700/[0.5]
-                            text-teal-800 
+                          <el-radio-button v-for="rl in roles"
+                            :value="rl" class="
+                            border border-solid border-[var(--color-main-400)]
+                            text-[var(--color-main-800)] 
                             [&_*]:w-full w-full
                             [&_*]:border-0">
-                            {{ ucFirst(rl.role) }}</el-radio-button>
+                            {{ getRoleLabel(rl) }}</el-radio-button>
                         </el-radio-group>
                         <template #footer>
                           <div class="dialog-footer flex justify-between">
                             <el-button @click="showRole = false">Batal</el-button>
                             <el-button type="primary" @click="showRole = false;
-                              authStore.changeRole({
+                              changeRole({
                                 app:$route?.meta?.app ?? 'all',
                                 role:selectedRole
                               })"
-                              class="bg-teal-700 border-0">
+                              class="bg-[var(--color-main-700)] border-0">
                               Ubah
                             </el-button>
                           </div>
@@ -146,8 +149,8 @@
             <div class="menu-item-custom title p-2">
               <el-popover placement="bottom-end">
                 <template #reference>
-                  <icons icon="zondicons:show-sidebar" class="mr-0  text-2xl text-teal-700 cursor-pointer"
-                    @click="$emit('toggle','1')"/>
+                  <icons icon="zondicons:show-sidebar" class="mr-0  text-2xl text-[var(--color-main-700)] cursor-pointer"
+                    @click="$emit('toggle','vertical')"/>
                 </template>
                 <div>
                   Menu Sidebar
@@ -159,9 +162,9 @@
             h-[80px] w-[600px] absolute z-[51] top-[-10px]
             scale-x-[1]
             translate-x-[calc(50vw-50%)] sm:-translate-x-[calc(200px)]"
-              :style="`background-image:url('${$baseUrl}assets/images/top-3.png')`"></div>
+              :style="`background-image:url('${$top3ElementBackground}')`"></div>
         </div>
-        <img id="logo" :src="$baseUrl + 'assets/images/logo-kecil.png'" height="75px" 
+        <img id="logo" :src="$logoDefault" height="75px" 
           @click="$router.push({name:defaultRoute})"
           class="pointer animate hover:scale-[0.8]
           absolute z-[53] top-[0px]
@@ -173,13 +176,11 @@
   </div>
 </template>
 
-<script setup>
-  const authStore = useAuthStore()
-   
-</script>
-
 <script>
-import { mapState } from 'pinia';
+import { mapState, mapActions } from 'pinia';
+import { useAuthStore } from '@/config/stores/authStore'
+import NotificationList from './NotificationList.vue';
+import { getRoleLabel } from '@/modules/dashboard/helpers/functionHelper'
 
 export default {
   name: 'horizontal-menu',
@@ -187,9 +188,14 @@ export default {
   setup(){
     return {
       authStore: useAuthStore(),
+      ucFirst,
+      getRoleLabel,
+      isEmpty,
+      toggleClass,
     }
   },
   components:{
+    NotificationList,
   },
   props:{
     activeMenu: {
@@ -218,14 +224,18 @@ export default {
     ...mapState(useAuthStore, {
       user: 'loggedUser',
       role:'role',
+      roles:'roles',
     }),
   },
   methods: {
+    ...mapActions(useAuthStore,{
+      changeRole: 'changeRole',
+    }),
     handleActionClick(val){
       this.$emit('action', val)
     },
     handleSelect: function(action) {
-      this.addClass('.el-menu-demo','-translate-x-full sm:translate-x-0');
+      addClass('.el-menu-demo','-translate-x-full sm:translate-x-0');
     },
   },
   updated: function() {
@@ -243,9 +253,9 @@ export default {
   }
   :deep(.menu-item-custom), .menu-item-custom, :deep(.el-menu) .el-sub-menu{
 		@apply 
-      bg-teal-700
+      bg-[var(--color-main-700)]
       transition-all ease-in-out duration-300
-      bg-gradient-to-l from-transparent from-[51%] to-teal-100 to-[51%]
+      bg-gradient-to-l from-transparent from-[51%] to-[var(--color-main-100)] to-[51%]
       bg-[length:200%_200%] bg-right-bottom 
       text-[15px]
       leading-[0]
@@ -257,10 +267,10 @@ export default {
 	}
   :deep(.menu-item-custom.is-active), .menu-item-custom.is-active, :deep(.el-menu) .el-sub-menu.is-active  {
     * {
-      @apply text-teal-700 !important;
+      @apply text-[var(--color-main-700)] !important;
     }
     @apply
-      bg-teal-50
+      bg-[var(--color-main-50)]
     !important;
   }
   :deep(.menu-item-custom), .menu-item-custom, :deep(.el-menu) .el-sub-menu  {
@@ -275,15 +285,15 @@ export default {
   }
   :deep(.menu-item-custom):hover, .menu-item-custom:hover, :deep(.el-menu) .el-sub-menu:hover {
     .el-menu {
-      @apply text-slate-500 bg-teal-700 !important;
+      @apply text-slate-500 bg-[var(--color-main-700)] !important;
     }
     > li, > span, > div * {
       @apply 
-        text-teal-700
+        text-[var(--color-main-700)]
       !important;
     }
     svg {
-      @apply fill-teal-700 text-teal-700 !important;
+      @apply fill-[var(--color-main-700)] text-[var(--color-main-700)] !important;
     }
   }
 </style>

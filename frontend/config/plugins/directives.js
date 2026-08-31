@@ -1,5 +1,3 @@
-import { listFunction} from '@/config/plugins/ui-functions'
-
 // plugins/directives.js
 const clickOutsideDirective = {
   beforeMount(el, binding) {
@@ -79,12 +77,11 @@ const fixedToPosition = {
     const distance = binding.value
     const absolute = binding.arg ?? '0'
     const scrollParent = getScrollableParent(el);
-    let jqEl = jquery(el)
     function setTop(){
       // console.log('run', jqEl, window.scrollY, distance)
-      jqEl.css({
-        top: (absolute == '1' ? 0 : window.scrollY) + distance,
-      })
+      let top = 'calc(' + (absolute == '1' ? 0 : window.scrollY) + 'px + ' + distance + ')'
+      // console.log(el, el.style, 'set top', top)
+      el.style.top = top
     }
     // console.log('fixed', el, el.getBoundingClientRect(), scrollParent)
     el.__fixedToPositionHandler__ = (event) => {
@@ -160,8 +157,8 @@ const dragScroll = {
         }
 
         if (closestOffset != null) {
-          console.log('offset', closestOffset)
-          listFunction.scrollToCoordinate(el, closestOffset, 0.5);
+          // console.log('offset', closestOffset)
+          scrollToCoordinate(el, closestOffset, 0.5);
         }
       }
 

@@ -11,6 +11,9 @@
       <template #prepend v-if="prefix">
         {{ prefix }}
       </template>
+      <template #suffix>
+        <icons icon="ri:arrow-down-s-line" class="m-0" />
+      </template>
     </el-input>
     <teleport to="body">
       <el-dialog v-model="showSelect"
@@ -27,23 +30,50 @@
           ref="floatingScroll" class="relative max-h-[65vh] overflow-y-auto">
           <div v-for="o in optionsFilter"
             :data-id="o.value"
-            :class="[`cursor-pointer px-5 py-1 active:bg-teal-100
-              border-0 border-b border-solid border-teal-700/[0.3]`,
-              (isClick(o.value) ? 'bg-teal-100' : '')
+            :class="[`cursor-pointer px-5 py-1 active:bg-[var(--color-main-100)]
+              border-0 border-b border-solid border-[var(--color-main-200)]`,
+              (isClick(o.value) ? 'bg-[var(--color-main-100)]' : '')
             ]"
             @click="clickData(o.value, multiple)">
             <template v-if="$slots.prefix">
               <slot name="prefix" />
             </template>
-            {{ o.label }}
+            {{ o.label ?? o.value }}
           </div>
           <div v-if="optionsFilter.length == 0"
             class="text-center text-[14px]">
             - Tidak ada data -
           </div>
           <template v-if="$slots.footer">
-            <el-divider class="my-2"/>
-            <slot name="footer" />
+            <div class="px-5 pt-2">
+              <slot name="footer" />
+            </div>
+          </template>
+        </div>
+        <div v-if="type =='select-group'"
+          ref="floatingScroll" class="relative max-h-[65vh] overflow-y-auto">
+          <template v-for="group in optionsFilter">
+            <div v-for="o in group.options"
+              :data-id="o.value"
+              :class="[`cursor-pointer px-5 py-1 active:bg-[var(--color-main-100)]
+                border-0 border-b border-solid border-[var(--color-main-200)]`,
+                (isClick(o.value) ? 'bg-[var(--color-main-100)]' : '')
+              ]"
+              @click="clickData(o.value, multiple)">
+              <template v-if="$slots.prefix">
+                <slot name="prefix" />
+              </template>
+              {{ o.label ?? o.value }}
+            </div>
+          </template>
+          <div v-if="optionsFilter.length == 0"
+            class="text-center text-[14px]">
+            - Tidak ada data -
+          </div>
+          <template v-if="$slots.footer">
+            <div class="px-5 pt-2">
+              <slot name="footer" />
+            </div>
           </template>
         </div>
         <div v-else-if="type=='scroll'"
@@ -66,6 +96,11 @@ import  { VueScrollPicker } from 'vue-scroll-picker'
 
 export default {
   name:'floating-select',
+  setup(){
+    return {
+      isEmpty,
+    }
+  },
   components:{
     ScrollPicker:VueScrollPicker,
   },
@@ -89,6 +124,7 @@ export default {
   data: function() {
     return {
       vModel:'',
+      initial:true,
       showSelect:false,
       searchData:'',
       labelModel:'',
@@ -103,9 +139,16 @@ export default {
         let exact = this.listOptions.filter(data => {
             return data.label == q
           });
+
         let data = this.listOptions.filter(data => {
-            return data.label.toLowerCase().includes(q)
+            let child = false
+            if (data?.options) {
+              data.options = data.options.filter(d => d.label.toLowerCase().includes(q))
+              child = true
+            } 
+            return data.label.toLowerCase().includes(q) || child
           });
+        
         if (this.allowCreate && exact.length == 0) {
           this.newOption =  {
             value: q,
@@ -127,12 +170,12 @@ export default {
         let vm = this
         if (val) {
           setTimeout(() => {
-            vm.jquery('#filterSelect.el-input__inner')[0]?.focus();
+            getEl('#filterSelect.el-input__inner')?.focus();
             // console.log(jquery(this.$refs.floatingScroll))
-            this.scrollElement(jquery(this.$refs.floatingScroll),`[data-id="${vm.vModel}"]`,1,'top', false)
+            scrollElement(getEl(this.$refs.floatingScroll),`[data-id="${vm.vModel}"]`,'top')
           }, 500)
           vm.searchData = ''
-          if (vm.isEmpty(vm.vModel)) {
+          if (isEmpty(vm.vModel)) {
             vm.clickData(vm.listOptions[0]?.value, true)
           }
         } else {
@@ -153,8 +196,10 @@ export default {
           this.vModel = ''
         else {
           // console.log('model', val)
-          this.selectOption(val)
           this.$emit('update:value', val)
+          this.$nextTick(() =>
+            this.selectOption(val)
+          )
         }
       },
     },
@@ -184,14 +229,17 @@ export default {
         }
         // console.log(opt)
         this.listOptions = opt
-        this.selectOption(this.vModel)
+        this.$nextTick(() =>
+          this.selectOption(this.vModel)
+        )
       }
     }
   },
   methods:{
     changedValue(val){
       // console.log('change float')
-      this.$emit('change',val)
+      if (!this.initial)
+        this.$emit('change',val)
     },
     selectOption(val){
       // console.log('selectOption', val)
@@ -201,10 +249,14 @@ export default {
       } else {
         array = [val]
       }
+      // console.log(array)
       let filter = this.listOptions.filter(d => {
+        // console.log(d.value)
         return array.includes(d.value)
       })
+      // console.log(filter)
       this.labelModel = filter[0]?.label ?? this.newOption?.label
+      // console.log('label', this.labelModel)
       if (Array.isArray(val)) {
         if (val.length > 1) {
           this.labelModel = `[${(filter?.length - 1)}+] - ` + this.labelModel
@@ -250,6 +302,7 @@ export default {
   },
   mounted(){
     // console.log('mounted', this.vModel)
+    this.initial = false
     if (this.multiple && !Array.isArray(this.vModel)) {
       this.vModel = []
     }

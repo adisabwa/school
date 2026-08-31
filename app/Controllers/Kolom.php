@@ -27,7 +27,7 @@ class Kolom extends BaseController
         $grouping = ($grouping ?? $this->request->getGet('grouping')) != '0';
         
         $results = $this->fieldsLibrary->getFields($table, $input, $output);
-
+      
         if ($grouping)
           $results = $this->fieldsLibrary->groupingData($results);
 

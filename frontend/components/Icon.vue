@@ -23,6 +23,5 @@ export default {
 <style lang="scss" scoped>
 	.iconify {
 		font-size: 18px;
-		margin-right: 6px;
 	}
 </style>

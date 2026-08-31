@@ -5,6 +5,8 @@
 namespace App\Libraries;
 
 use App\Models\KolomModel;
+use Config\Database;
+use App\Models\BaseModel;
 
 class Fields
 {
@@ -18,8 +20,44 @@ class Fields
     public function getFields($table, $input = TRUE, $output = FALSE)
     {
 
-      $datas = $this->model->getAll($table, $input, $output);
-
+      $db = Database::connect();
+      $datas = $this->getAllKolom($table, $input, $output);
+      // var_dump($db->tableExists($table));
+      if (empty($datas) && $db->tableExists($table)) {
+        $id_group = $this->model->insertToGroup([
+          'nama_tabel' => $table,
+        ]);
+        $datas = $this->model->getDefaultNamaKolom($table);
+        $insert = [];
+        foreach ($datas as $key => $value) {
+          if (in_array($value->nama_kolom, ['id','created_at','updated_at','created_by','updated_by']))
+            continue;
+          switch ($value->tipe) {
+            case 'int':
+              $value->tipe = 'int';
+              $value->input = 'input-number';
+              break;
+            case 'date':
+              $value->tipe = 'date';
+              $value->input = 'date-wheel';
+              break;
+            default:
+              $value->tipe = 'string';
+              $value->input = 'input';
+              break;
+          }
+          $label = str_replace('_',' ',$value->nama_kolom);
+          $label = str_replace('id','', $label);
+          $label = trim($label);
+          $value->label = ucwords($label);
+          $value->id_group = $id_group;
+          $value->required = '0';
+          $insert[] = (array) $value;
+        }
+        // var_dump($insert);
+        $this->model->insertBatch($insert);
+        $datas = $this->model->getAll($table, $input, $output);
+      }
       $results = [];
       // echo json_encode($datas);exit;
       foreach ($datas as $key => $data) {
@@ -44,7 +82,7 @@ class Fields
                   $methods = explode('::',$data->pilihan);
                   $model = $methods[0];
                   $method = $methods[1] ?? 'getOptions';
-                  // var_dump($model);
+                  // var_dump($model, $method);
                   $model = model($model);
                   $options = $model?->$method() ?? [];
               }
@@ -80,7 +118,7 @@ class Fields
         }
 
         if ($data->tipe == 'table') {
-          $data->fields = $this->preparation($data->nama_kolom, TRUE);
+          $data->fields = $this->getFields($data->nama_kolom, TRUE);
         }
 
         $results[$data->nama_kolom] = $data;
@@ -88,6 +126,11 @@ class Fields
 
 
       return $results;
+    }
+
+    public function getAllKolom($table, $input = TRUE, $output = FALSE)
+    {
+      return $this->model->getAll($table, $input, $output);
     }
 
     public function groupingData($results)
@@ -112,14 +155,7 @@ class Fields
 
     public function getModelFromTable($tableName)
     {
-        // Convert table name to model name
-        // Example: 'users' → 'UserModel'
-        $tableName = preg_replace('/^[^_]+_/', '', $tableName);
-        $tableName = str_replace('_', ' ', $tableName);
-        $tableName = ucwords($tableName);
-        $tableName = str_replace(' ', '', $tableName);
-        $modelName = ucfirst($tableName) . 'Model';
-
+        $modelName = $this->model->getModelName($tableName);
         // Check if the model class exists
         return model($modelName);
     }
@@ -128,5 +164,26 @@ class Fields
       $data = $this->model->getKolom($table, $nama_kolom);
       // var_dump($table, $nama_kolom, $data);
       return $data;
+    }
+
+    function createModelFromTable(string $tableName)
+    {
+        $db = \Config\Database::connect();
+
+        $model = new BaseModel();
+        $model->setTable($tableName);
+        // // var_dump($model);
+        // // Automatically set allowed fields so insert/update work
+        // $model->setAllowedFields($db->getFieldNames($tableName));
+
+        // // Automatically detect primary key
+        // foreach ($db->getFieldData($tableName) as $field) {
+        //     if ($field->primary_key) {
+        //         $model->setPrimaryKey($field->name);
+        //         break;
+        //     }
+        // }
+
+        return $model;
     }
 }

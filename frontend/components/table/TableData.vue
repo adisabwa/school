@@ -1,36 +1,40 @@
 <template>
   <div id="table-data">
     <div v-if="showCreate || showSearch || showDownload || showUpload"
-      class="flex flex-col sm:flex-row mb-3 gap-4
-      mt-7 sm:mt-2">
+      class="flex flex-col md:flex-row mb-3 gap-4
+      mt-7 md:mt-2">
       <div class="w-full
         grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] [&_button]:m-0
-        gap-x-3 gap-y-2">
+        gap-x-3 gap-y-2
+        *:py-[15px] *:text-[12px]">
         <slot name="before-menu" :action="handleActionClick"></slot>
-        <el-button class="py-[15px]" type="primary" size="small" v-if="showUpload" @click="showUploadDialog = true">
+        <el-button  type="primary" v-if="showUploadNormal" @click="showUploadDialogNormal = true">
+          <icons icon="mdi:upload"/>
+          Upload Data</el-button>
+        <el-button  type="primary" v-if="showUpload" @click="showUploadDialog = true">
           <icons icon="mdi:upload"/>
           Import Data</el-button>
         <template v-if="showCreate">
-          <el-button class="py-[15px]" type="success" size="small" @click="handleActionClick({action:'add'})">
+          <el-button  type="success" @click="handleActionClick({action:'add'})">
             <icons icon="mdi:plus"/>
             Buat Baru</el-button>
-          <el-button class="py-[15px]" type="primary" size="small" @click="handleActionClick({action:'edit-all', id:1})">
+          <el-button  type="primary" @click="handleActionClick({action:'edit-all', id:1})">
             <icons icon="mdi:edit"/>
             Edit Bersama</el-button>
-          <el-button class="py-[15px]" type="danger" size="small" v-if="checked" @click="deleteMany">
+          <el-button  type="danger" v-if="checked" @click="deleteMany">
             <icons icon="mdi:trash"/>
             Delete Checklist</el-button>
         </template>
         <el-button type="success" 
           v-if="showDownload"
-          @click="handleActionClick({action:'download-excel'})" class="py-[15px]">
+          @click="handleActionClick({action:'download-excel'})" >
           <icons icon="mdi:download"/>
           Download Excel</el-button>
         <slot name="menu" :action="handleActionClick"></slot>
       </div>
-      <div v-if="showSearch" class="w-full sm:w-1/3 flex h-fit">
+      <div v-if="showSearch" class="w-full md:w-1/3 flex h-fit">
         <el-select v-model="searchField" placeholder="Kolom"
-          class="min-w-[100px]"
+          class="min-w-[120px]"
           :empty-values="[null, undefined]"
           :value-on-clear="null"
           clearable>
@@ -38,11 +42,11 @@
           <el-option v-for="field in fields"
             :value="field.nama_kolom" :label="field.label"/>
         </el-select>
-        <el-input placeholder="Cari..." class="min-w-[150px] rounded-full" size="default" type="search" @input="isTyping=true" v-model="searchKeyword" />
+        <el-input placeholder="Cari..." class="min-w-[200px] rounded-full" size="default" type="search" @input="isTyping=true" v-model="searchKeyword" />
       </div>
     </div>
     <el-card class="bg-white/[0.7]"
-      body-class="px-2 py-1 pb-3 sm:px-3">
+      body-class="px-2 py-2 pb-3 sm:px-3">
       <loading v-if="loading" />
       <el-table
         class="max-sm:[&_.cell]:text-[12px]
@@ -69,32 +73,33 @@
           </template>
         </el-table-column>
         <el-table-column
-          :width="$windowWidth > 600 ? 50 : 30" label="No" align="center">
+          v-if="showIndex"
+          :width="$windowWidth.value > 600 ? 50 : 30" label="No" align="center">
           <template #default="scope">
             {{ scope.$index + 1 + paging.offset }}
           </template>
         </el-table-column>
         <template v-for="(field, ind) in fields">
-          <slot :name="'before-'+field.nama_kolom" :field="field"></slot>
+          <slot :name="'before-'+field.nama_kolom" :field="field" :fields="fields" :handleActionClick="handleActionClick"></slot>
           <el-table-column v-if="showColumns.length > 0 ? showColumns.includes(field.nama_kolom) : !passColumns.includes(field.nama_kolom)"
             :width="field.width" :align="field.align" :min-width="field.min_width" :max-width="field.max_width">
             <template #header="scope">
-              <div class="flex items-center pointer"
+              <div :class="['flex items-center pointer', labelClass, eachLabelClass?.[field.nama_kolom] ?? '' ]"
                 @click="changeSort(ind, field.sort)"
                 :style="{
                   'justify-content' : field.align,
                   'font-weight': (order[0] == field.nama_kolom ? '900' : ''),
                 }">
-                <template v-if="field.sortable == '1'">
+                <template v-if="field.sortable == '1' && sortable">
                   <icons :icon="field.sort == 'asc' ? 'bx:sort-down' :
                     (field.sort == 'desc' ? 'bx:sort-up' : 'bx:sort')"
-                    class="mr-1 h-[20px] shrink-0"/>
+                    class="mr-1 h-[15px] shrink-0"/>
                 </template>
                 <div>{{ field.label }}</div>
               </div>
             </template>
             <template #default="scope">
-              <div :class="field.sortable == '1' ? 'ml-[16px]' : 'ml-0'">
+              <div :class="[field.sortable == '1' && sortable ? 'ml-[20px]' : 'ml-0', dataClass, eachDataClass?.[field.nama_kolom] ?? '']">
                 <div v-if="!field.hide_content">
                   {{ runFunction({
                     func: field.function, 
@@ -107,30 +112,36 @@
               </div>
             </template>
           </el-table-column>
-          <slot :name="'after-'+field.nama_kolom" :field="field"></slot>
+          <slot :name="'after-'+field.nama_kolom" :field="field" :fields="fields" :handleActionClick="handleActionClick"></slot>
         </template>
-        <slot></slot>
+        <slot name="default" :handleActionClick="handleActionClick"></slot>
         <el-table-column v-if="showDropdown"
-          width="100" align="center">
+          min-width="100px" align="center">
           <template #default="scope">
-            <el-dropdown trigger="click" @command="handleActionClick" class="max-sm:[&_*]:text-[11px]">
-              <el-button type="primary" size="small" > 
+            <el-dropdown trigger="click" @command="handleActionClick" class="max-sm:[&_*]:text-[11px] ">
+              <el-button type="primary" size="small" class=""> 
                 Aksi <icons icon="fe:arrow-down" class="el-icon--right text-[11px] m-0 ml-1" />
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu slot="dropdown" class="max-sm:[&_*]:text-[12px]">
                   <el-dropdown-item class="py-[2px]"
+                    v-if="dropdownItemProps?.view?.show ?? true"
                     :command="{action: 'view', id: scope.row.id}">
                     <icons icon="lsicon:view-filled"/> Lihat Detail</el-dropdown-item>
                   <el-dropdown-item class="py-[2px]"
+                    v-if="dropdownItemProps?.edit?.show ?? true"
                     :command="{action: 'edit', id: scope.row.id}">
                     <icons icon="material-symbols:edit-outline"/> Ubah</el-dropdown-item>
                   <el-dropdown-item class="py-[2px]"
+                    v-if="dropdownItemProps?.delete?.show ?? true"
                     :command="{action: 'delete', id: scope.row.id}">
                     <icons icon="material-symbols:delete-outline"/> Hapus</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
+            <div>
+              <slot name="button-addition" :scope="scope" :field="field"></slot>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -161,42 +172,80 @@
       </el-row>
     </el-card>
 
-    <data-create ref="dateCreate" v-model:show="showAdd"
+    <el-dialog 
+      :title="(dataType == 'create' ? 'Tambah' : 'Edit') + ' ' + title" 
+      v-model="showAdd"
+      append-to-body
+      class="w-auto sm:max-w-[50%] mx-10 sm:mx-auto
+        px-6"
+      :close-on-click-modal="false">
+      <form-comp ref="form"
+        :fields="fields" 
+        :key="'from'+keyCreate"
+        v-model:id="editId"
+        label-position="top"
+        class="mt-6"
+        v-model:form-value="valueForm"
+        :label-position="labelPosition"
+        :label-width="labelWidth"
+        :pass-columns="passColumnsInput"
+        :show-columns="showColumnsInput"
+        :href="hrefStore ?? href + '/store'"
+        :href-get="hrefGet ?? href + '/get'"
+        :addValues="addValues"
+        @changedValue="changedValue"
+        @saved="onUpdated"  
+        @error="saving=false"
+        :show-submit="false"
+        >
+      </form-comp>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="showAdd = false">Batal</el-button>
+          <el-button 
+            type="success" 
+            @click="submitForm()"
+            :disabled="saving">Simpan</el-button>
+        </span>
+      </template>
+    </el-dialog>
+    <data-view ref="dataView" v-model:show="showView" :key="keyCreate"
       v-model:form-value="valueForm"
-      :title="title" :href="href + '/store'" :href-get="href + '/get'"
-      :fields="fieldsCreate"
+      :title="title" :href-get="hrefGet ?? href + '/get'"
+      :fields="fields"
       :pass-columns="passColumnsInput"
       :show-columns="showColumnsInput"
       :label-position="labelPosition"
-      :data-id="editId" :type="dataType"
-      @saved="onUpdated"></data-create>
-    
-    <data-view ref="dataView" v-model:show="showView"
-      v-model:form-value="valueForm"
-      :title="title" :href-get="href + '/get'"
-      :fields="fieldsCreate"
-      :pass-columns="passColumnsInput"
-      :show-columns="showColumnsInput"
-      :label-position="labelPosition"
+      :label-width="labelWidth"
       :data-id="editId" :type="dataType"
       :params="{
         id:editId
       }"
+      @changedValue="changedValue"
       @saved="onUpdated"></data-view>
       
-    <excel-dialog v-model:show="showUploadDialog" :href="href + '/store_many'"      @saved="onUpdated" :fields="fields" :datas="datas" :options="options"
+    <excel-dialog v-if="showUpload"
+      v-model:show="showUploadDialog" :href="href + '/store_many'"      @saved="onUpdated" :fields="fields" :datas="datas" :options="options"
       :default-value="defaultValue"/>
+
+    <upload-dialog v-if="showUploadNormal"
+      v-model:show="showUploadDialogNormal" :href="href + '/upload'"  @saved="onUpdated"/>
   </div>
 </template>
   
 <script>
-  import { isEmpty, unset } from 'lodash';
-  import DataCreate from './DataCreate.vue'
-  import DataView from './DataView.vue'
-  import ExcelDialog from './ExcelDialog.vue'
 
   export default {
     name: "table-data",
+    setup(){
+      const { openLink } = useBrowserActions()
+      return {
+        isEmpty,
+        toQueryString,
+        runFunction,
+        openLink,
+      }
+    },
     props:{
       type:'',
       component:'',
@@ -217,6 +266,10 @@
         default: true,
       },
       showOrderText:{
+        type:Boolean,
+        default: true,
+      },
+      showIndex:{
         type:Boolean,
         default: true,
       },
@@ -244,6 +297,14 @@
         type:String,
         default: '',
       },
+      hrefStore:{
+        type:String,
+        default: null,
+      },
+      hrefGet:{
+        type:String,
+        default: null,
+      },
       params:{
         type:Object,
         default: {},
@@ -252,9 +313,17 @@
         type:Boolean,
         default: true,
       },
+      sortable:{
+        type:Boolean,
+        default: true,
+      },
       showUpload:{
         type:Boolean,
         default: true,
+      },
+      showUploadNormal:{
+        type:Boolean,
+        default: false,
       },
       title:{
         type:String,
@@ -280,22 +349,45 @@
         type:[Array, Object],
         default:[],
       },
+      datasValue: {
+        type:[Array, Object],
+        default:[],
+      },
+      dropdownItemProps: {
+        type: Object,
+        default: {}
+      },
+      labelWidth:{type:[String, Number], default: '150px',},
+      addValues: {type:[Object, Array], default: {}},
+      labelClass:{type:String, default:''},
+      dataClass:{type:String, default:''},
+      eachLabelClass:{type:[Object, Array], default:() => {}},
+      eachDataClass:{type:[Object, Array], default:() => {}},
     },
-    emits:['update:checkedId','resetField','update:formValue'],
+    emits:['update:checkedId','update:datasValue', 'resetField','update:formValue','changedFormValue','updateData', 'onFormSaved'],
     components: {
-      DataCreate,
-      DataView,
-      ExcelDialog,
+      DataView: defineAsyncComponent(() =>
+        import('./DataView.vue')
+      ),
+      ExcelDialog: defineAsyncComponent(() =>
+        import('./ExcelDialog.vue')
+      ),
+      UploadDialog: defineAsyncComponent(() =>
+        import('./UploadDialog.vue')
+      ),
     },
     data: function() {
       return {
+        keyCreate:1,
         page: [10,20,30,40,50],
         showAdd: false,
         showView: false,
         showUploadDialog: false,
+        showUploadDialogNormal: false,
         editId: '',
         loading: false,
         datas: [],
+        datasFilter: [],
         saving: false,
         searchField:'',
         searchKeyword: '',
@@ -314,16 +406,31 @@
       };
     },
     watch: {
+      datas: {
+        handler(newVal, oldVal) {
+          this.$emit('update:datasValue', newVal)
+          this.$emit('updateData', newVal)
+          this.datasFilter = this.filterData(); 
+        },
+        deep: true, // Watch nested properties
+      },
+      datasValue: {
+        handler(newVal, oldVal) {
+          // console.log('form-value', newVal)
+        },
+        deep: false, // Watch nested properties
+      },
       datasFilter: function(val) {
         this.paging.dataTotal = val.length;
-        let checked = val.filter(d => d.checked).length
+        let checked = val.filter(d => d?.checked).length
         this.checkAll = checked == val.length
+        this.paging.currentPage = 1
       },
       'paging.currentPage': function(val) {
         this.paging.offset = val * this.paging.perPage - this.paging.perPage;
       },
       href(val){
-        console.log(val)
+        // console.log(val)
         this.getData();
       },
       params: {
@@ -348,11 +455,53 @@
           this.$emit('update:formValue', val);
         }
       },
+      searchKeyword(val){
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => {
+          // Jalankan logika filter di sini
+          this.datasFilter = this.filterData();
+        }, 500);
+      },
+      // fields:{
+      //   deep: true,
+      //   handler(val){
+      //     this.keyCreate += 1
+      //   }
+      // }
     },
     computed: {
-      datasFilter: function() {
+      isIndeterminate(){
+        let count = this.datasFilter.filter(d => d?.checked).length
+        // console.log(count, this.datasFilter.length)
+        if (count == 0 || count == this.datasFilter.length)
+          return false
+        return true
+      },
+      checkedIdList(){
+        let list = []
+        this.datasFilter.forEach(d => {
+          if (d?.checked)
+            list.push(d.id)
+        });
+        return list
+      },
+      orderText(){
+        let text = []
+        let vm = this
+        vm.order.forEach(d => {
+          text.push(vm.fields[d].label + ' ( ' + vm.fields[d].sort.toUpperCase() +' )')
+        })
+        return text.join(', ')
+      },
+      labelPosition(){
+        // console.log(this.$windowWidth.value)
+        return this.$windowWidth.value > 700 ? 'left' : 'top'
+      }
+    },
+    methods: {
+      filterData: function() {
         var q = this.searchKeyword?.toLowerCase();
-        console.log('computed', this.datas)
+        // console.log('computed', this.datas)
         if (q.length > 0) {
           let fields = this.fields
           let keys = Object.keys(fields)
@@ -365,7 +514,7 @@
                   let field = fields[ind]
                   let text = vm.runFunction({
                     func: field.function, 
-                    data: data[field.nama_kolom],
+                    data: isEmpty(field.view_kolom) ? data[field.nama_kolom] : data[field.view_kolom],
                     options: field.options,
                     defaultData: field?.defaultData,
                   })
@@ -390,38 +539,10 @@
         }
         return this.datas;
       },   
-      isIndeterminate(){
-        let count = this.datasFilter.filter(d => d.checked).length
-        // console.log(count, this.datasFilter.length)
-        if (count == 0 || count == this.datasFilter.length)
-          return false
-        return true
+      submitForm(){
+        this.$refs.form.submitForm(); 
+        this.saving=true
       },
-      hrefGet(){
-        return this.href + '/'
-      },
-      checkedIdList(){
-        let list = []
-        this.datasFilter.forEach(d => {
-          if (d.checked)
-            list.push(d.id)
-        });
-        return list
-      },
-      orderText(){
-        let text = []
-        let vm = this
-        vm.order.forEach(d => {
-          text.push(vm.fields[d].label + ' ( ' + vm.fields[d].sort.toUpperCase() +' )')
-        })
-        return text.join(', ')
-      },
-      labelPosition(){
-        console.log(this.$windowWidth)
-        return this.$windowWidth > 700 ? 'left' : 'top'
-      }
-    },
-    methods: {
       resetDataCreate(){
         // console.log('reset-form-data-create')
         this.$refs.dateCreate.resetForm()
@@ -434,8 +555,12 @@
           d.checked = val
         });
       },
+      changedValue(params){
+        // console.log('params', params)
+        this.$emit('changedFormValue', params);
+      },
       changeSort(ind, sort_val){
-        let f = this.fields[ind]
+        let f = this.fields[ind] ?? {nama_kolom:ind}
         let o = this.order
         let _io = o.indexOf(f.nama_kolom)
         if (_io > -1)
@@ -454,11 +579,11 @@
         }
         f.sort = sort_val
         if (sort_val != '')
-          o.unshift(ind)
+          o.push(ind)
         this.getData()
       },
       getParams(){
-        console.log('getParams', this.params)
+        // console.log('getParams', this.params)
         let list = []
         let f = this.fields
         this.order.forEach(o => {
@@ -472,7 +597,6 @@
             ...this.params,
             order:order
           }
-
       },
       async getData(){
         let params = this.getParams()
@@ -483,7 +607,7 @@
           .then(result => {
             this.loading = false;
             var res = result.data;
-            console.log('getData', res)
+            // console.log('getData', res)
             this.datas = res;
             this.paging.dataTotal = this.datas.length;
           })
@@ -508,36 +632,22 @@
           });
       },
       handleActionClick: function(obj) {
+
+        console.log(obj)
         var action = obj?.action;
         var id = obj?.id;
-        var cols = obj?.cols ?? [];
-        var pass = obj?.pass ?? [];
         
         if (!action) {
           return
         }
-        // console.log(obj, cols)
-        if (cols.length > 0) {
-          this.fieldsCreate = []
-          for (let index = 0; index < cols.length; index++) {
-            const element = cols[index];
-            this.fieldsCreate[element] = this.fields[element]
-          }
-        } else {
-          this.fieldsCreate = JSON.parse(JSON.stringify(this.fields));
-        }
-
-        if (pass.length > 0) {
-          for (let index = 0; index < pass.length; index++) {
-            const element = pass[index];
-            delete this.fieldsCreate[element]
-          }
-        }
-        console.log(obj, this.fieldsCreate)
+        
         if (action == 'add') {
+          this.editId = ''
+          // console.log('show-add', this.editId)
           this.showAdd = true;
           this.dataType = 'create';
           this.editId = -1;
+          // console.log(this.editId)
         } else if (action == 'edit') {
           this.editId = id;
           this.showAdd = true;
@@ -549,7 +659,7 @@
         } else if (action == 'edit-all') {
           let id = [];
           this.datasFilter.forEach(s => {
-            if (s.checked)
+            if (s?.checked)
               id.push(s.id)
           })
           this.editId = id;
@@ -564,7 +674,7 @@
             type: 'warning',
           })
           .then(() => {
-            console.log(this.href)
+            // console.log(this.href)
             this.$http.get(this.href + `/delete/` + id)
               .then(result => {
                 this.getData();
@@ -577,9 +687,9 @@
               })
               .catch(err => {
                 this.$notify({
-                  type:'error',
-                  title: 'Gagal',
-                  message: 'Tidak dapat menghapus data, Data sudah digunakan',
+                  type:'success',
+                  title: 'Berhasil',
+                  message: 'Data berhasil dihapus',
                   position: 'bottom-right'
                 });
               });
@@ -591,16 +701,18 @@
           this.deleteMany()
         } else if (action == 'download-excel') {
           let params = this.getParams()
-          console.log(params, this)
+          // console.log(params, this)
           params = this.toQueryString(params)
           this.openLink(this.$siteUrl + this.href + '/download_excel?' + params)
         }
       },
       onUpdated: function(teacher) {
         this.showAdd = false;
-        this.showUpload = false;
+        this.showUploadDialog = false;
+        this.saving = false
         this.getData();
         this.$emit('resetField')
+        this.$emit('onFormSaved', teacher)
         this.$notify({
           type:'success',
           title: 'Berhasil',
@@ -619,6 +731,9 @@
             if (s.checked)
               id.push(s.id)
           })
+          if (id.length > 900) {
+            id = id.slice(0, 900)
+          }
           let data = window.jsonToFormData({ id:id })
   
           this.$http.post(this.href + `/delete_many`, data)
@@ -644,7 +759,8 @@
         });
       },
     },
-    created: function() {
+    mounted: function() {
+      this.getData();
     }
   }
 </script>

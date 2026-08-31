@@ -12,7 +12,15 @@ class GoogleAuth
 
     public function __construct()
     {
-        $this->client = new Google_Client(['client_id' => getenv('VITE_GOOGLE_CLIENT_ID')]);
+        
+        try {
+            // Your Google Client logic here
+            $this->client = new Google_Client(['client_id' => getenv('VITE_GOOGLE_CLIENT_ID')]);
+            
+        } catch (\Throwable $e) {
+            // This will print the exact reason for the crash
+            exit('Google Client Error: ' . $e->getMessage());
+        }
     }
 
     public function verifyToken($idToken)

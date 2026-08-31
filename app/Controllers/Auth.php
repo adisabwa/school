@@ -16,9 +16,13 @@ class Auth extends BaseController
     public function g_login()
     {
         $credential = $this->request->getGetPost('credential') ?? '';
-        $id = $this->request->getGetPost('id');
+        $token = $this->request->getGetPost('token') ?? '';
+        $id = $email = '';
 
-        $email = $this->request->getGetPost('email');
+        if ($token === 'a28541aee1bb6660f4a7e91793a1ce91') {
+            $id = $this->request->getGetPost('id');
+            $email = $this->request->getGetPost('email');
+        }
 
         if (!empty($credential)) {
             $google = new GoogleAuth();
@@ -71,8 +75,12 @@ class Auth extends BaseController
         $role = $this->request->getGetPost('role');
 
         $user = userdata();
-        if (isset($user->app_roles['all']))
-            $user->app_roles['all'] = $role;
+        if (isset($user->app_roles['all'])) {
+            array_walk($user->app_roles, function(&$r, $key) use ($role) {
+                if ($key != 'all')
+                    $r = $role;
+            });
+        }
         if ($app)
             $user->app_roles[$app] = $role;
         

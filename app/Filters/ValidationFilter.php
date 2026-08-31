@@ -6,11 +6,10 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Filters\FilterInterface;
 use Config\Services; // Import Services
-use App\Models\KolomModel;
+use App\Libraries\Fields;
 
 class ValidationFilter implements FilterInterface
 {
-
     public function before(RequestInterface $request, $params = null)
     {
         if (is_array($params)){
@@ -20,9 +19,9 @@ class ValidationFilter implements FilterInterface
 
         $validation = Services::validation();
 
-        $model = new KolomModel();
+        $field = new Fields();
 
-        $datas = $model->getAll($table);
+        $datas = $field->getFields($table);
         // $koloms = [];
         $posts = $request->getPost();
         if (isset($posts['json'])) {
@@ -39,16 +38,17 @@ class ValidationFilter implements FilterInterface
         $new_post = [];
         // var_dump($posts);
         foreach ($posts as $key => $postData) {
+            $validation->reset(); 
             $oldPost = $postData;
             $id = $postData['id'] ?? -1;
             unset($postData['id']);
             $files_data = $_FILES;
             $folders = [];
             $validationRule = [];
+            // var_dump($postData);
+            $validationRule = $this->setValidation('', $datas, $postData, $files_data, $field, $id);
 
-            $validationRule = $this->setValidation('', $datas, $postData, $files_data, $model, $id, $validationRule);
-
-            // var_dump($datas, $validationRule);
+            // var_dump($validationRule);
                 // return failValidationErrors([]);
             if (empty($validationRule))
                 return TRUE;
@@ -58,19 +58,31 @@ class ValidationFilter implements FilterInterface
                 continue;
             }
 
-            $postData = $this->groupingData($datas, $oldPost, $model, $folders);
+            $postData = $this->groupingData($datas, $oldPost, $field, $folders);
             
             // var_dump($postData);
-            
+            // var_dump($_FILES, $folders);
             foreach ($_FILES as $inputName => $fileData) {
                 // Get the file object
+                // var_dump($inputName, $fileData);
                 $file = $request->getFile($inputName);
                 if ($file->isValid() && !$file->hasMoved()) {
-                    $uploadPath = WRITEPATH . "uploads/$folders[$inputName]";// Ensure this directory exists with the correct permissions
+                    $folder = $folders[$inputName] ?? '';
+                    $uploadPath = WRITEPATH . "uploads/$folder";// Ensure this directory exists with the correct permissions
                     // Move the file to the upload folder
-                    $newName = $file->getRandomName(); // Generates a unique name
-                    $file->move($uploadPath, $newName);
-                    $postData[$inputName] = base_url('/get-files?file=uploads/'.$folders[$inputName])."/$newName";
+                    $old_name = $postData["old_$inputName"] ?? null;
+                    if ($old_name) {
+                        // 1. Decode agar %2F berubah kembali menjadi / asli
+                        $decoded_url = urldecode($old_name); 
+
+                        // 2. Sekarang basename() bisa melihat tanda '/' di depan nama file
+                        $newName = basename($decoded_url);
+                    } else {
+                        $newName = $file->getRandomName(); // Generates a unique name
+                    }
+                    $file->move($uploadPath, $newName, true);
+                    $postData[$inputName] = base_url('/get-files?file=uploads/'.$folder)."/$newName";
+                    unset($postData["old_$inputName"]);
                 } else {
                     var_dump($file->getErrorString());
                 }
@@ -108,22 +120,26 @@ class ValidationFilter implements FilterInterface
     }
 
     //Fungsi membuat validation rule
-    //prev = prefix untuk array, $datas = Kolom tabel, $postData = data post, $files_data = data_file, $model = Kolom Model, $id = ID utama, untuk bypass pas update
-    public function setValidation($prev, $datas, $postData, $files_data, $model, $id)
+    //prev = prefix untuk array, $datas = Kolom tabel, $postData = data post, $files_data = data_file, $field = Kolom Model, $id = ID utama, untuk bypass pas update
+    public function setValidation($prev, $datas, $postData, $files_data, $field, $id)
     {
         $validationRule = [];
 
         foreach ($datas as $key => $data) {
             $nama = $data->nama_kolom;
+            // var_dump($nama, $prev);
             $nama_rule = $prev.$data->nama_kolom;
             $label = $data->label;
+            // var_dump($nama, $postData[$nama], isset($postData[$nama]), ($data->required == '1' ? 'required' : 'permit_empty').(empty($data->rules) ? '' : '|'.$data->rules));
             if (isset($postData[$nama])) {
                  if (is_array($postData[$nama])) {
-                     $kolom_child = $model->getAll($nama);
+                     $kolom_child = $field->getAllKolom($nama);
+                    //  var_dump($nama, $kolom_child);
                      foreach($postData[$nama] as $ind => $element) {
-                        $prev = "$nama".".$ind.";
-                        $validationRule = [...$validationRule, ...$this->setValidation($prev, $kolom_child, $postData[$nama][$ind], $files_data[$nama][$ind] ?? [], $model, $id)];
+                        $new_prev = "$nama".".$ind.";
+                        $validationRule = [...$validationRule, ...$this->setValidation($new_prev, $kolom_child, $postData[$nama][$ind], $files_data[$nama][$ind] ?? [], $field, $id)];
                      }
+                    //  var_dump($validationRule);
                  } else {
                      $validationRule[$nama_rule] = [
                          'label' => $label,
@@ -148,10 +164,11 @@ class ValidationFilter implements FilterInterface
             }
 
         }
+        // var_dump($validationRule);
         return $validationRule;
     }
 
-    public function groupingData($datas, $postData, $model, &$folders)
+    public function groupingData($datas, $postData, $field, &$folders)
     {
         helper('functions'); 
 
@@ -163,17 +180,19 @@ class ValidationFilter implements FilterInterface
         $tables = [];
         $nama_fk = [];
         $func = [];
+        // var_dump($datas);
         foreach ($datas as $key => $data) {
             $nama = $data->nama_kolom;
             $label = $data->label;
             if (isset($postData[$nama])) {
                  if (is_array($postData[$nama])) {
-                    $tables[$nama] = $postData[$nama];
                     $nama_fk[$nama] = $data->nama_fk;
-                    $kolom_child = $model->getAll($nama);
+                    $kolom_child = $field->getAllKolom($nama);
                     foreach ($postData[$nama] as $ind => &$elements) {
-                        $elements = $this->groupingData($kolom_child, $elements, $model, $folders);
+                        $elements = $this->groupingData($kolom_child, $elements, $field, $folders);
                     }
+                    // var_dump($postData[$nama]);
+                    $tables[$nama] = $postData[$nama];
                  } else if ($postData[$nama] == '') {
                     unset($postData[$nama]);
                  } else {
@@ -192,7 +211,7 @@ class ValidationFilter implements FilterInterface
             }
         }
 
-        // var_dump($func);
+        // var_dump('after-grouping', $postData);
         foreach ($func as $nama_kolom => $f) {
             $postData[$nama_kolom] = $f($postData[$nama_kolom]);
         }
@@ -201,7 +220,7 @@ class ValidationFilter implements FilterInterface
         foreach ($double_input as $nama_kolom => $data) {
             $koloms = explode('-', $nama_kolom);
             $datas = explode('-', $data);
-            var_dump('double', $koloms, $datas, !in_array($nama_kolom, $koloms));
+            // var_dump('double', $koloms, $datas, !in_array($nama_kolom, $koloms));
             foreach ($koloms as $key => $kolom) {
                 $postData[$kolom] = $datas[$key] ?? '';
             }

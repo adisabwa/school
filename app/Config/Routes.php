@@ -17,7 +17,7 @@ $routes->set404Override();
 // If you don't want to define all routes, please use the Auto Routing (Improved).
 // Set `$autoRoutesImproved` to true in `app/Config/Feature.php` and set the following to true.
 $routes->setAutoRoute(false);
-
+helper('route');
 /*
 * --------------------------------------------------------------------
 * Route Definitions
@@ -59,3 +59,10 @@ $routes->group('kolom', static function ($routes) {
 });
 //-----------------------------------------------------------------------//
 
+// -------------------------- Notification ------------------------------.//
+$routes->group('notification', static function ($routes) {
+    addDefaultRoutes($routes, \App\Controllers\NotificationController::class, PREFIX_TABLE.'_notif');
+    $routes->add('save-subscription', 'NotificationController::saveSubscription');
+    $routes->add('trigger_notification', 'NotificationController::triggerNotifications');
+    $routes->add('test', 'NotificationController::test');
+});

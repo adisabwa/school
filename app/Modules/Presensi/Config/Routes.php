@@ -1,23 +1,34 @@
 <?php
 
-use Modules\Presensi\Controllers\Admin\PresensiKelasController as PresensiKelas;
+use Modules\Presensi\Controllers\PresensiController as Presensi;
+use Modules\Presensi\Controllers\Admin\PresensiMengajarController as PresensiMengajar;
+use Modules\Presensi\Controllers\Admin\PresensiSantriController as PresensiSantri;
 
 //-------------------------------------KMI Mapel -----------------------------------------------
-$routes->group('presensi/admin', [
-    'filter' => 'api-auth:mapel.admin',
+$routes->group('presensi', [
+    'filter' => 'api-auth:presensi.all',
 ], static function ($routes) {    
 
+    $routes->add('create_notifications', [Presensi::class, 'createNotifications']);
+
+helper('route');
     //-------------------------------------Presensi Mengajar di Kelas -----------------------------------------------
-    $routes->group('kelas', static function ($routes) {
-        $routes->add('/', [PresensiKelas::class,'index']);
-        $routes->add('get', [PresensiKelas::class, 'get']);
-        $routes->add('delete/(:any)', [PresensiKelas::class,'delete/$1']);
-        $routes->add('store', [PresensiKelas::class, 'store']);
-        $routes->add('store_many', [PresensiKelas::class, 'store_many']);
-        $routes->add('delete_many', [PresensiKelas::class,'delete_many']);
-        $routes->add('download/(:any)', [PresensiKelas::class,'download/$1']);
-        $routes->add('download_many', [PresensiKelas::class,'download_many']);
-        $routes->add('options', [PresensiKelas::class,'options']);
+    $routes->group('mengajar', static function ($routes) {
+        addDefaultRoutes($routes, PresensiMengajar::class, PREFIX_TABLE.'pre_mengajar_kelas');
+        $routes->add('get_all', [PresensiMengajar::class, 'getAll']);
+        $routes->add('get_all_grouping', [PresensiMengajar::class, 'getAllGrouping']);
+        $routes->add('get_all_grouping_guru', [PresensiMengajar::class, 'getAllGroupingGuru']);
+        $routes->add('summary', [PresensiMengajar::class, 'getSummary']);
+    });
+    //-------------------------------------Presensi Santri di Kelas -----------------------------------------------
+    $routes->group('santri', static function ($routes) {
+        addDefaultRoutes($routes, PresensiSantri::class, PREFIX_TABLE.'pre_harian');
+        $routes->add('summary', [PresensiSantri::class, 'getSummary']);
+    });
+    //-------------------------------------Presensi Kedatangan Guru  -----------------------------------------------
+    $routes->group('kedatangan', static function ($routes) {
+        addDefaultRoutes($routes, Modules\Presensi\Controllers\PresensiKedatanganController::class, PREFIX_TABLE.'pre_kedatangan');
+        $routes->add('summary', [Modules\Presensi\Controllers\PresensiKedatanganController::class, 'getSummary']);
     });
 });
 

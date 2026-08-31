@@ -1,0 +1,50 @@
+
+.table,
+.table.border {
+  width: 100%;
+  border-collapse: collapse;
+  th,
+  td {
+    padding: 6px 12px;
+    border-left: 1px solid #f9f9f9;
+    &:nth-child(1) {
+      text-align: center;
+    }
+  }
+  th {
+    text-align: left;
+    border-bottom: 2px solid #f4f4f4;
+  }
+  tbody {
+    > tr {
+      background-color: #ffffff;
+      &:nth-child(odd) {
+        background-color: #f9f9f9;
+      }
+    }
+  }
+}
+.table.two-line {
+  tr:nth-child(4n-3),
+  tr:nth-child(4n-2) {
+    background-color: #ffffff;
+  }
+
+  tr:nth-child(4n-1),
+  tr:nth-child(4n) {
+    background-color: #f9f9f9;
+  }
+}
+.table.three-line {
+  tr:nth-child(6n-5),
+  tr:nth-child(6n-4),
+  tr:nth-child(6n-3) {
+    background-color: #ffffff;
+  }
+
+  tr:nth-child(6n-2),
+  tr:nth-child(6n-1),
+  tr:nth-child(6n) {
+    background-color: #f9f9f9;
+  }
+}

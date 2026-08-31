@@ -10,33 +10,61 @@ class DataSantriModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__santri';
+        $this->table = PREFIX_TABLE.'_santri';
+        $this->relations = [
+          // 'id_kelas' => [
+          //   'foreign_key' => 'id_kelas',
+          //   'model' => 'DataKelasModel',
+          //   'type' => 'left',
+          //   'selects' => ['kelas','tingkat','id_jurusan','id_unit','nama_unit','nama_jurusan'],
+          // ],
+          'id_daerah' => [
+            'foreign_key' => 'id_daerah',
+            'model' => 'DataDaerahModel',
+            'type' => 'left',
+            'selects' => ['daerah','daerah_arab'],
+          ],
+          'id_kamar' => [
+            'foreign_key' => 'id',
+            'local_key' => 'id_santri',
+            'model' => 'DataSantriKamarModel',
+            'type' => 'left',
+            'pass_key' => ['id_santri'],
+            'selects' => ['id_kamar', 'rayon','nomor','nama_wamar','nama_wamar_lengkap', 'nama_wamar_arab', "kamar" ],
+          ], 
+          'id_kelas' => [
+            'foreign_key' => 'id',
+            'local_key' => 'id_santri',
+            'model' => 'DataSantriKelasModel',
+            'type' => 'left',
+            'pass_key' => ['id_santri'],
+            'group_by' => ['id_kelas'],
+            'selects' => ['id_kelas', 'kelas','tingkat','id_jurusan','id_unit','nama_unit','nama_jurusan','tahun_ajaran'],
+            'order' => ['tahun_ajaran desc'],
+          ]
+        ];
     }
 
     public function getOptions($where = ['status' => '0'])
     {
-      $options = [];
-      $data = $this->db->table('sch__santri p')
-                    ->select('p.*, k.kelas')
-                    ->join('sch__kelas k','k.id=p.id_kelas','left')
-                    ->where($where)
-                    ->orderBy('kelas, nama')
-                    ->get()
-                    ->getResult();
-                    
-      foreach ($data as $key => $d) {
-        $options[] = (object)[
-          'value' => "$d->id",
-          'label' => "$d->nama"
-        ];
-      }
-      return $options;
+      return $this->getOptionsData(where: $where, 
+        order: 'kelas, nama',
+        concatFunc : function($d) { 
+            
+            // var_dump($d);exit;
+            return "$d->nama ($d->kelas)"; 
+          },
+        addOptions : function($option, $data) { 
+          $option->status = $data->status ?? null;
+          return $option; 
+          }
+        );
     }
 
     public function getKelas()
     {
       $options = [];
-      $data = $this->db->table('sch__santri p')
+      $data = $this->db->table(PREFIX_TABLE.'_santri p')
                     ->select('p.kelas')
                     ->groupBy('kelas')
                     ->orderBy('kelas')

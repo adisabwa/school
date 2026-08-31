@@ -10,7 +10,7 @@ class DataListAksesModel extends BaseModel
     {
         parent::__construct();
 
-        $this->table = 'sch__list_akses';
+        $this->table = PREFIX_TABLE.'_list_akses';
     }
 
     public function getOptions($where = [])

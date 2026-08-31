@@ -9,11 +9,13 @@
       :class="[gridClass,formClass]">
     <slot name="before" :errors="errors" :form="form" :fields="fieldsData"></slot>
       <template  v-for="(field, ind) in fieldsData">
+          <!-- {{ field.nama_kolom }}/{{ field.hidden }}/{{ field.readonly }}/{{ field.disabled }} -->
+        <slot :name="'before-'+field.nama_kolom" :field="field" :fields="fieldsData" :errors="errors"></slot>
         <el-form-item :class="['grow-0', gridItemClass(field?.colspan), formItemClass, formItemClass[field.nama_kolom], formItemClass['all']]"
-          v-show="field.hidden != '1' && (resolvedShowColumns.length > 0 ? resolvedShowColumns.includes(field.nama_kolom) : !resolvedPassColumns.includes(field.nama_kolom))"
+          v-show="(field.hidden != '1' && field.hidden !== true) && (resolvedShowColumns.length > 0 ? resolvedShowColumns.includes(field.nama_kolom) : !resolvedPassColumns.includes(field.nama_kolom))"
           :error="field.input == 'array' ? '' : errors[field.nama_kolom]">
           <template #label v-if="showLabel">
-            <span :class="[field.required == '1' ? 'required' : '','leading-[1.5] mt-2', labelClass]"> {{ field.label }} </span>
+            <div :class="[field.required == '1' ? 'required' : '','leading-[1.5] mt-1 mb-1', labelClass]"> {{ field.label }} </div>
           </template>
           <div class="flex flex-wrap gap-x-3 w-full">
             <el-select v-if="showOriginal" v-model="original[field.nama_kolom]" class="w-[110px] grow-0 shrink-0" size="large" @change="changedValue(field.nama_kolom)">
@@ -22,7 +24,7 @@
             </el-select>
             <template v-if="field.input == 'input' || isEmpty(field.input)">
               <el-input v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
-                :class="['w-full flex-1',inputClass]" 
+                :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 @change="changedValue(field.nama_kolom)" @input="form[field.nama_kolom] = runFunction({
                   func:field.function_input, 
                   data:form[field.nama_kolom]
@@ -31,12 +33,12 @@
                 :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}">
                 <template #prepend v-if="!isEmpty(field.prepend)"> {{ field.prepend }}</template>
-                <template #apppend v-if="!isEmpty(field.apppend)"> {{ field.append }}</template>  
+                <template #append v-if="!isEmpty(field.append)"> {{ field.append }}</template>  
               </el-input>
             </template> 
             <template v-else-if="field.input == 'password'">
               <el-input v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
-                :class="['w-full in-password flex-1',inputClass]" 
+                :class="['w-full in-password flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 type="password" show-password
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
@@ -50,14 +52,14 @@
             <template v-else-if="field.input == 'input-number'">
               <el-input-number v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
                 @change="changedValue(field.nama_kolom)"
-                :class="['w-full flex-0',inputClass]" 
+                :class="['w-full flex-0',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 :size="size"
                 :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}"/>
             </template>
             <template v-else-if="field.input == 'number'">
               <el-input v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
-                :class="['w-full flex-1',inputClass]" 
+                :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 type="number"
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
@@ -66,21 +68,32 @@
             </template>
             <template v-else-if="field.input == 'textarea'">
               <el-input v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
-                :class="['w-full flex-1',inputClass]" 
+                :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 type="textarea" row="3"
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
                 :readonly="field.readonly"
                 :style="{width:field.width_input + ' !important'}"/>
             </template>
+            <template v-else-if="field.input == 'checkbox'">
+              <el-checkbox v-model="form[field.nama_kolom]" 
+                :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
+                @change="changedValue(field.nama_kolom)"
+                :size="size"
+                :readonly="field.readonly"
+                :style="{width:field.width_input + ' !important'}">
+                {{ !isEmpty(field.placeholder) ? field.placeholder : `${field.label}` }}
+              </el-checkbox>
+            </template>
             <template v-else-if="['select','select-multiple','scroll'].includes(field.input)">
               <floating-select v-model:value="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Pilih ${field.label}`" 
                 :filterable="field?.filterable ?? true" :clearable="field?.clearable ?? true"
                 :allow-create="field.allow_create"
-                :class="['w-full flex-1',inputClass]" 
+                :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 :size="size"
                 :readonly="field.readonly"
                 :empty-value="field.emptyValue"
+                :multiple="field.input == 'select-multiple'"
                 @change="changedValue(field.nama_kolom)"
                 :style="{width:((field.width_input ?? '').split('-')[1] ?? '') + ' !important'}"  
                 :type="(field.input ?? '').split?.('-')[0]"
@@ -92,8 +105,8 @@
                   </el-button>
                 </template>
               </floating-select>
-              <teleport to="body">
                 <el-dialog v-model="field.isAdding"
+                  append-to-body
                   :title="'Tambah ' + field.label"
                   class="p-7"
                   :close-on-click-modal="false"
@@ -113,12 +126,11 @@
                   <el-button size="default" @click="field.isAdding = !field.isAdding"
                     class="float-left translate-y-[-25px]">Batal</el-button>
                 </el-dialog>
-              </teleport>
             </template>
             <template v-else-if="field.input.includes('select-double')">
               <!-- {{ field }} -->
               <floating-select v-model:value="field.parentSelect" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Pilih ${field.label1}`" 
-                :class="['w-full flex-1',inputClass]" 
+                :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 :filterable="field?.filterable ?? true" :clearable="field?.clearable ?? true"
                 @change="form[field.nama_kolom] = null; changedValue(field.nama_kolom)"
                 :size="size"
@@ -131,7 +143,7 @@
               </floating-select>
               <floating-select v-model:value="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Pilih ${field.label2}`" 
                 :filterable="field?.filterable ?? true" :clearable="field?.clearable ?? true"
-                :class="['w-full flex-1',inputClass]" 
+                :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 @change="changedValue(field.nama_kolom)"
                 :size="size"
                 :readonly="field.readonly"
@@ -171,8 +183,9 @@
             </template>
             <template v-else-if="field.input=='radio'">
               <el-radio-group v-model="form[field.nama_kolom]"
-                :class="[inputClass]" 
+                :class="[inputClass,eachInputClass?.[field.nama_kolom]]" 
                 :readonly="field.readonly"
+                :disabled="field.disabled"
                 @change="changedValue(field.nama_kolom)"
                 :style="{width:field.width_input + ' !important'}">
                 <template 
@@ -186,7 +199,7 @@
               <el-switch v-model="form[field.nama_kolom]"
                 active-value="1" inactive-value="0"
                 :size="size"
-                :class="[inputClass]" 
+                :class="[inputClass,eachInputClass?.[field.nama_kolom]]" 
                 :readonly="field.readonly"
                 :disabled="field.disabled"
                 @change="changedValue(field.nama_kolom)"
@@ -195,7 +208,8 @@
             </template>
             <template v-if="field.input == 'date-wheel'">
               <date-wheel-picker
-                :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`" :class="['w-full flex-1',inputClass]" 
+                :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`" 
+                :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 v-model:value="form[field.nama_kolom]"  
                 value-format="YYYY-MM-DD"
                 :format="field.format ?? 'DD MMMM YYYY'"
@@ -209,7 +223,7 @@
             <template v-else-if="field.input == 'date'">
               <el-date-picker
                 :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
-                :class="['w-full flex-1',inputClass]" 
+                :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 v-model="form[field.nama_kolom]"
                 :clearable="field?.clearable ?? true" 
                 value-format="YYYY-MM-DD"
@@ -221,7 +235,7 @@
                 :style="{width:field.width_input + ' !important'}"/>
             </template>
             <template v-else-if="field.input == 'file'">
-              <div  :class="['w-full flex-1',inputClass]" 
+              <div  :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
                 :style="{width:field.width_input + ' !important'}">
                 <div v-if="!isEmpty(links[field.nama_kolom])">
                   <el-checkbox v-model="field.change">Upload Ulang</el-checkbox>
@@ -263,7 +277,7 @@
                     :inline="true"
                     form-class="flex gap-2 mb-0 items-start"
                     form-item-class="w-full m-0"
-                    input-class="[&_*]:rounded-[15px]"
+                    input-class="[&_*]:rounded-[12px]"
                     :show-required-text="false">
                   </form-comp>  
                   <div class="ml-3 mt-2 mb-2 flex items-baseline">
@@ -288,20 +302,39 @@
                 </div>
               </div>
             </template> 
+            <template v-else-if="field.input == 'color-picker'">
+              <div class="w-full">
+                <el-color-picker v-model="form[field.nama_kolom]" :placeholder="!isEmpty(field.placeholder) ? field.placeholder : `Masukkan ${field.label}`"
+                :class="['w-full flex-1',inputClass,eachInputClass?.[field.nama_kolom]]" 
+                @change="changedValue(field.nama_kolom)" @input="form[field.nama_kolom] = runFunction({
+                  func:field.function_input, 
+                  data:form[field.nama_kolom]
+                })"
+                :size="size"
+                :readonly="field.readonly"
+                :style="{width:field.width_input + ' !important'}"
+                :validate-event="false"
+                color-format="hex"
+                show-alpha />
+              </div>
+            </template>
           </div>
         </el-form-item>
+        <slot :name="'after-'+field.nama_kolom" :field="field" :fields="fieldsData" :errors="errors"></slot>
       </template>
       <slot :errors="errors" :form="form" :fields="fieldsData"></slot>
       <div class="text-md mt-2 col-span-6" v-if="showRequiredText">
         <span class="text-red-500">)*</span> isian harus diisi
       </div>
     </el-form>
-    <div class="text-right" v-if="showSubmit">
-      <el-button type="success" :size="size" @click="submitForm"
+    <div class="text-right flex" >
+      <el-button v-if="showSubmit" type="success" :size="size" @click="submitForm"
         :disabled="saving">
         <icons v-if="saving" icon="eos-icons:loading"/>
         {{ submitText }}
       </el-button>
+      <slot name="submit" :submitForm="submitForm">
+      </slot>
     </div>
 	</div>
 </template>
@@ -311,6 +344,11 @@ import { defineAsyncComponent, Teleport } from 'vue'
 
 export default {
   name: 'Form',
+  setup(){
+    return {
+      isEmpty, runFunction, resetObjectValue, fillObjectValue, fillAndAddObjectValue,
+    }
+  },
   components: {
     
   },
@@ -393,11 +431,11 @@ export default {
     },
     formClass:{
       type:String,
-      default:'mb-4',
+      default:'mb-3',
     },
     formItemClass:{
       type:String,
-      default:'mb-3',
+      default:'mb-2',
     },
     labelClass:{
       type:String,
@@ -407,13 +445,18 @@ export default {
       type:String,
       default:'',
     },
+    eachInputClass:{
+      type:[Array, Object],
+      default:{},
+    },
     cols:{
       type:[String, Number],
       default:'6',
-    }
+    },
+    addValues: {type:[Object, Array], default: {}},
   },
   inject: ['sharedState'],
-  emits:['update:id','saved','error','get','changeId','update:formValue','changedValue','update:errorValue'],
+  emits:['update:id','saved','error','get','changeId','update:formValue','update:filesValue', 'changedValue','update:errorValue'],
   data: function() {
     return {
       saving: false,
@@ -430,17 +473,18 @@ export default {
   },
   watch: {
     fieldsData: function(val, oldVal) {
-      console.log('field', val)
+      // console.log('field', val)
     },
     id: {
       immediate: true,
       async handler(val) {
-        console.log(val)
+        console.log('update-id', val)
         this.dataId = val;
         this.showOriginal = val instanceof Array
       }
     },
     dataId: function(val, oldVal) {
+      console.log('update-data', val)
       this.$emit('update:id', val);
         // this.initial = val <= 0
 
@@ -459,6 +503,18 @@ export default {
       },
       deep: false, // Watch nested properties
     },
+    files: {
+      handler(newVal, oldVal) {
+        this.$emit('update:filesValue', newVal)
+      },
+      deep: true, // Watch nested properties
+    },
+    filesValue: {
+      handler(newVal, oldVal) {
+        // console.log('form-value', newVal)
+      },
+      deep: false, // Watch nested properties
+    },
     errors: {
       handler(newVal, oldVal) {
         this.$emit('update:errorValue', newVal)
@@ -467,7 +523,7 @@ export default {
     },
     errorValue: {
       handler(newVal, oldVal) {
-        this.fillObjectValue(this.errors, newVal)
+        fillObjectValue(this.errors, newVal)
         // console.log('new-error', this.errors)
       },
       deep: true, // Watch nested properties
@@ -500,7 +556,7 @@ export default {
   methods: {
     gridItemClass(span){
       // console.log(span)
-      if (this.isEmpty(span))
+      if (isEmpty(span))
         return 'col-span-' + this.cols
       else
         return 'col-span-' + span
@@ -517,7 +573,7 @@ export default {
       }
       
       this.form[field] = value
-      if (!this.isEmpty(parent))
+      if (!isEmpty(parent))
         this.fields[field].parentSelect = parent
     },
     changedValue(field){
@@ -548,6 +604,7 @@ export default {
       }   
     },
     async getData(params, changeId = false, search = false) {
+      console.log('getData', params)
       await this.settingFields();
       if (this.showOriginal) return
       // console.log('get-data', this.initial)
@@ -556,7 +613,7 @@ export default {
       this.saving = true
       let href = ''
       if (search) {
-        if (this.isEmpty(this.hrefSearch)) {
+        if (isEmpty(this.hrefSearch)) {
           href = this.hrefGet + '_where'
         } else {
           href = this.hrefSearch
@@ -574,33 +631,34 @@ export default {
         .then(result => {
           this.saving = false;
           var psb = result.data;
-          if (!this.isEmpty(psb)) {
+          if (!isEmpty(psb)) {
             // console.log('psb:', psb);
             // console.log('form keys:', Object.keys(this.form));
-            this.fillObjectValue(this.form, psb)
-            this.fillObjectValue(this.links, psb)
+            fillObjectValue(this.form, psb)
+            fillObjectValue(this.links, psb)
             if (changeId) {
               this.dataId = psb.id
               this.$emit('changeId', this.dataId);
             }
             // console.log(psb, this.form)
-            let fieldsData = Object.values(this.fields)
+            let fieldsData = Object.values(this.fields ?? {})
+            // console.log('fieldsData', fieldsData)
             fieldsData.forEach(d => {
-              if (d.input.includes('select-double')) {
+              if ((d?.input ?? '').includes('select-double')) {
                 // delete vm.form[d.nama_kolom]
                 this.fields[d.nama_kolom].parentSelect = psb.parentSelect[d.nama_kolom]
               }
             })
             // console.log(this.fields)
           }
-          this.$emit('get')
+          this.$emit('get', psb);
           // setTimeout(() => {
           //   this.initial = false
           // }, 500)
           // console.log(psb, this.form)
         })
         .catch(err => {
-          // console.log(err)
+          console.log(err)
           this.saving = false;
           var res = err.response;
           var code = res.status;
@@ -613,6 +671,7 @@ export default {
         });
     },
     getFileRaw(refName) {
+      console.log('getFileRaw', refName)
       return (file, fileList) => {
         const rawFile = file.raw; // Access the raw file
         const refInstance = this.$refs[refName]; // Get the ref instance
@@ -629,19 +688,36 @@ export default {
     },
     submitForm(){
       this.saving = true;
-      this.resetObjectValue(this.errors)
+      resetObjectValue(this.errors)
       let vm = this
       let form = this.form
+      Object.values(this.fields).forEach(f => {
+        if (form[f.nama_kolom])
+          if (f?.function_submit) {
+            form[f.nama_kolom] = runFunction({data:form[f.nama_kolom], func: f.function_submit})
+          }
+      })
+      // console.log('form',this.form)
+      // return
       let backUpForm = JSON.parse(JSON.stringify(vm.form))
       Object.keys(vm.original).forEach(ind => {
         if (vm.original[ind]) 
           delete form[ind]
       });
-      form.id = this.dataId
-      form = this.convertNullToEmptyString(form)
+      vm.passColumns.forEach(ind => {
+        delete form[ind]
+      });
+      Object.keys(vm.addValues).forEach(ind => {
+        form[ind] = vm.addValues[ind]
+      });
+      form.id = isEmpty(this.dataId) ? -1 : this.dataId
+      form = convertNullToEmptyString(form)
       var formData = window.jsonToFormData(form); 
 
       Object.keys(this.files).forEach(key => {
+        if (!isEmpty(this.form[key])) {
+          formData.set('old_' + key, this.form[key]);
+        }
         formData.set(key, this.files[key]);
       });
 
@@ -663,7 +739,7 @@ export default {
           
           if (code == '400') {
             // Populating error message
-            this.fillAndAddObjectValue(this.errors, res.data.messages);
+            fillAndAddObjectValue(this.errors, res.data.messages);
             // console.log(res.data.messages, this.errors)
             if (this.showNotification)
               this.$notify.error({
@@ -706,10 +782,10 @@ export default {
           }
         });
 
-        console.log('form isi', vm.form);
-      vm.fillObjectValue(vm.form, vm.formValue)
+        // console.log('form isi', vm.form);
+      fillObjectValue(vm.form, vm.formValue)
       setTimeout(() => {
-        vm.fillObjectValue(vm.form, vm.formValue)
+        fillObjectValue(vm.form, vm.formValue)
       },500)
         resolve();
       });
@@ -725,16 +801,19 @@ export default {
 
 <style lang="postcss" scoped>
 :deep(.el-input__wrapper) {
-  @apply rounded-[15px];
+  @apply rounded-[12px];
 }
 :deep(.el-input-group__prepend) {
-  @apply rounded-l-[15px];
+  @apply rounded-l-[12px];
 }
 :deep(.el-input-group__prepend + .el-input__wrapper) {
-  @apply rounded-none rounded-r-[15px];
+  @apply rounded-none rounded-r-[12px];
 }
 :deep(.el-form-item__error) {
   margin-top: 3px;
   position: static;
+}
+:deep(.el-form-item__label){
+  @apply m-0;
 }
 </style>

@@ -12,9 +12,10 @@ function addDefaultRoutes(RouteCollection $routes, string $controller, string $t
 {
     $routes->add('/', [$controller, 'index']);
     $routes->add('get', [$controller, 'get']);
+    $routes->add('get_where', [$controller, 'get_where']);
     $routes->add('reset_options', [$controller, 'resetOptions']);
     $routes->add('store', [$controller, 'store'], [ 'filter' => "api-validation:$table"]);
-    $routes->add('store_many', [$controller, 'store'], [ 'filter' => "api-validation:$table,1"]);
+    $routes->add('store_many', [$controller, 'store_many'], [ 'filter' => "api-validation:$table,1"]);
     $routes->add('delete/(:any)', [$controller, 'delete/$1']);
     $routes->add('delete_many', [$controller, 'delete_many']);
     $routes->add('template', [$controller, 'template']);

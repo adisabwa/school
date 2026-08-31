@@ -38,7 +38,7 @@ abstract class BaseController extends Controller
      *
      * @var array
      */
-    protected $helpers = ['auth','form','functions','excel'];
+    protected $helpers = ['auth','form','functions','excel','text'];
 
     protected $validation;
     /**
@@ -67,6 +67,8 @@ abstract class BaseController extends Controller
         $this->db = \Config\Database::connect();
 
         // Run a default query, for example, loading active settings
-        $query = $this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
+        $query = $this->db->query("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
+        
+        // define('PREFIX_TABLE', env('VITE_PREFIX_TABLE', 'sch_'));
     }
 }

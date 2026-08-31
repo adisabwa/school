@@ -1,0 +1,23 @@
+@layer base {
+	.el-collapse-item__header {
+        @apply 
+            h-fit
+        !important;
+    }
+    body {
+        @apply font-sans;
+    }  
+    .vertical-menu-layout {
+        --menu-width: 230px;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .el-dialog {
+        @apply mb-0 !important;
+        
+    }
+
+}
+

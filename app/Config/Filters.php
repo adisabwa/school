@@ -23,6 +23,7 @@ class Filters extends BaseConfig
         'secureheaders'     => SecureHeaders::class,
         'api-auth'          => \App\Filters\AuthFilter::class,
         'api-validation'    => \App\Filters\ValidationFilter::class,
+        'id-encryption'     => \App\Filters\IdEncryptionFilter::class,
     ];
 
     /**
@@ -33,11 +34,13 @@ class Filters extends BaseConfig
         'before' => [
             // 'csrf',
             'invalidchars',
+            'id-encryption',
         ],
         'after' => [
             'toolbar',
             'honeypot',
             'secureheaders',
+            'id-encryption',
         ],
     ];
 
@@ -61,5 +64,36 @@ class Filters extends BaseConfig
      * Example:
      * 'isLoggedIn' => ['before' => ['account/*', 'profiles/*']]
      */
-    public array $filters = [];
+    public array $filters = [
+        'toolbar' => [
+            'except' => [
+                'psb/admin/download_excel',
+                'psb/admin/download_many',
+                'rapor/download_raport_pengasuhan',
+                'rapor/download_raport',
+                '*download_excel*',
+                '*download*',
+            ],
+        ],
+        'honeypot' => [
+            'except' => [
+                'psb/admin/download_excel',
+                'psb/admin/download_many',
+                'rapor/download_raport_pengasuhan',
+                'rapor/download_raport',
+                '*download_excel*',
+                '*download*',
+            ],
+        ],
+        'secureheaders' => [
+            'except' => [
+            'psb/admin/download_excel',
+            'psb/admin/download_many',
+                'rapor/download_raport_pengasuhan',
+                'rapor/download_raport',
+            '*download_excel*',
+            '*download*',
+            ],
+        ],
+];
 }
